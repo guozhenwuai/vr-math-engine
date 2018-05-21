@@ -288,6 +288,25 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Modeling\AABB.cs" />
+    <Compile Include="Assets\Scripts\Modeling\Edge\MCurveEdge.cs" />
+    <Compile Include="Assets\Scripts\Modeling\Edge\MLinearEdge.cs" />
+    <Compile Include="Assets\Scripts\Modeling\Face\MCircleFace.cs" />
+    <Compile Include="Assets\Scripts\Modeling\Face\MConeFace.cs" />
+    <Compile Include="Assets\Scripts\Modeling\Face\MCylinderFace.cs" />
+    <Compile Include="Assets\Scripts\Modeling\Face\MPolygonFace.cs" />
+    <Compile Include="Assets\Scripts\Modeling\Face\MSphereFace.cs" />
+    <Compile Include="Assets\Scripts\Modeling\MDefinitions.cs" />
+    <Compile Include="Assets\Scripts\Modeling\MEdge.cs" />
+    <Compile Include="Assets\Scripts\Modeling\MEntity.cs" />
+    <Compile Include="Assets\Scripts\Modeling\MFace.cs" />
+    <Compile Include="Assets\Scripts\Modeling\MHelperFunctions.cs" />
+    <Compile Include="Assets\Scripts\Modeling\MMesh.cs" />
+    <Compile Include="Assets\Scripts\Modeling\MObject.cs" />
+    <Compile Include="Assets\Scripts\Modeling\MPoint.cs" />
+    <Compile Include="Assets\Scripts\Modeling\Prefab\MCube.cs" />
+    <Compile Include="Assets\Scripts\NewBehaviourScript.cs" />
+    <Compile Include="Assets\Scripts\SceneManager.cs" />
     <Compile Include="Assets\SteamVR\Extras\SteamVR_GazeTracker.cs" />
     <Compile Include="Assets\SteamVR\Extras\SteamVR_LaserPointer.cs" />
     <Compile Include="Assets\SteamVR\Extras\SteamVR_Teleporter.cs" />
