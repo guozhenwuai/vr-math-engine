@@ -6,9 +6,23 @@ public class NewBehaviourScript : MonoBehaviour {
     public GameObject red;
     public GameObject blue;
     public Material mat;
+    Material lineMaterial;
     Mesh mesh;
 	// Use this for initialization
 	void Start () {
+        // Unity has a built-in shader that is useful for drawing
+        // simple colored things.
+        Shader shader = Shader.Find("Hidden/Internal-Colored");
+        lineMaterial = new Material(shader);
+        lineMaterial.hideFlags = HideFlags.HideAndDontSave;
+        // Turn on alpha blending
+        lineMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        lineMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        // Turn backface culling off
+        lineMaterial.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+        // Turn off depth writes
+        lineMaterial.SetInt("_ZWrite", 0);
+
         AABB aabb = new AABB(new Vector3(-0.5f, 0.5f, -0.5f), new Vector3(0.5f, 0.5f, 0.5f));
         Debug.Log(aabb.Contains(new Vector3(0, 0.5f, 0), 0.01f));
 
@@ -66,11 +80,12 @@ public class NewBehaviourScript : MonoBehaviour {
     public void OnRenderObject()
     {
         GL.PushMatrix();
-        mat.SetPass(0);
-        GL.Color(Color.white);
+        lineMaterial.SetPass(0);
         GL.Begin(GL.LINES);
+        GL.Color(Color.blue);
         GL.Vertex3(0, 0, 0);
         GL.Vertex3(0.5f, 0.5f, 0);
+        GL.Color(Color.yellow);
         GL.Vertex3(0.5f, 0.5f, 0);
         GL.Vertex3(1, 0, 0);
         GL.End();
@@ -80,6 +95,5 @@ public class NewBehaviourScript : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-		
 	}
 }

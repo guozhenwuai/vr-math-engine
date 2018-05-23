@@ -20,6 +20,22 @@ public class MMesh
         faceList = new List<MFace>();
     }
 
+    public void Render(Matrix4x4 matrix)
+    {
+        foreach(MPoint point in pointList)
+        {
+            point.Render(matrix);
+        }
+        foreach(MEdge edge in edgeList)
+        {
+            edge.Render(matrix);
+        }
+        foreach(MFace face in faceList)
+        {
+            face.Render(matrix);
+        }
+    }
+
     public MPoint CreatePoint(Vector3 position)
     {
         MPoint point = new MPoint(position);
@@ -53,12 +69,12 @@ public class MMesh
         return null;
     }
 
-    public MPolygonFace CreatePolygonFace(List<MLinearEdge> edges, bool updateMesh)
+    public MPolygonFace CreatePolygonFace(List<MLinearEdge> edges)
     {
         MPolygonFace face = new MPolygonFace(edges);
         if (!face.IsValid()) return null;
         int i;
-        if((i = AddFaceToMesh(face, updateMesh)) != -1)
+        if((i = AddFaceToMesh(face)) != -1)
         {
             return faceList[i] as MPolygonFace;
         } else
@@ -193,7 +209,7 @@ public class MMesh
         return i;
     }
 
-    private int AddFaceToMesh(MFace face, bool updateMesh)
+    private int AddFaceToMesh(MFace face)
     {
         int i, j;
         if((i = faceList.IndexOf(face)) == -1)
@@ -267,10 +283,6 @@ public class MMesh
                     break;
             }
             boundingBox.AdjustToContain(face.boundingBox);
-            if (updateMesh)
-            {
-                // TODO: 更新模型mesh
-            }
         }
         return i;
     }

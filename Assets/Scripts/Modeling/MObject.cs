@@ -30,7 +30,7 @@ public class MObject
     }
 
     // 针对导入模型的初始化
-    public MObject(Mesh mesh)
+    public MObject(string path)
     {
         // TODO: 针对导入模型的初始化，生成新的GameObject，挂载MeshFilter，初始化MMesh和包围盒
     }
@@ -42,7 +42,6 @@ public class MObject
         switch (type)
         {
             case MPrefabType.CUBE:
-                gameObject.AddComponent<MeshFilter>().mesh = MCube.GetMesh();
                 mesh = MCube.GetMMesh();
                 break;
             default:
@@ -50,16 +49,13 @@ public class MObject
                 return;
         }
         transform = gameObject.transform;
-        gameObject.AddComponent<MeshRenderer>();
     }
 
     public bool HitObject(Vector3 pos)
     {
         Vector3 p = worldToLocalMatrix.MultiplyPoint(pos);
-        Debug.Log("world pos: " + pos + ", object pos: " + p);
         if (mesh.boundingBox.Contains(p))
         {
-            Debug.Log("hit object");
             return true;
         }
         return false;
@@ -80,7 +76,7 @@ public class MObject
                 dis = mesh.GetClosetPoint(out point, p) * scale;
                 if(dis < MDefinitions.ACTIVE_DISTANCE)
                 {
-                    HitPoint(point);
+                    //HitPoint(point);
                     e = point;
                     res = dis;
                     break;
@@ -88,7 +84,7 @@ public class MObject
                 dis = mesh.GetClosetEdge(out edge, p) * scale;
                 if(dis < MDefinitions.ACTIVE_DISTANCE)
                 {
-                    HitEdge(edge);
+                    //HitEdge(edge);
                     e = edge;
                     res = dis;
                     break;
@@ -96,7 +92,7 @@ public class MObject
                 dis = mesh.GetClosetFace(out face, p, true, MDefinitions.ACTIVE_DISTANCE / scale) * scale;
                 if(dis < MDefinitions.ACTIVE_DISTANCE)
                 {
-                    HitFace(face);
+                    //HitFace(face);
                     e = face;
                     res = dis;
                     break;
@@ -106,7 +102,7 @@ public class MObject
                 dis = mesh.GetClosetPoint(out point, p) * scale;
                 if (dis < MDefinitions.ACTIVE_DISTANCE)
                 {
-                    HitPoint(point);
+                    //HitPoint(point);
                     e = point;
                     res = dis;
                 }
@@ -115,7 +111,7 @@ public class MObject
                 dis = mesh.GetClosetEdge(out edge, p) * scale;
                 if (dis < MDefinitions.ACTIVE_DISTANCE)
                 {
-                    HitEdge(edge);
+                    //HitEdge(edge);
                     e = edge;
                     res = dis;
                 }
@@ -124,7 +120,7 @@ public class MObject
                 dis = mesh.GetClosetFace(out face, p, true, MDefinitions.ACTIVE_DISTANCE / scale) * scale;
                 if (dis < MDefinitions.ACTIVE_DISTANCE)
                 {
-                    HitFace(face);
+                    //HitFace(face);
                     e = face;
                     res = dis;
                 }
@@ -137,6 +133,11 @@ public class MObject
         return res;
     }
     
+    public void Render()
+    {
+        mesh.Render(localToWorldMatrix);
+    }
+
     public void Destroy()
     {
         Object.Destroy(gameObject);

@@ -25,6 +25,7 @@ public class MCylinderFace : MFace
         entityStatus = MEntityStatus.DEFAULT;
         boundingBox = new AABB();
         // TODO: 计算柱面的包围盒
+        InitMesh();
     }
 
     override
@@ -38,6 +39,11 @@ public class MCylinderFace : MFace
     public float GetSurface()
     {
         return 2 * Mathf.PI * top.radius * Vector3.Distance(top.center.position, bottom.center.position);
+    }
+
+    private void InitMesh()
+    {
+        // TODO: 柱形Mesh的绘制
     }
 
     override

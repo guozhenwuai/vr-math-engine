@@ -18,6 +18,7 @@ public class MCircleFace : MFace
         entityStatus = MEntityStatus.DEFAULT;
         boundingBox = new AABB();
         // TODO: 计算圆面的包围盒
+        InitMesh();
     }
 
     override
@@ -38,6 +39,11 @@ public class MCircleFace : MFace
     public float GetSurface()
     {
         return Mathf.PI * Mathf.Pow(circle.radius, 2);
+    }
+
+    private void InitMesh()
+    {
+        // TODO: 圆形Mesh的绘制
     }
 
     override

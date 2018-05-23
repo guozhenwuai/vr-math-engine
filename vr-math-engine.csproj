@@ -301,6 +301,7 @@
     <Compile Include="Assets\Scripts\Modeling\MEntity.cs" />
     <Compile Include="Assets\Scripts\Modeling\MFace.cs" />
     <Compile Include="Assets\Scripts\Modeling\MHelperFunctions.cs" />
+    <Compile Include="Assets\Scripts\Modeling\MMaterial.cs" />
     <Compile Include="Assets\Scripts\Modeling\MMesh.cs" />
     <Compile Include="Assets\Scripts\Modeling\MObject.cs" />
     <Compile Include="Assets\Scripts\Modeling\MPoint.cs" />
@@ -665,6 +666,7 @@
     <Compile Include="Assets\VRTK\SDK\Ximmerse\SDK_XimmerseSystem.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Resources\Shaders\DoubleSideShader.shader" />
     <None Include="Assets\SteamVR\InteractionSystem\Core\Shaders\SeeThru.shader" />
     <None Include="Assets\SteamVR\InteractionSystem\Core\Shaders\Silhouette.shader" />
     <None Include="Assets\SteamVR\InteractionSystem\Hints\Shaders\ControllerButtonHints.shader" />

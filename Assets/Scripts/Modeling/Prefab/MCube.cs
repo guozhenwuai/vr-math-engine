@@ -40,43 +40,37 @@ public static class MCube
         abcd.Add(bc);
         abcd.Add(cd);
         abcd.Add(da);
-        MPolygonFace f1 = mesh.CreatePolygonFace(abcd, false);
+        MPolygonFace f1 = mesh.CreatePolygonFace(abcd);
         List<MLinearEdge> efgh = new List<MLinearEdge>();
         efgh.Add(ef);
         efgh.Add(fg);
         efgh.Add(gh);
         efgh.Add(he);
-        MPolygonFace f2 = mesh.CreatePolygonFace(efgh, false);
+        MPolygonFace f2 = mesh.CreatePolygonFace(efgh);
         List<MLinearEdge> abef = new List<MLinearEdge>();
         abef.Add(ab);
         abef.Add(ef);
         abef.Add(ae);
         abef.Add(bf);
-        MPolygonFace f3 = mesh.CreatePolygonFace(abef, false);
+        MPolygonFace f3 = mesh.CreatePolygonFace(abef);
         List<MLinearEdge> bcfg = new List<MLinearEdge>();
         bcfg.Add(bc);
         bcfg.Add(fg);
         bcfg.Add(bf);
         bcfg.Add(cg);
-        MPolygonFace f4 = mesh.CreatePolygonFace(bcfg, false);
+        MPolygonFace f4 = mesh.CreatePolygonFace(bcfg);
         List<MLinearEdge> cdgh = new List<MLinearEdge>();
         cdgh.Add(cd);
         cdgh.Add(gh);
         cdgh.Add(cg);
         cdgh.Add(dh);
-        MPolygonFace f5 = mesh.CreatePolygonFace(cdgh, false);
+        MPolygonFace f5 = mesh.CreatePolygonFace(cdgh);
         List<MLinearEdge> dahe = new List<MLinearEdge>();
         dahe.Add(da);
         dahe.Add(he);
         dahe.Add(dh);
         dahe.Add(ae);
-        MPolygonFace f6 = mesh.CreatePolygonFace(dahe, false);
+        MPolygonFace f6 = mesh.CreatePolygonFace(dahe);
         return mesh;
-    }
-
-    public static AABB GetAABB()
-    {
-        AABB aabb = new AABB(new Vector3(-0.5f, -0.5f, -0.5f), new Vector3(0.5f, 0.5f, 0.5f));
-        return aabb;
     }
 }

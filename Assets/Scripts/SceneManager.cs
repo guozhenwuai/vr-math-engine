@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class SceneManager : MonoBehaviour {
-    public GameObject leftController;
-    public GameObject rightController;
+    public GameObject simLeftController;
+    public GameObject simRightController;
+
+    private GameObject leftController;
+    private GameObject rightController;
 
     private List<MObject> objects;
 
@@ -19,6 +22,10 @@ public class SceneManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+        leftController = VRTK.VRTK_DeviceFinder.GetControllerLeftHand(true);
+        rightController = VRTK.VRTK_DeviceFinder.GetControllerRightHand(true);
+        if (leftController == null) leftController = simLeftController;
+        if (rightController == null) rightController = simRightController;
         objects = new List<MObject>();
         selectedEntity = new List<MEntity>();
         interactMode = MObject.MInteractMode.ALL;
@@ -28,6 +35,7 @@ public class SceneManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         UpdateHighlight();
+        StartRender();
 	}
     
     private void AddPrefabObject(MObject.MPrefabType type)
@@ -54,6 +62,14 @@ public class SceneManager : MonoBehaviour {
             if (re != null) re.entityStatus = MEntity.MEntityStatus.ACTIVE;
             leftActiveEntity = le;
             rightActiveEntity = re;
+        }
+    }
+
+    private void StartRender()
+    {
+        foreach(MObject obj in objects)
+        {
+            obj.Render();
         }
     }
 

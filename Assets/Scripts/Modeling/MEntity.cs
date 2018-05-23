@@ -20,9 +20,18 @@ public abstract class MEntity
         set;
     }
 
+    public Mesh mesh
+    {
+        get;
+        protected set;
+    }
+
     abstract
     public float CalcDistance(Vector3 point);
 
     abstract
     public bool IsValid();
+
+    abstract
+    public void Render(Matrix4x4 matrix);
 }

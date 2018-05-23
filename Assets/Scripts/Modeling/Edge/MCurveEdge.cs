@@ -28,6 +28,7 @@ public class MCurveEdge : MEdge
         edgeType = MEdgeType.CURVE;
         entityType = MEntityType.EDGE;
         entityStatus = MEntityStatus.DEFAULT;
+        InitMesh();
     }
 
     override
@@ -44,6 +45,11 @@ public class MCurveEdge : MEdge
     public float GetLength()
     {
         return 2 * Mathf.PI * radius;
+    }
+
+    private void InitMesh()
+    {
+        // TODO: 曲线Mesh的绘制
     }
 
     override

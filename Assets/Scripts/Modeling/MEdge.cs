@@ -28,6 +28,28 @@ public class MEdge : MEntity
         return false;
     }
 
+    override
+    public void Render(Matrix4x4 matrix)
+    {
+        Material mat = null;
+        switch (entityStatus)
+        {
+            case MEntityStatus.DEFAULT:
+                mat = MMaterial.GetDefaultEdgeMat();
+                break;
+            case MEntityStatus.ACTIVE:
+                mat = MMaterial.GetActiveEdgeMat();
+                break;
+            case MEntityStatus.SELECT:
+                mat = MMaterial.GetSelectEdgeMat();
+                break;
+            default:
+                Debug.Log("MEdge: unkown entity status: " + entityStatus);
+                break;
+        }
+        if (mat != null && mesh != null) Graphics.DrawMesh(mesh, matrix, mat, 0);
+    }
+
     virtual
     public float GetLength()
     {

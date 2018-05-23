@@ -37,6 +37,7 @@ public class MPolygonFace : MFace
                 boundingBox.AdjustToContain(p.position);
             }
         }
+        if (buildSuccess) InitMesh();
     }
 
     override
@@ -77,6 +78,30 @@ public class MPolygonFace : MFace
             surface += MHelperFunctions.TriangleSurface(v, sortedPoints[i].position, sortedPoints[i + 1].position);
         }
         return surface;
+    }
+
+    private void InitMesh()
+    {
+        int count = sortedPoints.Count;
+        Vector3[] vertices = new Vector3[count];
+        Vector3[] normals = new Vector3[count];
+        for (int i = 0; i < count; i++)
+        {
+            vertices[i] = sortedPoints[i].position;
+            normals[i] = normal;
+        }
+        int[] triangles = new int[3 * (count - 2)];
+        
+        for (int i = 0; i < count - 2; i++)
+        {
+            triangles[3 * i] = 0;
+            triangles[3 * i + 1] = i + 1;
+            triangles[3 * i + 2] = i + 2;
+        }
+        mesh = new Mesh();
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+        mesh.normals = normals;
     }
 
     override

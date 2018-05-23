@@ -24,6 +24,7 @@ public class MSphereFace : MFace
         entityStatus = MEntityStatus.DEFAULT;
         Vector3 v = new Vector3(radius, radius, radius);
         boundingBox = new AABB(center.position - v, center.position + v);
+        InitMesh();
     }
 
     override
@@ -37,6 +38,11 @@ public class MSphereFace : MFace
     public float GetSurface()
     {
         return 4 * Mathf.PI * Mathf.Pow(radius, 2);
+    }
+
+    private void InitMesh()
+    {
+        // TODO: 球形Mesh的绘制
     }
 
     override

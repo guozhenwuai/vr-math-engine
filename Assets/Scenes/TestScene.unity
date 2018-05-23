@@ -227,7 +227,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   red: {fileID: 1699446746}
   blue: {fileID: 286686412}
-  mat: {fileID: 2100000, guid: 0cab164250c368042b3c915c03956918, type: 2}
+  mat: {fileID: 2100000, guid: 9a2cf1e65e56d644c8fd1bb1f427fdff, type: 2}
 --- !u!4 &433258567
 Transform:
   m_ObjectHideFlags: 0

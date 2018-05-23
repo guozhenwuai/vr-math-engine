@@ -24,6 +24,7 @@ public class MConeFace : MFace
         entityStatus = MEntityStatus.DEFAULT;
         boundingBox = new AABB();
         // TODO: 计算锥面的包围盒
+        InitMesh();
     }
 
     override
@@ -38,6 +39,11 @@ public class MConeFace : MFace
     {
         // TODO: 计算锥面的表面积
         return 0;
+    }
+
+    private void InitMesh()
+    {
+        // TODO: 锥形Mesh的绘制
     }
 
     override
