@@ -43,6 +43,12 @@ public class MEdge : MEntity
             case MEntityStatus.SELECT:
                 mat = MMaterial.GetSelectEdgeMat();
                 break;
+            case MEntityStatus.SPECIAL:
+                mat = MMaterial.GetSpecialEdgeMat();
+                break;
+            case MEntityStatus.TRANSPARENT:
+                mat = null;
+                break;
             default:
                 Debug.Log("MEdge: unkown entity status: " + entityStatus);
                 break;

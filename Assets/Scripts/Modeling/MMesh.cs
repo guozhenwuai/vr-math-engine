@@ -159,6 +159,15 @@ public class MMesh
         return min;
     }
 
+    public MLinearEdge GetLinearEdge()
+    {
+        foreach(MEdge edge in edgeList)
+        {
+            if (edge.edgeType == MEdge.MEdgeType.LINEAR) return edge as MLinearEdge;
+        }
+        return null;
+    }
+
     private int AddPointToMesh(MPoint point)
     {
         int i;

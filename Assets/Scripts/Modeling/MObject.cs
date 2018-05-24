@@ -8,11 +8,15 @@ public class MObject
 
     public enum MInteractMode { ALL, POINT_ONLY, EDGE_ONLY, FACE_ONLY};
 
-    public Transform transform;
+    private Transform transform;
 
     private GameObject gameObject;
 
     private MMesh mesh;
+
+    private MLinearEdge refEdge = null;
+
+    private float refEdgeLength;
 
     private Matrix4x4 worldToLocalMatrix
     {
@@ -24,9 +28,22 @@ public class MObject
         get { return transform.localToWorldMatrix; }
     }
 
-    private float scale
+    public float scale
     {
-        get { return transform.lossyScale.x; }
+        get { return transform.localScale.x; }
+        set { transform.localScale = new Vector3(value, value, value); }
+    }
+
+    public Vector3 position
+    {
+        get { return transform.position; }
+        set { transform.position = value; }
+    }
+
+    public Vector3 rotation
+    {
+        get { return transform.eulerAngles; }
+        set { transform.eulerAngles = value; }
     }
 
     // 针对导入模型的初始化
@@ -49,12 +66,15 @@ public class MObject
                 return;
         }
         transform = gameObject.transform;
+        transform.position = MDefinitions.DEFAULT_POSITION;
+        scale = MDefinitions.DEFAULT_SCALE;
+        InitRefEdge();
     }
 
     public bool HitObject(Vector3 pos)
     {
         Vector3 p = worldToLocalMatrix.MultiplyPoint(pos);
-        if (mesh.boundingBox.Contains(p))
+        if (mesh.boundingBox.Contains(p, MDefinitions.ACTIVE_DISTANCE))
         {
             return true;
         }
@@ -73,7 +93,7 @@ public class MObject
         switch (mode)
         {
             case MInteractMode.ALL:
-                dis = mesh.GetClosetPoint(out point, p) * scale;
+                dis = mesh.GetClosetPoint(out point, p);
                 if(dis < MDefinitions.ACTIVE_DISTANCE)
                 {
                     //HitPoint(point);
@@ -81,7 +101,7 @@ public class MObject
                     res = dis;
                     break;
                 }
-                dis = mesh.GetClosetEdge(out edge, p) * scale;
+                dis = mesh.GetClosetEdge(out edge, p);
                 if(dis < MDefinitions.ACTIVE_DISTANCE)
                 {
                     //HitEdge(edge);
@@ -89,7 +109,7 @@ public class MObject
                     res = dis;
                     break;
                 }
-                dis = mesh.GetClosetFace(out face, p, true, MDefinitions.ACTIVE_DISTANCE / scale) * scale;
+                dis = mesh.GetClosetFace(out face, p, true, MDefinitions.ACTIVE_DISTANCE);
                 if(dis < MDefinitions.ACTIVE_DISTANCE)
                 {
                     //HitFace(face);
@@ -141,6 +161,44 @@ public class MObject
     public void Destroy()
     {
         Object.Destroy(gameObject);
+    }
+
+    public void SetRefEdge(MLinearEdge edge)
+    {
+        if(refEdge != null)
+        {
+            refEdge.entityStatus = MEntity.MEntityStatus.DEFAULT;
+        }
+        refEdge = edge;
+        if (refEdge != null) {
+            refEdgeLength = refEdge.GetLength();
+            refEdge.entityStatus = MEntity.MEntityStatus.SPECIAL;
+        }
+    }
+
+    public float GetEdgeLength(MEdge edge)
+    {
+        if(refEdge != null)return edge.GetLength() / refEdgeLength;
+        return edge.GetLength();
+    }
+
+    public float GetFaceSurface(MFace face)
+    {
+        if (refEdge != null)return face.GetSurface() / refEdgeLength / refEdgeLength;
+        return face.GetSurface();
+    }
+
+	public void CreateLinearEdge(MPoint start, MPoint end){
+		mesh.CreateLinearEdge (start, end);
+	}
+
+    private void InitRefEdge()
+    {
+        refEdge = mesh.GetLinearEdge();
+        if (refEdge != null) {
+            refEdgeLength = refEdge.GetLength();
+            refEdge.entityStatus = MEntity.MEntityStatus.SPECIAL;
+        }
     }
 
     private void HitPoint(MPoint point)

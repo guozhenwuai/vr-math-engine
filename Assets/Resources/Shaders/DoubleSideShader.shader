@@ -4,11 +4,11 @@
 		_MainTex ("Albedo (RGB)", 2D) = "white" {}
 	}
 	SubShader {
-		Tags { "RenderType" = "Transparent" "IgnoreProjector" = "True""Queue" = "Transparent" }
+		Tags { "RenderType" = "Transparent" "Queue" = "Transparent" }
 		LOD 200
 		Cull off
 		ZTest LEqual
-		ZWrite On
+		ZWrite Off
 		Blend SrcAlpha OneMinusSrcAlpha
 
 		CGPROGRAM

@@ -4,17 +4,11 @@ using UnityEngine;
 
 public static class MCube
 {
-    static GameObject prefab = Resources.Load<GameObject>("Prefabs/Cube");
-
-    public static Mesh GetMesh()
-    {
-        Mesh mesh = prefab.GetComponent<MeshFilter>().sharedMesh;
-        return Mesh.Instantiate(mesh);
-    }
+    static MMesh mesh;
 
     public static MMesh GetMMesh()
     {
-        MMesh mesh = new MMesh();
+        mesh = new MMesh();
         MPoint a = mesh.CreatePoint(new Vector3(-0.5f, -0.5f, -0.5f));
         MPoint b = mesh.CreatePoint(new Vector3(-0.5f, -0.5f, 0.5f));
         MPoint c = mesh.CreatePoint(new Vector3(0.5f, -0.5f, 0.5f));

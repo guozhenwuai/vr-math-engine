@@ -13,6 +13,12 @@ public class AABB
         this.max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
     }
 
+    public AABB(AABB boundingBox)
+    {
+        min = boundingBox.min;
+        max = boundingBox.max;
+    }
+
     public AABB(Vector3 min, Vector3 max)
     {
         this.min = min;

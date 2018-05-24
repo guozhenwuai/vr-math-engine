@@ -43,6 +43,12 @@ public class MPoint : MEntity
             case MEntityStatus.SELECT:
                 mat = MMaterial.GetSelectPointMat();
                 break;
+            case MEntityStatus.SPECIAL:
+                mat = MMaterial.GetSpecialPointMat();
+                break;
+            case MEntityStatus.TRANSPARENT:
+                mat = null;
+                break;
             default:
                 Debug.Log("MPoint: unkown entity status: " + entityStatus);
                 break;
@@ -52,7 +58,7 @@ public class MPoint : MEntity
 
     private void InitMesh()
     {
-        float radius = MDefinitions.POINT_PRECISION / 2;
+        float radius = MDefinitions.POINT_PRECISION;
         Vector3[] vertices = new Vector3[8];
         vertices[0] = position + new Vector3(-radius, -radius, -radius);
         vertices[1] = position + new Vector3(-radius, -radius, radius);
@@ -65,15 +71,16 @@ public class MPoint : MEntity
         int[] triangles = new int[36]
         {
             0,1,2, 0,2,3,
-            0,4,5, 0,5,1,
-            0,3,7, 0,7,4,
-            3,2,6, 3,6,7,
-            1,5,6, 1,6,2,
+            5,4,0, 1,5,0,
+            7,3,0, 4,7,0,
+            6,2,3, 7,6,3,
+            6,5,1, 2,6,1,
             5,6,7, 5,7,4
         };
         mesh = new Mesh();
         mesh.vertices = vertices;
         mesh.triangles = triangles;
+        mesh.RecalculateNormals();
     }
 
     override

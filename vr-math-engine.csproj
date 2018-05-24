@@ -288,6 +288,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\InteractionHandler.cs" />
     <Compile Include="Assets\Scripts\Modeling\AABB.cs" />
     <Compile Include="Assets\Scripts\Modeling\Edge\MCurveEdge.cs" />
     <Compile Include="Assets\Scripts\Modeling\Edge\MLinearEdge.cs" />

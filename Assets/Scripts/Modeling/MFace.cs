@@ -40,6 +40,12 @@ public class MFace: MEntity
             case MEntityStatus.SELECT:
                 mat = MMaterial.GetSelectFaceMat();
                 break;
+            case MEntityStatus.SPECIAL:
+                mat = MMaterial.GetSpecialFaceMat();
+                break;
+            case MEntityStatus.TRANSPARENT:
+                mat = null;
+                break;
             default:
                 Debug.Log("MFace: unkown entity status: " + entityStatus);
                 break;

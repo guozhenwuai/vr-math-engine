@@ -6,7 +6,7 @@ public abstract class MEntity
 {
     public enum MEntityType { POINT, EDGE, FACE}
 
-    public enum MEntityStatus { DEFAULT, ACTIVE, SELECT}
+    public enum MEntityStatus { DEFAULT, ACTIVE, SELECT, SPECIAL, TRANSPARENT}
 
     public MEntityType entityType
     {
