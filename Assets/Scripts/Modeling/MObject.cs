@@ -119,7 +119,7 @@ public class MObject
                 }
                 break;
             case MInteractMode.POINT_ONLY:
-                dis = mesh.GetClosetPoint(out point, p) * scale;
+                dis = mesh.GetClosetPoint(out point, p);
                 if (dis < MDefinitions.ACTIVE_DISTANCE)
                 {
                     //HitPoint(point);
@@ -128,7 +128,7 @@ public class MObject
                 }
                 break;
             case MInteractMode.EDGE_ONLY:
-                dis = mesh.GetClosetEdge(out edge, p) * scale;
+                dis = mesh.GetClosetEdge(out edge, p);
                 if (dis < MDefinitions.ACTIVE_DISTANCE)
                 {
                     //HitEdge(edge);
@@ -137,7 +137,7 @@ public class MObject
                 }
                 break;
             case MInteractMode.FACE_ONLY:
-                dis = mesh.GetClosetFace(out face, p, true, MDefinitions.ACTIVE_DISTANCE / scale) * scale;
+                dis = mesh.GetClosetFace(out face, p, true, MDefinitions.ACTIVE_DISTANCE / scale);
                 if (dis < MDefinitions.ACTIVE_DISTANCE)
                 {
                     //HitFace(face);
@@ -191,6 +191,14 @@ public class MObject
 	public void CreateLinearEdge(MPoint start, MPoint end){
 		mesh.CreateLinearEdge (start, end);
 	}
+
+    public MRelation getEntityRelation(MEntity e1, MEntity e2)
+    {
+        // TODO: 根据MEntity的不同类型来生成MRelation类，对于线和面只用考虑直线和多边形面。
+        // 求距离时将线段视为直线，将多边形面视为无边界的平面
+        // 注意MRelation中的distance是在世界坐标系下的距离，需要根据基准边做变换，具体参考GetEdgeLength。
+        return null;
+    }
 
     private void InitRefEdge()
     {
