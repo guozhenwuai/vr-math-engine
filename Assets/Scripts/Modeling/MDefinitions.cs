@@ -14,4 +14,6 @@ public static class MDefinitions
 
     public static float DEFAULT_SCALE = 0.5f;
 
+    public static string PATH = "Assets/Resources/Models";
+
 }

@@ -36,6 +36,8 @@ public class SceneManager : MonoBehaviour {
         selectedEntity = new List<MEntity>();
         interactMode = MObject.MInteractMode.ALL;
         AddPrefabObject(MObject.MPrefabType.CUBE);
+        //ExportObject(MDefinitions.PATH);
+        //AddPrefabObject(MDefinitions.PATH);
         sceneStatus = SceneStatus.DISPLAY;
         textMesh.text = "展示线段长度和表面积";
         statisticText.text = "";
@@ -272,6 +274,21 @@ public class SceneManager : MonoBehaviour {
     {
         MObject obj = new MObject(type);
         objects.Add(obj);
+    }
+
+    private void AddPrefabObject(string path)
+    {
+        MObject obj = new MObject(path);
+        objects.Add(obj);
+    }
+
+    private void ExportObject(string path)
+    {
+        foreach(MObject obj in objects)
+        {
+            bool result = obj.ExportObject(path);
+            Debug.Log("ExportObject:" + result);
+        }
     }
 
 	private void SelectActiveEntity(SelectType type, int maxSelect)
