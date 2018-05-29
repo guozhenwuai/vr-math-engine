@@ -197,6 +197,90 @@ public class MObject
         // TODO: 根据MEntity的不同类型来生成MRelation类，对于线和面只用考虑直线和多边形面。
         // 求距离时将线段视为直线，将多边形面视为无边界的平面
         // 注意MRelation中的distance是在世界坐标系下的距离，需要根据基准边做变换，具体参考GetEdgeLength。
+		MRelation relationship;
+		if (e1.entityType == MEntity.MEntityType.EDGE) {
+			MLinearEdge Le1 = e1;
+			if (Le1.MEdgeType == MCurveEdge) 
+				return null;
+			if (e2.entityType == MEntity.MEntityType.EDGE) {
+				MLinearEdge Le2 = e2;
+				if (Le2.MEdgeType == MCurveEdge) 
+					return null;
+				relationship.relationType = MRelation.EntityRelationType.EDGE_EDGE;
+				MHelperFunctions.LineLine (relationship.angle, relationship.distance, Le1.direction, Le1.start, Le2.direction, Le2.start);;
+			} 
+			else if (e2.entityType == MEntity.MEntityType.POINT) {
+				relationship.relationType = MRelation.EntityRelationType.POINT_EDGE;
+				relationship.lowerEntity = e2;
+				relationship.higherEntity = e1;
+
+				MPoint pe2=e2;
+
+				relationship.distance= MHelperFunctions.DistanceP2L(pe2.position,Le1.direction,Le1.start);
+				
+			} 
+
+			else {
+				MLinearEdge Le2 = e2;
+				if (Le2.MEdgeType == MCurveEdge) {
+					return null;
+				}
+				relationship.relationType = MRelation.EntityRelationType.EDGE_FACE;
+				relationship.lowerEntity = e1;
+				relationship.higherEntity = e2;
+				MPolygonFace fe2 = e2;
+				MHelperFunctions.LineFace (relationship.angle, relationship.distance, Le1.start, Le1.direction, fe2.normal, fe2.sortedPoints [0]);
+
+			}
+		} else if (e1.entityType == MEntity.MEntityType.POINT) {
+			MPoint pe1 = e1;
+			if (e2.entityType == MEntity.MEntityType.EDGE) {
+				MLinearEdge Le2 = e2;
+				if (Le2.MEdgeType == MCurveEdge) {
+					return null;
+				}
+				relationship.relationType = MRelation.EntityRelationType.POINT_EDGE;
+				relationship.lowerEntity = e1;
+				relationship.higherEntity = e2;
+				relationship.distance =MHelperFunctions.DistanceP2L(pe1.position,Le2.direction,Le2.start);
+
+			} else if (e2.entityType == MEntity.MEntityType.POINT) {
+				relationship.relationType = MRelation.EntityRelationType.POINT_POINT;
+				relationship.distance = e1.CalcDistance ((MPoint)e2.position)/refEdgeLength;
+			} else {
+				MPolygonFace fe2 = e2;
+				relationship.relationType = MRelation.EntityRelationType.POINT_FACE;
+				relationship.lowerEntity = e1;
+				relationship.higherEntity = e2;
+				relationship.distance = MHelperFunctions.DistanceP2F (pe1.position,fe2.normal,fe2.sortedPoints [0]);
+			}
+		} else {
+			MPolygonFace fe1 = e1;
+			if (e2.entityType == MEntity.MEntityType.EDGE) {
+				MLinearEdge Le2 = e2;
+				if (Le2.MEdgeType == MCurveEdge) {
+					return null;
+				}
+				relationship.relationType = MRelation.EntityRelationType.EDGE_FACE;
+				relationship.lowerEntity = e2;
+				relationship.higherEntity = e1;
+				MHelperFunctions.LineFace(relationship.angle,relationship.distance,Le2.start,Le2.direction,fe1.normal,fe1.sortedPoints [0]);
+
+			} else if (e2.entityType == MEntity.MEntityType.POINT) {
+				MPoint pe2 = e2;
+				relationship.relationType = MRelation.EntityRelationType.POINT_FACE;
+				relationship.lowerEntity = e2;
+				relationship.higherEntity = e1;
+				relationship.distance = MHelperFunctions.DistanceP2F(pe2.position,fe1.normal,fe1.sortedPoints [0]);
+
+			} else {
+				relationship.relationType = MRelation.EntityRelationType.FACE_FACE;
+				MPolygonFace fe2 = e2;
+				MHelperFunctions.FaceFace (relationship.angle, relationship.distance, fe1.normal, fe1.sortedPoints [0], fe2.normal, fe2.sortedPoints [0]);
+			}
+		}
+
+
         return null;
     }
 
