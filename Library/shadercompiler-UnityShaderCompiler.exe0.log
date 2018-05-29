@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 Base path: F:/工作软件/Unity/Editor/Data
+=======
+Base path: G:/unity/Editor/Data
+>>>>>>> 9209123868533e3cc48a3c47f5abeca8335ebc1b
 Cmd: initializeCompiler
 Cmd: preprocess
   insize=7416 outsize=2318 ok=1

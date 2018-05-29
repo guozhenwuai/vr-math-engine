@@ -1,5 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using UnityEngine;
 
 public class MObject
@@ -49,7 +52,63 @@ public class MObject
     // 针对导入模型的初始化
     public MObject(string path)
     {
-        // TODO: 针对导入模型的初始化，生成新的GameObject，挂载MeshFilter，初始化MMesh和包围盒
+        gameObject = new GameObject();
+        mesh = new MMesh();
+        using(StreamReader sr = new StreamReader(path + "/obj"))
+        {
+            string line = sr.ReadLine();
+            while (line!=null)
+            {
+                string[] lineComponent = line.Split(' ');
+                char type = Convert.ToChar(lineComponent[0]);
+                switch (type)
+                {
+                    case 'p':
+                        float x = (float)Convert.ToDouble(lineComponent[1]);
+                        float y = (float)Convert.ToDouble(lineComponent[2]);
+                        float z = (float)Convert.ToDouble(lineComponent[3]);
+                        Vector3 position = new Vector3(x, y, z);
+                        MPoint p = mesh.CreatePoint(position);
+                        break;
+                    case 'e':
+                        char edgeType = Convert.ToChar(lineComponent[1]);
+                        switch (edgeType)
+                        {
+                            case 'l':
+                                int start = Convert.ToInt32(lineComponent[2]);
+                                int end = Convert.ToInt32(lineComponent[3]);
+                                List<MPoint> pointList = mesh.pointList;
+                                MLinearEdge edge = mesh.CreateLinearEdge(pointList[start], pointList[end]);
+                                break;
+                            case 'c':
+                                break;
+                        }
+                        break;
+                    case 'f':
+                        char faceType = Convert.ToChar(lineComponent[1]);
+                        switch (faceType)
+                        {
+                            case 'p':
+                                List<MLinearEdge> edgeList = new List<MLinearEdge>();
+                                Debug.Log(lineComponent.Length);
+                                for (int i = 2; i < lineComponent.Length-1; i++)
+                                {
+                                    int index = Convert.ToInt32(lineComponent[i]);
+                                    edgeList.Add((MLinearEdge)mesh.edgeList[index]);
+                                }
+                                MPolygonFace face = mesh.CreatePolygonFace(edgeList);
+                                break;
+                        }
+                        break;
+                }
+                line = sr.ReadLine();
+            }
+            sr.Close();
+        }
+        transform = gameObject.transform;
+        transform.position = MDefinitions.DEFAULT_POSITION;
+        scale = MDefinitions.DEFAULT_SCALE;
+        InitRefEdge();
     }
 
     // 针对预制件的初始化
@@ -69,6 +128,61 @@ public class MObject
         transform.position = MDefinitions.DEFAULT_POSITION;
         scale = MDefinitions.DEFAULT_SCALE;
         InitRefEdge();
+    }
+
+    public bool ExportObject(string path)
+    {
+        StringBuilder sb = new StringBuilder();
+        List<MPoint> pointList = mesh.pointList;
+        List<MEdge> edgeList = mesh.edgeList;
+        List<MFace> faceList = mesh.faceList;
+        foreach(MPoint point in pointList)
+        {
+            sb.Append(string.Format("p {0} {1} {2}\n", point.position.x, point.position.y, point.position.z));
+        }
+        foreach(MEdge edge in edgeList)
+        {
+            switch (edge.edgeType)
+            {
+                case MEdge.MEdgeType.LINEAR:
+                    int start = pointList.IndexOf(((MLinearEdge)edge).start);
+                    int end = pointList.IndexOf(((MLinearEdge)edge).end);
+                    sb.Append(string.Format("e l {0} {1}\n", start, end));
+                    break;
+                case MEdge.MEdgeType.CURVE:
+                    break;
+            }
+        }
+        foreach(MFace face in faceList)
+        {
+            switch (face.faceType)
+            {
+                case MFace.MFaceType.POLYGON:
+                    sb.Append("f p ");
+                    foreach(MLinearEdge edge in ((MPolygonFace)face).edgeList)
+                    {
+                        int index = edgeList.IndexOf(edge);
+                        sb.Append(string.Format("{0} ", index));
+                    }
+                    sb.Append("\n");
+                    break;
+                case MFace.MFaceType.CIRCLE:
+                    break;
+                case MFace.MFaceType.CONE:
+                    break;
+                case MFace.MFaceType.CYLINDER:
+                    break;
+                case MFace.MFaceType.SPHERE:
+                    break;
+            }
+        }
+        using (StreamWriter sw = new StreamWriter(path+"/obj"))
+        {
+            sw.Write(sb.ToString());
+            sw.Flush();
+            sw.Close();
+        }
+        return true;
     }
 
     public bool HitObject(Vector3 pos)
@@ -160,7 +274,7 @@ public class MObject
 
     public void Destroy()
     {
-        Object.Destroy(gameObject);
+        UnityEngine.Object.Destroy(gameObject);
     }
 
     public void SetRefEdge(MLinearEdge edge)
