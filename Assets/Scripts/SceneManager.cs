@@ -113,11 +113,11 @@ public class SceneManager : MonoBehaviour {
             {
                 if(activeEntity.obj != obj)
                 {
-                    if(activeEntity.obj != null)
+                    if(activeEntity.obj != null && activeEntity.obj.objectState == MObject.MObjectState.ACTIVE)
                     {
                         activeEntity.obj.ResetStatus();
                     }
-                    obj.Highlight();
+                    if(obj.objectState == MObject.MObjectState.DEFAULT)obj.Highlight();
                     activeEntity = new MEntityPair(null, obj);
                 }
                 return;

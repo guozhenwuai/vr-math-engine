@@ -19,12 +19,15 @@ public class MRelation
     // 存储两个图元的角度，范围应该在[0, 90]，仅针对线线、线面、面面关系。角度为0说明平行，为90说明垂直，线面角度是90 - 线和面的法向量的角度
     public float angle { get; set; }
 
-    public MRelation(EntityRelationType type, MEntity lower, MEntity higher, float dis, float angle)
+    public bool shareObject { get; set; }
+
+    public MRelation(EntityRelationType type, MEntity lower, MEntity higher, float dis, float angle, bool shareObject)
     {
         relationType = type;
         lowerEntity = lower;
         higherEntity = higher;
         distance = dis;
         this.angle = angle;
+        this.shareObject = shareObject;
     }
 }

@@ -41,6 +41,9 @@ public class RemoveObjectState : IState
     public void OnUpdate()
     {
         sceneManager.UpdateObjectHighlight();
+		if (curObj != null && sceneManager.camera != null) {
+			curObj.RotateTextMesh (sceneManager.camera.transform.position);
+		}
         sceneManager.StartRender();
     }
 
@@ -74,8 +77,8 @@ public class RemoveObjectState : IState
             if (obj != null)
             {
                 obj.Select();
-                curObj.ActiveTextMesh();
-                curObj.SetMeshText("按右手手柄侧键删除当前选中模型");
+                obj.ActiveTextMesh();
+                obj.SetMeshText("按右手手柄侧键删除当前选中模型");
             }
             curObj = obj;
         }

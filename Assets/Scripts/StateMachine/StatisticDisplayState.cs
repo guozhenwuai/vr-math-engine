@@ -173,7 +173,7 @@ public class StatisticDisplayState : IState
     {
         MEntity entity = entityPair.entity;
         MObject obj = entityPair.obj;
-        if (entityPair.entity.entityStatus == MEntity.MEntityStatus.DEFAULT)
+        if (entityPair.entity.entityStatus != MEntity.MEntityStatus.SPECIAL)
         {
             entityPair.entity.entityStatus = MEntity.MEntityStatus.SELECT;
         }

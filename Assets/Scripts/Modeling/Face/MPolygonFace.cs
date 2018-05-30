@@ -12,7 +12,7 @@ public class MPolygonFace : MFace
 
     List<MPoint> sortedPoints;
 
-    Vector3 normal;
+    public Vector3 normal { get; private set; }
 
     bool buildSuccess = true;
 

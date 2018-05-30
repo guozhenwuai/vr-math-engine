@@ -58,9 +58,9 @@ public class MObject
     }
 
     // 针对导入模型的初始化
-    public MObject(string path)
+    public MObject(GameObject template, string path)
     {
-        gameObject = new GameObject();
+        gameObject = GameObject.Instantiate(template);
         mesh = new MMesh();
         using(StreamReader sr = new StreamReader(path + "/obj"))
         {
@@ -113,10 +113,7 @@ public class MObject
             }
             sr.Close();
         }
-        transform = gameObject.transform;
-        transform.position = MDefinitions.DEFAULT_POSITION;
-        scale = MDefinitions.DEFAULT_SCALE;
-        InitRefEdge();
+        InitObject();
     }
 
     // 针对预制件的初始化
@@ -132,11 +129,7 @@ public class MObject
                 Debug.Log("Unknown prefab type: " + type);
                 return;
         }
-        transform = gameObject.transform;
-        transform.position = MDefinitions.DEFAULT_POSITION;
-        scale = MDefinitions.DEFAULT_SCALE;
-        InitRefEdge();
-        InitTextMesh();
+        InitObject();
     }
 
     public bool ExportObject(string path)
@@ -278,16 +271,19 @@ public class MObject
 
     public void Highlight()
     {
+        objectState = MObjectState.ACTIVE;
         mesh.Highlight();
     }
 
     public void ResetStatus()
     {
+        objectState = MObjectState.DEFAULT;
         mesh.ResetStatus();
     }
 
     public void Select()
     {
+        objectState = MObjectState.SELECT;
         mesh.Select();
     }
     
@@ -311,111 +307,17 @@ public class MObject
 
     public float GetEdgeLength(MEdge edge)
     {
-        if(refEdge != null)return edge.GetLength() / refEdgeLength;
-        return edge.GetLength();
+        return RefEdgeRelativeLength(edge.GetLength());
     }
 
     public float GetFaceSurface(MFace face)
     {
-        if (refEdge != null)return face.GetSurface() / refEdgeLength / refEdgeLength;
-        return face.GetSurface();
+        return RefEdgeRelativeSurface(face.GetSurface());
     }
 
 	public void CreateLinearEdge(MPoint start, MPoint end){
 		mesh.CreateLinearEdge (start, end);
 	}
-
-    public MRelation getEntityRelation(MEntity e1, MEntity e2)
-    {
-        // TODO: 根据MEntity的不同类型来生成MRelation类，对于线和面只用考虑直线和多边形面。
-        // 求距离时将线段视为直线，将多边形面视为无边界的平面
-        // 注意MRelation中的distance是在世界坐标系下的距离，需要根据基准边做变换，具体参考GetEdgeLength。
-		// MRelation relationship;
-		//if (e1.entityType == MEntity.MEntityType.EDGE) {
-		//	MEdge Le1 = (MEdge)e1;
-		//	if (Le1.edgeType == MEdge.MEdgeType.CURVE) 
-		//		return null;
-		//	if (e2.entityType == MEntity.MEntityType.EDGE) {
-		//		MEdge Le2 = (MEdge)e2;
-		//		if (Le2.edgeType == MEdge.MEdgeType.CURVE) 
-		//			return null;
-		//		relationship.relationType = MRelation.EntityRelationType.EDGE_EDGE;
-		//		MHelperFunctions.LineLine (relationship.angle, relationship.distance, Le1.direction, Le1.start, Le2.direction, Le2.start);;
-		//	} 
-		//	else if (e2.entityType == MEntity.MEntityType.POINT) {
-		//		relationship.relationType = MRelation.EntityRelationType.POINT_EDGE;
-		//		relationship.lowerEntity = e2;
-		//		relationship.higherEntity = e1;
-
-		//		MPoint pe2=e2;
-
-		//		relationship.distance= MHelperFunctions.DistanceP2L(pe2.position,Le1.direction,Le1.start);
-				
-		//	} 
-
-		//	else {
-		//		MLinearEdge Le2 = e2;
-		//		if (Le2.MEdgeType == MCurveEdge) {
-		//			return null;
-		//		}
-		//		relationship.relationType = MRelation.EntityRelationType.EDGE_FACE;
-		//		relationship.lowerEntity = e1;
-		//		relationship.higherEntity = e2;
-		//		MPolygonFace fe2 = e2;
-		//		MHelperFunctions.LineFace (relationship.angle, relationship.distance, Le1.start, Le1.direction, fe2.normal, fe2.sortedPoints [0]);
-
-		//	}
-		//} else if (e1.entityType == MEntity.MEntityType.POINT) {
-		//	MPoint pe1 = e1;
-		//	if (e2.entityType == MEntity.MEntityType.EDGE) {
-		//		MLinearEdge Le2 = e2;
-		//		if (Le2.MEdgeType == MCurveEdge) {
-		//			return null;
-		//		}
-		//		relationship.relationType = MRelation.EntityRelationType.POINT_EDGE;
-		//		relationship.lowerEntity = e1;
-		//		relationship.higherEntity = e2;
-		//		relationship.distance =MHelperFunctions.DistanceP2L(pe1.position,Le2.direction,Le2.start);
-        //
-		//	} else if (e2.entityType == MEntity.MEntityType.POINT) {
-		//		relationship.relationType = MRelation.EntityRelationType.POINT_POINT;
-		//		relationship.distance = e1.CalcDistance ((MPoint)e2.position)/refEdgeLength;
-		//	} else {
-		//		MPolygonFace fe2 = e2;
-		//		relationship.relationType = MRelation.EntityRelationType.POINT_FACE;
-		//		relationship.lowerEntity = e1;
-		//		relationship.higherEntity = e2;
-		//		relationship.distance = MHelperFunctions.DistanceP2F (pe1.position,fe2.normal,fe2.sortedPoints [0]);
-		//	}
-		//} else {
-		//	MPolygonFace fe1 = e1;
-		//	if (e2.entityType == MEntity.MEntityType.EDGE) {
-		//		MLinearEdge Le2 = e2;
-		//		if (Le2.MEdgeType == MCurveEdge) {
-		//			return null;
-		//		}
-		//		relationship.relationType = MRelation.EntityRelationType.EDGE_FACE;
-		//		relationship.lowerEntity = e2;
-		//		relationship.higherEntity = e1;
-		//		MHelperFunctions.LineFace(relationship.angle,relationship.distance,Le2.start,Le2.direction,fe1.normal,fe1.sortedPoints [0]);
-
-		//	} else if (e2.entityType == MEntity.MEntityType.POINT) {
-		//		MPoint pe2 = e2;
-		//		relationship.relationType = MRelation.EntityRelationType.POINT_FACE;
-		//		relationship.lowerEntity = e2;
-		//		relationship.higherEntity = e1;
-		//		relationship.distance = MHelperFunctions.DistanceP2F(pe2.position,fe1.normal,fe1.sortedPoints [0]);
-
-		//	} else {
-		//		relationship.relationType = MRelation.EntityRelationType.FACE_FACE;
-		//		MPolygonFace fe2 = e2;
-		//		MHelperFunctions.FaceFace (relationship.angle, relationship.distance, fe1.normal, fe1.sortedPoints [0], fe2.normal, fe2.sortedPoints [0]);
-		//	}
-		//}
-
-
-        return null;
-    }
 
     public void SetMeshText(string text)
     {
@@ -444,7 +346,29 @@ public class MObject
     {
         textPlane.gameObject.SetActive(false);
     }
+
+    public float RefEdgeRelativeLength(float length)
+    {
+        if (refEdge != null) return length / refEdgeLength;
+        return length;
+    }
     
+    public float RefEdgeRelativeSurface(float surface)
+    {
+        if (refEdge != null) return surface / refEdgeLength / refEdgeLength;
+        return surface;
+    }
+
+    private void InitObject()
+    {
+        objectState = MObjectState.DEFAULT;
+        transform = gameObject.transform;
+        transform.position = MDefinitions.DEFAULT_POSITION;
+        scale = MDefinitions.DEFAULT_SCALE;
+        InitRefEdge();
+        InitTextMesh();
+    }
+
     private void InitTextMesh()
     {
         textPlane = gameObject.transform.GetChild(0);
@@ -456,46 +380,6 @@ public class MObject
         refEdge = mesh.GetLinearEdge();
         if (refEdge != null) {
             refEdgeLength = refEdge.GetLength();
-        }
-    }
-
-    private void HitPoint(MPoint point)
-    {
-        Debug.Log("hit point " + localToWorldMatrix.MultiplyPoint(point.position));
-    }
-
-    private void HitEdge(MEdge edge)
-    {
-        switch (edge.edgeType)
-        {
-            case MEdge.MEdgeType.LINEAR:
-                Debug.Log("hit edge " + localToWorldMatrix.MultiplyPoint(((MLinearEdge)edge).start.position) 
-                    + " " + localToWorldMatrix.MultiplyPoint(((MLinearEdge)edge).end.position));
-                break;
-            case MEdge.MEdgeType.CURVE:
-                Debug.Log("hit edge " + localToWorldMatrix.MultiplyPoint(((MCurveEdge)edge).center.position)
-                    + " " + localToWorldMatrix.MultiplyPoint(((MCurveEdge)edge).normal) + " " + ((MCurveEdge)edge).radius);
-                break;
-            default:
-                Debug.Log("hit unknown edge of type " + edge.edgeType);
-                break;
-        }
-    }
-
-    private void HitFace(MFace face)
-    {
-        switch (face.faceType)
-        {
-            case MFace.MFaceType.POLYGON:
-                Debug.Log("hit face " + localToWorldMatrix.MultiplyPoint(((MPolygonFace)face).edgeList[0].start.position));
-                break;
-            case MFace.MFaceType.CIRCLE:
-            case MFace.MFaceType.CONE:
-            case MFace.MFaceType.CYLINDER:
-            case MFace.MFaceType.SPHERE:
-            default:
-                Debug.Log("hit unknown face of type " + face.faceType);
-                break;
         }
     }
 }

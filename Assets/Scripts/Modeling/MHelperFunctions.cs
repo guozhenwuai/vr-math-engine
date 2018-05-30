@@ -4,121 +4,7 @@ using UnityEngine;
 
 public static class MHelperFunctions
 {
-	// false=parallal true=intersect
-	public static bool LinePlaneIntersection(out Vector3 intersection, Vector3 linePoint, Vector3 lineVec, Vector3 planeNormal, Vector3 planePoint){
 
-		float length;
-		float dotNumerator;
-		float dotDenominator;
-		Vector3 vector;
-		intersection = Vector3.zero;
-
-		//calculate the distance between the linePoint and the line-plane intersection point
-		dotNumerator = Vector3.Dot((planePoint - linePoint), planeNormal);
-		dotDenominator = Vector3.Dot(lineVec, planeNormal);
-
-		//line and plane are not parallel
-		if(dotDenominator != 0.0f){
-			length =  dotNumerator / dotDenominator;
-
-            //create a vector from the linePoint to the intersection point
-            vector = lineVec.normalized * length;
-
-			//get the coordinates of the line-plane intersection point
-			intersection = linePoint + vector;  
-
-			return true;    
-		}
-
-		//output not valid
-		else{
-			return false;
-		}
-	}
-
-	public static void LineFace (out float angle,out float distance, Vector3 linePoint, Vector3 lineVec, Vector3 planeNormal, Vector3 planePoint){
-		Vector3 intersection = Vector3.zero;
-		bool intersect = LinePlaneIntersection (out intersection,linePoint,lineVec,planeNormal,planePoint);
-		if (intersect) {
-			distance = 0;
-			angle = Mathf.Acos (Vector3.Dot(lineVec, planeNormal) / (lineVec.magnitude * planeNormal.magnitude));
-		} else {
-			distance = Mathf.Abs(Vector3.Dot(linePoint - planePoint, planeNormal) / planeNormal.magnitude);
-			angle = 0;
-		}
-	}
-
-	public static bool PlanePlaneIntersection(out Vector3 linePoint, out Vector3 lineVec, Vector3 plane1Normal, Vector3 plane1Position, Vector3 plane2Normal, Vector3 plane2Position){
-
-		linePoint = Vector3.zero;
-		lineVec = Vector3.zero;
-
-		//We can get the direction of the line of intersection of the two planes by calculating the 
-		//cross product of the normals of the two planes. Note that this is just a direction and the line
-		//is not fixed in space yet. We need a point for that to go with the line vector.
-		lineVec = Vector3.Cross(plane1Normal, plane2Normal);
-
-		//Next is to calculate a point on the line to fix it's position in space. This is done by finding a vector from
-		//the plane2 location, moving parallel to it's plane, and intersecting plane1. To prevent rounding
-		//errors, this vector also has to be perpendicular to lineDirection. To get this vector, calculate
-		//the cross product of the normal of plane2 and the lineDirection.      
-		Vector3 ldir = Vector3.Cross(plane2Normal, lineVec);        
-
-		float denominator = Vector3.Dot(plane1Normal, ldir);
-
-		//Prevent divide by zero and rounding errors by requiring about 5 degrees angle between the planes.
-		if(Mathf.Abs(denominator) > 0.006f){
-
-			Vector3 plane1ToPlane2 = plane1Position - plane2Position;
-			float t = Vector3.Dot(plane1Normal, plane1ToPlane2) / denominator;
-			linePoint = plane2Position + t * ldir;
-
-			return true;
-		}
-
-		//output not valid
-		else{
-			return false;
-		}
-	}   
-
-	public static void FaceFace (out float angle,out float distance,Vector3 planeNormal, Vector3 planePoint,Vector3 planeNormal1, Vector3 planePoint1){
-		if (Parallel (planeNormal, planeNormal1)) {
-			angle = 0;
-			distance = Mathf.Abs (Vector3.Dot(planePoint1 - planePoint, planeNormal) / planeNormal.magnitude);
-		} else {
-			
-				distance = 0;
-				Vector3 rotateAxis;
-				CalcRotateAxisAndAngle (out rotateAxis,out angle,planeNormal,planeNormal1);
-
-		}
-	}
-
-	public static void LineLine( out float angle,out float distance,Vector3 linePoint1, Vector3 lineVec1, Vector3 linePoint2, Vector3 lineVec2){
-        float tempAngle;
-        float tempDis = 0;
-		if (Parallel (lineVec1,lineVec2)) {
-			tempAngle = 0;
-			tempDis = DistanceP2L(linePoint1,  lineVec2,  linePoint2);
-		} else {
-			Vector3 rotateAxis = Vector3.zero;
-			Vector3 closepoint1, closepoint2 = Vector3.zero;
-			CalcRotateAxisAndAngle (out rotateAxis,out tempAngle,lineVec1,lineVec2);
-
-			if (LineLineIntersection (out closepoint1,linePoint1,lineVec1,linePoint2,lineVec2)) {
-				tempDis = 0;
-
-
-			} else {
-				if (ClosestPointsOnTwoLines (out closepoint1, out closepoint2, linePoint1,lineVec1, linePoint2,lineVec2)) {
-					tempDis = DistanceP2L(closepoint2,lineVec1,linePoint1);
-				}
-			}
-		}
-        angle = tempAngle;
-        distance = tempDis;
-	}
 	public static bool LineLineIntersection(out Vector3 intersection, Vector3 linePoint1, Vector3 lineVec1, Vector3 linePoint2, Vector3 lineVec2){
 
 		Vector3 lineVec3 = linePoint2 - linePoint1;
@@ -140,6 +26,7 @@ public static class MHelperFunctions
 			return false;
 		}
 	}
+
 	public static bool ClosestPointsOnTwoLines(out Vector3 closestPointLine1, out Vector3 closestPointLine2, Vector3 linePoint1, Vector3 lineVec1, Vector3 linePoint2, Vector3 lineVec2){
 
 		closestPointLine1 = Vector3.zero;
@@ -192,43 +79,74 @@ public static class MHelperFunctions
     // 判断向量是否平行
     public static bool Parallel(Vector3 v1, Vector3 v2)
     {
-        v1 = Vector3.Normalize(v1);
-        v2 = Vector3.Normalize(v2);
-        return FloatEqual(Mathf.Abs(Vector3.Dot(v1, v2)),1);
+        return FloatEqual(Mathf.Abs(Vector3.Dot(v1.normalized, v2.normalized)),1);
     }
 
     // 判断向量是否垂直
     public static bool Perpendicular(Vector3 v1, Vector3 v2)
     {
-        v1 = Vector3.Normalize(v1);
-        v2 = Vector3.Normalize(v2);
         return FloatEqual(Vector3.Dot(v1, v2), 0);
+    }
+
+    // 计算两向量之间的锐角角度
+    public static float CalcAngle(Vector3 v1, Vector3 v2)
+    {
+        float angle = Mathf.Acos(Vector3.Dot(v1.normalized, v2.normalized)) * Mathf.Rad2Deg;
+        if (angle > 90) angle = 180 - angle;
+        return angle;
     }
 
     // 计算点到平面的距离
     public static float DistanceP2F(Vector3 point, Vector3 faceNormal, Vector3 facePoint)
     {
-        return Mathf.Abs(Vector3.Dot(faceNormal, point - facePoint));
+        return Mathf.Abs(Vector3.Dot(faceNormal.normalized, point - facePoint));
     }
 
     //计算点到直线的距离
 	public static float DistanceP2L(Vector3 point, Vector3 lineVector, Vector3 linePoint)
 	{
-		float d =Mathf.Abs( Vector3.Dot(lineVector, point - linePoint))/lineVector.magnitude ;
-		float h = Mathf.Sqrt ((point - linePoint).magnitude*(point - linePoint).magnitude-d*d);
+        Vector3 v = point - linePoint;
+        float d =Mathf.Abs( Vector3.Dot(lineVector, v))/lineVector.magnitude ;
+		float h = Mathf.Sqrt (v.magnitude * v.magnitude-d*d);
 		return h;
 	}
+
+    //计算直线到直线的距离
+    public static float DistanceL2L(Vector3 linePoint1, Vector3 lineVec1, Vector3 linePoint2, Vector3 lineVec2)
+    {
+        Vector3 temp1, temp2;
+        if (Parallel(lineVec1, lineVec2))
+        {
+            return DistanceP2L(linePoint1, lineVec2, linePoint2);
+        }
+        else if (LineLineIntersection(out temp1, linePoint1, lineVec1, linePoint2, lineVec2))
+        {
+            return 0;
+        }
+        else
+        {
+            if (ClosestPointsOnTwoLines(out temp1, out temp2, linePoint1, lineVec1, linePoint2, lineVec2))
+            {
+                return DistanceP2L(temp2, lineVec1, linePoint1);
+            }
+            else
+            {
+                return 0;
+            }
+        }
+    }
+
     // 计算点在平面上的投影点
     public static Vector3 PointProjectionInFace(Vector3 point, Vector3 faceNormal, Vector3 facePoint)
     {
-        return point - faceNormal * Vector3.Dot(faceNormal, point - facePoint);
+        return point - faceNormal.normalized * Vector3.Dot(faceNormal.normalized, point - facePoint);
     }
     
     // 根据旋转前后向量计算旋转轴和旋转角
     public static void CalcRotateAxisAndAngle(out Vector3 rotateAxis, out float rotateAngle, Vector3 oldVec, Vector3 newVec)
     {
-        rotateAxis = Vector3.Normalize(Vector3.Cross(oldVec, newVec));
-        rotateAngle = Mathf.Acos(Vector3.Dot(oldVec, newVec));
+        rotateAxis = Vector3.Cross(oldVec.normalized, newVec.normalized).normalized;
+        rotateAngle = Mathf.Acos(Vector3.Dot(oldVec.normalized, newVec.normalized));
     }
 
     // 根据旋转轴和旋转角计算给定向量（或点）旋转后的结果

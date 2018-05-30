@@ -10,6 +10,12 @@ public class NewBehaviourScript : MonoBehaviour {
     Mesh mesh;
 	// Use this for initialization
 	void Start () {
+        Vector3 v1 = new Vector3(0, 1, 0);
+        Vector3 v2 = new Vector3(1, 0, 0);
+        Vector3 v3 = new Vector3(-1, -1, 0);
+
+        Debug.Log(MHelperFunctions.CalcAngle(v1, v2));
+        Debug.Log(MHelperFunctions.CalcAngle(v2, v3));
     }
     
 
