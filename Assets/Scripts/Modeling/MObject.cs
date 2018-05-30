@@ -8,22 +8,30 @@ public class MObject
 
     public enum MInteractMode { ALL, POINT_ONLY, EDGE_ONLY, FACE_ONLY};
 
-    private Transform transform;
+    public enum MObjectState { DEFAULT, ACTIVE, SELECT};
 
-    private GameObject gameObject;
+    public MObjectState objectState;
+
+    public Transform transform;
+
+    public GameObject gameObject;
 
     private MMesh mesh;
 
-    private MLinearEdge refEdge = null;
+    public MLinearEdge refEdge = null;
 
     private float refEdgeLength;
 
-    private Matrix4x4 worldToLocalMatrix
+    private Transform textPlane;
+
+    private TextMesh textMesh;
+
+    public Matrix4x4 worldToLocalMatrix
     {
         get { return transform.worldToLocalMatrix; }
     }
 
-    private Matrix4x4 localToWorldMatrix
+    public Matrix4x4 localToWorldMatrix
     {
         get { return transform.localToWorldMatrix; }
     }
@@ -53,9 +61,9 @@ public class MObject
     }
 
     // 针对预制件的初始化
-    public MObject(MPrefabType type)
+    public MObject(GameObject template, MPrefabType type)
     {
-        gameObject = new GameObject();
+        gameObject = GameObject.Instantiate(template);
         switch (type)
         {
             case MPrefabType.CUBE:
@@ -69,6 +77,7 @@ public class MObject
         transform.position = MDefinitions.DEFAULT_POSITION;
         scale = MDefinitions.DEFAULT_SCALE;
         InitRefEdge();
+        InitTextMesh();
     }
 
     public bool HitObject(Vector3 pos)
@@ -152,6 +161,21 @@ public class MObject
         entity = e;
         return res;
     }
+
+    public void Highlight()
+    {
+        mesh.Highlight();
+    }
+
+    public void ResetStatus()
+    {
+        mesh.ResetStatus();
+    }
+
+    public void Select()
+    {
+        mesh.Select();
+    }
     
     public void Render()
     {
@@ -165,14 +189,9 @@ public class MObject
 
     public void SetRefEdge(MLinearEdge edge)
     {
-        if(refEdge != null)
-        {
-            refEdge.entityStatus = MEntity.MEntityStatus.DEFAULT;
-        }
         refEdge = edge;
         if (refEdge != null) {
             refEdgeLength = refEdge.GetLength();
-            refEdge.entityStatus = MEntity.MEntityStatus.SPECIAL;
         }
     }
 
@@ -200,12 +219,45 @@ public class MObject
         return null;
     }
 
+    public void SetMeshText(string text)
+    {
+        textMesh.text = text;
+    }
+
+    public void RotateTextMesh(Vector3 rotateTowards)
+    {
+        textPlane.parent = null;
+        textPlane.rotation = Quaternion.LookRotation((rotateTowards - textPlane.position) * -1, Vector3.up) * Quaternion.Euler(-90, 0, 0);
+        textPlane.parent = transform;
+    }
+
+    public void ActiveTextMesh()
+    {
+        textPlane.gameObject.SetActive(true);
+        textPlane.parent = null;
+        float maxY = Mathf.Max(localToWorldMatrix.MultiplyPoint(mesh.boundingBox.min).y, localToWorldMatrix.MultiplyPoint(mesh.boundingBox.max).y);
+        textPlane.position = new Vector3(transform.position.x, maxY + MDefinitions.DEFAULT_TEXT_PLANE_HEIGHT, transform.position.z);
+        textPlane.rotation = Quaternion.Euler(-90, 0, 0);
+        textPlane.localScale = MDefinitions.DEFAULT_TEXT_PLANE_SCALE;
+        textPlane.parent = transform;
+    }
+
+    public void InactiveTextMesh()
+    {
+        textPlane.gameObject.SetActive(false);
+    }
+    
+    private void InitTextMesh()
+    {
+        textPlane = gameObject.transform.GetChild(0);
+        textMesh = textPlane.GetComponentInChildren<TextMesh>(true);
+    }
+
     private void InitRefEdge()
     {
         refEdge = mesh.GetLinearEdge();
         if (refEdge != null) {
             refEdgeLength = refEdge.GetLength();
-            refEdge.entityStatus = MEntity.MEntityStatus.SPECIAL;
         }
     }
 

@@ -290,7 +290,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\InteractionHandler.cs" />
     <Compile Include="Assets\Scripts\Modeling\AABB.cs" />
     <Compile Include="Assets\Scripts\Modeling\Edge\MCurveEdge.cs" />
     <Compile Include="Assets\Scripts\Modeling\Edge\MLinearEdge.cs" />
@@ -302,6 +301,7 @@
     <Compile Include="Assets\Scripts\Modeling\MDefinitions.cs" />
     <Compile Include="Assets\Scripts\Modeling\MEdge.cs" />
     <Compile Include="Assets\Scripts\Modeling\MEntity.cs" />
+    <Compile Include="Assets\Scripts\Modeling\MStructs.cs" />
     <Compile Include="Assets\Scripts\Modeling\MFace.cs" />
     <Compile Include="Assets\Scripts\Modeling\MHelperFunctions.cs" />
     <Compile Include="Assets\Scripts\Modeling\MMaterial.cs" />
@@ -312,6 +312,16 @@
     <Compile Include="Assets\Scripts\Modeling\Prefab\MCube.cs" />
     <Compile Include="Assets\Scripts\NewBehaviourScript.cs" />
     <Compile Include="Assets\Scripts\SceneManager.cs" />
+    <Compile Include="Assets\Scripts\StateMachine\AddPrefabCubeState.cs" />
+    <Compile Include="Assets\Scripts\StateMachine\ConnectPointState.cs" />
+    <Compile Include="Assets\Scripts\StateMachine\ExportObjectState.cs" />
+    <Compile Include="Assets\Scripts\StateMachine\IState.cs" />
+    <Compile Include="Assets\Scripts\StateMachine\RefEdgeState.cs" />
+    <Compile Include="Assets\Scripts\StateMachine\RelationDisplayState.cs" />
+    <Compile Include="Assets\Scripts\StateMachine\RemoveObjectState.cs" />
+    <Compile Include="Assets\Scripts\StateMachine\StateMachine.cs" />
+    <Compile Include="Assets\Scripts\StateMachine\StatisticDisplayState.cs" />
+    <Compile Include="Assets\Scripts\StateMachine\TransformState.cs" />
     <Compile Include="Assets\SteamVR\Extras\SteamVR_GazeTracker.cs" />
     <Compile Include="Assets\SteamVR\Extras\SteamVR_LaserPointer.cs" />
     <Compile Include="Assets\SteamVR\Extras\SteamVR_Teleporter.cs" />

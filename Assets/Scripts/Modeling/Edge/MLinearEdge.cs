@@ -30,6 +30,17 @@ public class MLinearEdge : MEdge
         InitMesh();
     }
 
+    public bool SetEndPoint(Vector3 end) //谨慎使用！！！目前用于创建活动线段, endpoint不会渲染，所以不更新endpoint的mesh
+    {
+        this.end.position = end;
+        if (!IsValid())
+        {
+            return false;
+        }
+        InitMesh();
+        return true;
+    }
+
     public bool Parallel(MLinearEdge edge)
     {
         return MHelperFunctions.Parallel(direction, edge.direction);

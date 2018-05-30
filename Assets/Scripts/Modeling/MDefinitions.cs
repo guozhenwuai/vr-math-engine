@@ -14,4 +14,12 @@ public static class MDefinitions
 
     public static float DEFAULT_SCALE = 0.5f;
 
+    public static float DEFAULT_TEXT_PLANE_HEIGHT = 0.2f;
+
+    public static Vector3 DEFAULT_TEXT_PLANE_SCALE = new Vector3(0.04f, 1f, 0.02f);
+
+    public static Vector3 DEFAULT_ACTIVE_TEXT_OFFSET = new Vector3(0, 0.1f, 0);
+
+    public static Vector3 DEFAULT_PREFAB_OFFSET = Vector3.zero;
+
 }

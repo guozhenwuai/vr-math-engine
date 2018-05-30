@@ -36,6 +36,54 @@ public class MMesh
         }
     }
 
+    public void Highlight()
+    {
+        foreach(MPoint entity in pointList)
+        {
+            entity.entityStatus = MEntity.MEntityStatus.ACTIVE;
+        }
+        foreach(MEdge entity in edgeList)
+        {
+            entity.entityStatus = MEntity.MEntityStatus.ACTIVE;
+        }
+        foreach(MFace entity in faceList)
+        {
+            entity.entityStatus = MEntity.MEntityStatus.ACTIVE;
+        }
+    }
+
+    public void ResetStatus()
+    {
+        foreach (MPoint entity in pointList)
+        {
+            entity.entityStatus = MEntity.MEntityStatus.DEFAULT;
+        }
+        foreach (MEdge entity in edgeList)
+        {
+            entity.entityStatus = MEntity.MEntityStatus.DEFAULT;
+        }
+        foreach (MFace entity in faceList)
+        {
+            entity.entityStatus = MEntity.MEntityStatus.DEFAULT;
+        }
+    }
+
+    public void Select()
+    {
+        foreach (MPoint entity in pointList)
+        {
+            entity.entityStatus = MEntity.MEntityStatus.SELECT;
+        }
+        foreach (MEdge entity in edgeList)
+        {
+            entity.entityStatus = MEntity.MEntityStatus.SELECT;
+        }
+        foreach (MFace entity in faceList)
+        {
+            entity.entityStatus = MEntity.MEntityStatus.SELECT;
+        }
+    }
+
     public MPoint CreatePoint(Vector3 position)
     {
         MPoint point = new MPoint(position);

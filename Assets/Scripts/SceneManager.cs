@@ -6,353 +6,158 @@ public class SceneManager : MonoBehaviour {
     public GameObject leftController;
     public GameObject rightController;
 
-    public TextMesh textMesh;
+    public GameObject objTemplate;
 
-    public TextMesh statisticText;
+    public GameObject statisticActiveMesh;
 
-    public TextMesh relationText;
+    public GameObject globalInfoMesh;
 
-    private List<MObject> objects;
+    [HideInInspector]
+    public VRTK.VRTK_ControllerEvents leftEvents;
 
-    private MEntity activeEntity;
+    [HideInInspector]
+    public VRTK.VRTK_ControllerEvents rightEvents;
 
-    private List<MEntity> selectedEntity;
+    [HideInInspector]
+    public Vector3 leftControllerPosition {
+        get
+        {
+            return leftController.transform.position;
+        }
+    }
 
-    private MObject activeObject;
+    [HideInInspector]
+    public Vector3 rightControllerPosition
+    {
+        get
+        {
+            return rightController.transform.position;
+        }
+    }
 
-	private MObject selectedObject;
+    [HideInInspector]
+    public List<MObject> objects;
 
-    private MObject.MInteractMode interactMode;
+    [HideInInspector]
+    public MEntityPair activeEntity;
 
-    private enum SceneStatus { DISPLAY, SELECT_REFEDGE, CREATE_LINE, SHOW_RELATION};
+    [HideInInspector]
+    public StateMachine sceneStateMachine;
 
-    private enum SelectType { ALL, NO_POINT, LINEAR_EDGE, POINT};
+    [HideInInspector]
+    public GameObject camera;
+    
 
-    private SceneStatus sceneStatus;
+    public enum SceneStatus { STATISTIC_DISPLAY, SELECT_REFEDGE, RELATION_DISPLAY
+            , TRANSFORM, EXPORT_OBJECT, REMOVE_OBJECT
+            , CONNECT_POINT
+            , ADD_PREFAB_CUBE};
 
 	// Use this for initialization
 	void Start () {
         objects = new List<MObject>();
-        selectedEntity = new List<MEntity>();
-        interactMode = MObject.MInteractMode.ALL;
         AddPrefabObject(MObject.MPrefabType.CUBE);
-        sceneStatus = SceneStatus.DISPLAY;
-        textMesh.text = "展示线段长度和表面积";
-        statisticText.text = "";
-        relationText.text = "";
+        leftEvents = leftController.GetComponent<VRTK.VRTK_ControllerEvents>();
+        rightEvents = rightController.GetComponent<VRTK.VRTK_ControllerEvents>();
+        InitStateMachine();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        UpdateHighlight();
-        StartRender();
-        UpdateText();
-	}
-
-    public void HandleTriggerClicked(InteractionHandler.ControllerType type, VRTK.ControllerInteractionEventArgs e)
-    {
-        if(type == InteractionHandler.ControllerType.LEFT)
+        if(camera == null)
         {
-            SwitchSceneStatus();
-            return;
-        }
-        switch (sceneStatus)
-        {
-            case SceneStatus.DISPLAY:
-                SelectActiveEntity(SelectType.NO_POINT, -1);
-                break;
-		    case SceneStatus.SELECT_REFEDGE:
-			    SelectActiveEntity (SelectType.LINEAR_EDGE, 1);
-			    if (selectedEntity.Count == 1)
-				    selectedObject.SetRefEdge ((MLinearEdge)(selectedEntity[0]));
-				else if(selectedEntity.Count == 0)selectedObject.SetRefEdge(null);
-                break;
-		    case SceneStatus.CREATE_LINE:
-                SelectActiveEntity(SelectType.POINT, 2);
-                if (selectedEntity.Count == 2) {
-				    selectedObject.CreateLinearEdge ((MPoint)(selectedEntity[0]), (MPoint)(selectedEntity[1]));
-                    ClearSelectedEntity();
-			    }
-			    break;
-            case SceneStatus.SHOW_RELATION:
-                SelectActiveEntity(SelectType.ALL, 2);
-                UpdateRelationText();
-                break;
-            default:
-                Debug.Log("SceneManager: HandleTriggerClicked: Unhandled scene status " + sceneStatus);
-                break;
-        }
-    }
-
-    private void SwitchSceneStatus()
-    {
-        switch (sceneStatus)
-        {
-		    case SceneStatus.DISPLAY:
-			    sceneStatus = SceneStatus.SELECT_REFEDGE;
-			    textMesh.text = "设置基准边";
-			    ResetScene();
-                break;
-            case SceneStatus.SELECT_REFEDGE:
-                sceneStatus = SceneStatus.CREATE_LINE;
-                textMesh.text = "连点成线";
-			    ResetScene();
-                break;
-            case SceneStatus.CREATE_LINE:
-                sceneStatus = SceneStatus.SHOW_RELATION;
-                textMesh.text = "展示点线面的相对关系";
-                ResetScene();
-                break;
-            case SceneStatus.SHOW_RELATION:
-                sceneStatus = SceneStatus.DISPLAY;
-                textMesh.text = "展示线段长度和表面积";
-			    ResetScene();
-                break;
-            default:
-                Debug.Log("SceneManager: Unhandled scene status: " + sceneStatus);
-                break;
-        }
-    }
-
-	private void ResetScene(){
-		ClearSelectedEntity();
-		statisticText.text = "";
-        relationText.text = "";
-	}
-
-	private void ClearSelectedEntity()
-	{
-		foreach (MEntity entity in selectedEntity) {
-			if (entity.entityStatus == MEntity.MEntityStatus.SELECT) {
-				entity.entityStatus = MEntity.MEntityStatus.DEFAULT;
-			}
-		}
-		selectedEntity.Clear();
-	}
-
-    private void UpdateText()
-    {
-        if(sceneStatus == SceneStatus.DISPLAY)
-        {
-            string text = "";
-            if(activeEntity != null)
+            if(VRTK.VRTK_DeviceFinder.HeadsetTransform() != null)
             {
-                switch (activeEntity.entityType)
-                {
-                    case MEntity.MEntityType.EDGE:
-					text += "该边长度：" + activeObject.GetEdgeLength(((MEdge)activeEntity)) + "\n";
-                        break;
-                    case MEntity.MEntityType.FACE:
-					text += "该面面积： " + activeObject.GetFaceSurface(((MFace)activeEntity)) + "\n";
-                        break;
-                }
-            }
-			if (activeObject != null && activeObject == selectedObject) {
-				float totalLength = 0;
-				float totalSurface = 0;
-				foreach(MEntity entity in selectedEntity)
-				{
-					switch (entity.entityType)
-					{
-					    case MEntity.MEntityType.EDGE:
-						    totalLength += activeObject.GetEdgeLength(((MEdge)entity));
-						    break;
-					    case MEntity.MEntityType.FACE:
-						    totalSurface += activeObject.GetFaceSurface(((MFace)entity));
-						    break;
-					}
-				}
-				text += "总长度： " + totalLength + "\n";
-				text += "总面积： " + totalSurface + "\n";
-			}
-            statisticText.text = text;
-        }
-    }
-
-    private void UpdateRelationText()
-    {
-        if(sceneStatus == SceneStatus.SHOW_RELATION)
-        {
-            if(selectedEntity.Count == 2)
-            {
-                MRelation relation = selectedObject.getEntityRelation(selectedEntity[0], selectedEntity[1]);
-                if(relation != null)
-                {
-                    string text = "";
-                    switch (relation.relationType)
-                    {
-                        case MRelation.EntityRelationType.POINT_POINT:
-                            text += "两点距离： " + relation.distance + "\n";
-                            break;
-                        case MRelation.EntityRelationType.POINT_EDGE:
-                            if(MHelperFunctions.FloatEqual(relation.distance, 0))
-                            {
-                                text += "点在直线上\n";
-                            } else
-                            {
-                                text += "点到直线距离： " + relation.distance + "\n";
-                            }
-                            break;
-                        case MRelation.EntityRelationType.POINT_FACE:
-                            if (MHelperFunctions.FloatEqual(relation.distance, 0))
-                            {
-                                text += "点在平面上\n";
-                            }
-                            else
-                            {
-                                text += "点到平面距离： " + relation.distance + "\n";
-                            }
-                            break;
-                        case MRelation.EntityRelationType.EDGE_EDGE:
-                            if (MHelperFunctions.FloatEqual(relation.distance, 0) || MHelperFunctions.FloatEqual(relation.angle, 0)){
-                                text += "两线共面\n";
-                            }
-                            if(MHelperFunctions.FloatEqual(relation.angle, 0))
-                            {
-                                text += "两线平行\n";
-                            } else if(MHelperFunctions.FloatEqual(relation.angle, 90))
-                            {
-                                text += "两线垂直\n";
-                            } else
-                            {
-                                text += "两线夹角：" + relation.angle + "\n";
-                            }
-                            if(!MHelperFunctions.FloatEqual(relation.distance, 0))
-                            {
-                                text += "两线距离： " + relation.distance + "\n";
-                            }
-                            break;
-                        case MRelation.EntityRelationType.EDGE_FACE:
-                            if (MHelperFunctions.FloatEqual(relation.distance, 0))
-                            {
-                                text += "线在面上\n";
-                            } else if(MHelperFunctions.FloatEqual(relation.distance, -1))
-                            {
-                                text += "线面相交\n";
-                                
-                            }
-                            if(!MHelperFunctions.FloatEqual(relation.distance, 0))
-                            {
-                                if (MHelperFunctions.FloatEqual(relation.angle, 0))
-                                {
-                                    text += "线面平行\n";
-                                    text += "线面距离：" + relation.distance + "\n";
-                                }
-                                else if (MHelperFunctions.FloatEqual(relation.angle, 90))
-                                {
-                                    text += "线面垂直\n";
-                                }
-                                else
-                                {
-                                    text += "线面夹角：" + relation.angle + "\n";
-                                }
-                            }
-                            break;
-                        case MRelation.EntityRelationType.FACE_FACE:
-                            if(MHelperFunctions.FloatEqual(relation.angle, 0))
-                            {
-                                text += "面面平行\n";
-                                text += "面面距离：" + relation.distance + "\n";
-                            } else if(MHelperFunctions.FloatEqual(relation.distance, 90))
-                            {
-                                text += "面面垂直\n";
-                            } else
-                            {
-                                text += "面面夹角： " + relation.angle + "\n";
-                            }
-                            break;
-                    }
-                    relationText.text = text;
-                }
+                camera = VRTK.VRTK_DeviceFinder.HeadsetTransform().gameObject;
             }
         }
+        sceneStateMachine.OnUpdate();
+	}
+
+    private void InitStateMachine()
+    {
+        sceneStateMachine = new StateMachine();
+        sceneStateMachine.RegisterState(new StatisticDisplayState(this, statisticActiveMesh));
+        sceneStateMachine.RegisterState(new RefEdgeState(this));
+        sceneStateMachine.RegisterState(new TransformState(this));
+        sceneStateMachine.RegisterState(new ConnectPointState(this));
+        sceneStateMachine.RegisterState(new RelationDisplayState(this, globalInfoMesh));
+        sceneStateMachine.RegisterState(new ExportObjectState(this));
+        sceneStateMachine.RegisterState(new AddPrefabCubeState(this));
+        sceneStateMachine.RegisterState(new RemoveObjectState(this));
+        sceneStateMachine.SwitchState((uint)SceneStatus.STATISTIC_DISPLAY);
     }
 
     private void AddPrefabObject(MObject.MPrefabType type)
     {
-        MObject obj = new MObject(type);
+        MObject obj = new MObject(objTemplate, type);
         objects.Add(obj);
     }
 
-	private void SelectActiveEntity(SelectType type, int maxSelect)
+    public void UpdateEntityHighlight(MObject.MInteractMode interactMode)
     {
-        if(activeEntity != null)
+        MEntityPair e = GetAvailEntity(rightControllerPosition, interactMode);
+        if(activeEntity.entity == null || activeEntity.entity != e.entity)
         {
-            switch (type)
-            {
-                case SelectType.NO_POINT:
-                    if (activeEntity.entityType == MEntity.MEntityType.POINT) return;
-                    break;
-                case SelectType.LINEAR_EDGE:
-                    if (!(activeEntity.entityType == MEntity.MEntityType.EDGE) || !(((MEdge)activeEntity).edgeType == MEdge.MEdgeType.LINEAR)) return;
-                    break;
-				case SelectType.ALL:
-					break;
-			    case SelectType.POINT:
-				    if (activeEntity.entityType != MEntity.MEntityType.POINT) return;
-				    break;
-            }
-			if (selectedObject != null && activeObject != selectedObject) {
-				ClearSelectedEntity ();
-			}
-			selectedObject = activeObject;
-			if (selectedEntity.Contains(activeEntity))
-            {
-				UnselectEntity(activeEntity);
-				activeEntity.entityStatus = MEntity.MEntityStatus.ACTIVE;
-            }
-            else
-            {
-				if (maxSelect > 0) {
-					if (selectedEntity.Count == maxSelect) {
-						UnselectEntity (selectedEntity [0]);
-					}
-				}
-				SelectEntity(activeEntity);
-            }
-        }
-    }
-
-	private void UnselectEntity(MEntity entity){
-		if (entity.entityStatus == MEntity.MEntityStatus.SELECT) {
-			entity.entityStatus = MEntity.MEntityStatus.DEFAULT;
-		}
-		selectedEntity.Remove (entity);
-	}
-
-	private void SelectEntity(MEntity entity){
-		if (entity.entityStatus == MEntity.MEntityStatus.ACTIVE || entity.entityStatus == MEntity.MEntityStatus.SPECIAL) {
-			if (entity.entityStatus == MEntity.MEntityStatus.ACTIVE) entity.entityStatus = MEntity.MEntityStatus.SELECT;
-			selectedEntity.Add(entity);
-		}
-	}
-
-    private void UpdateHighlight()
-    {
-        MEntity e = GetAvailEntity(rightController.transform.position, interactMode);
-        if (activeEntity != null && activeEntity.entityStatus == MEntity.MEntityStatus.ACTIVE)
-        {
-            activeEntity.entityStatus = MEntity.MEntityStatus.DEFAULT;
-        }
-        if (e != null && e.entityStatus == MEntity.MEntityStatus.DEFAULT)
-        {
-            e.entityStatus = MEntity.MEntityStatus.ACTIVE;
+            UnhighlightEntity(activeEntity.entity);
+            HighlightEntity(e.entity);
         }
         activeEntity = e;
     }
 
-    private void StartRender()
+    public void UpdateObjectHighlight()
     {
         foreach(MObject obj in objects)
+        {
+            if (obj.HitObject(rightControllerPosition))
+            {
+                if(activeEntity.obj != obj)
+                {
+                    if(activeEntity.obj != null)
+                    {
+                        activeEntity.obj.ResetStatus();
+                    }
+                    obj.Highlight();
+                    activeEntity = new MEntityPair(null, obj);
+                }
+                return;
+            }
+        }
+        if (activeEntity.obj != null)
+        {
+            activeEntity.obj.ResetStatus();
+            activeEntity.obj = null;
+        }
+    }
+
+    public void StartRender()
+    {
+        foreach (MObject obj in objects)
         {
             obj.Render();
         }
     }
 
-    private MEntity GetAvailEntity(Vector3 pos, MObject.MInteractMode mode)
+    private void UnhighlightEntity(MEntity entity)
     {
-		activeObject = null;
+        if (entity != null && entity.entityStatus == MEntity.MEntityStatus.ACTIVE)
+        {
+            entity.entityStatus = MEntity.MEntityStatus.DEFAULT;
+        }
+    }
+
+    private void HighlightEntity(MEntity entity)
+    {
+        if (entity != null && entity.entityStatus == MEntity.MEntityStatus.DEFAULT)
+        {
+            entity.entityStatus = MEntity.MEntityStatus.ACTIVE;
+        }
+    }
+
+    private MEntityPair GetAvailEntity(Vector3 pos, MObject.MInteractMode mode)
+    {
         MEntity entity = null;
+        MObject activeObj = null;
         MEntity temp;
         float dis = float.MaxValue;
         float f;
@@ -362,12 +167,12 @@ public class SceneManager : MonoBehaviour {
             {
                 if((f = obj.Response(out temp, pos, mode)) < dis)
                 {
-					activeObject = obj;
+					activeObj = obj;
                     dis = f;
                     entity = temp;
                 }
             }
         }
-        return entity;
+        return new MEntityPair(entity, activeObj);
     }
 }

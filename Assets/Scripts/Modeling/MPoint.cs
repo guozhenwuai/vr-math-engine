@@ -7,7 +7,7 @@ public class MPoint : MEntity
     public Vector3 position
     {
         get;
-        private set;
+        set;
     }
 
     public List<MEdge> edges = new List<MEdge>();

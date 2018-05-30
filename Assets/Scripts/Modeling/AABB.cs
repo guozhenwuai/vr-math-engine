@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class AABB
 {
-    private Vector3 min;
-    private Vector3 max;
+    public Vector3 min { get; private set; }
+    public Vector3 max { get; private set; }
 
     public AABB()
     {
