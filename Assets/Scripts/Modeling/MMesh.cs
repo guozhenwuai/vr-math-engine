@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class MMesh
 {
-    private List<MPoint> pointList;
+    public List<MPoint> pointList { get; }
 
-    private List<MEdge> edgeList;
+    public List<MEdge> edgeList { get; }
 
-    private List<MFace> faceList;
+    public List<MFace> faceList { get; }
 
     public AABB boundingBox { get; private set; }
 

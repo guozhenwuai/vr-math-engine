@@ -1,5 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using UnityEngine;
 
 public class MObject
@@ -57,7 +60,63 @@ public class MObject
     // 针对导入模型的初始化
     public MObject(string path)
     {
-        // TODO: 针对导入模型的初始化，生成新的GameObject，挂载MeshFilter，初始化MMesh和包围盒
+        gameObject = new GameObject();
+        mesh = new MMesh();
+        using(StreamReader sr = new StreamReader(path + "/obj"))
+        {
+            string line = sr.ReadLine();
+            while (line!=null)
+            {
+                string[] lineComponent = line.Split(' ');
+                char type = Convert.ToChar(lineComponent[0]);
+                switch (type)
+                {
+                    case 'p':
+                        float x = (float)Convert.ToDouble(lineComponent[1]);
+                        float y = (float)Convert.ToDouble(lineComponent[2]);
+                        float z = (float)Convert.ToDouble(lineComponent[3]);
+                        Vector3 position = new Vector3(x, y, z);
+                        MPoint p = mesh.CreatePoint(position);
+                        break;
+                    case 'e':
+                        char edgeType = Convert.ToChar(lineComponent[1]);
+                        switch (edgeType)
+                        {
+                            case 'l':
+                                int start = Convert.ToInt32(lineComponent[2]);
+                                int end = Convert.ToInt32(lineComponent[3]);
+                                List<MPoint> pointList = mesh.pointList;
+                                MLinearEdge edge = mesh.CreateLinearEdge(pointList[start], pointList[end]);
+                                break;
+                            case 'c':
+                                break;
+                        }
+                        break;
+                    case 'f':
+                        char faceType = Convert.ToChar(lineComponent[1]);
+                        switch (faceType)
+                        {
+                            case 'p':
+                                List<MLinearEdge> edgeList = new List<MLinearEdge>();
+                                Debug.Log(lineComponent.Length);
+                                for (int i = 2; i < lineComponent.Length-1; i++)
+                                {
+                                    int index = Convert.ToInt32(lineComponent[i]);
+                                    edgeList.Add((MLinearEdge)mesh.edgeList[index]);
+                                }
+                                MPolygonFace face = mesh.CreatePolygonFace(edgeList);
+                                break;
+                        }
+                        break;
+                }
+                line = sr.ReadLine();
+            }
+            sr.Close();
+        }
+        transform = gameObject.transform;
+        transform.position = MDefinitions.DEFAULT_POSITION;
+        scale = MDefinitions.DEFAULT_SCALE;
+        InitRefEdge();
     }
 
     // 针对预制件的初始化
@@ -78,6 +137,61 @@ public class MObject
         scale = MDefinitions.DEFAULT_SCALE;
         InitRefEdge();
         InitTextMesh();
+    }
+
+    public bool ExportObject(string path)
+    {
+        StringBuilder sb = new StringBuilder();
+        List<MPoint> pointList = mesh.pointList;
+        List<MEdge> edgeList = mesh.edgeList;
+        List<MFace> faceList = mesh.faceList;
+        foreach(MPoint point in pointList)
+        {
+            sb.Append(string.Format("p {0} {1} {2}\n", point.position.x, point.position.y, point.position.z));
+        }
+        foreach(MEdge edge in edgeList)
+        {
+            switch (edge.edgeType)
+            {
+                case MEdge.MEdgeType.LINEAR:
+                    int start = pointList.IndexOf(((MLinearEdge)edge).start);
+                    int end = pointList.IndexOf(((MLinearEdge)edge).end);
+                    sb.Append(string.Format("e l {0} {1}\n", start, end));
+                    break;
+                case MEdge.MEdgeType.CURVE:
+                    break;
+            }
+        }
+        foreach(MFace face in faceList)
+        {
+            switch (face.faceType)
+            {
+                case MFace.MFaceType.POLYGON:
+                    sb.Append("f p ");
+                    foreach(MLinearEdge edge in ((MPolygonFace)face).edgeList)
+                    {
+                        int index = edgeList.IndexOf(edge);
+                        sb.Append(string.Format("{0} ", index));
+                    }
+                    sb.Append("\n");
+                    break;
+                case MFace.MFaceType.CIRCLE:
+                    break;
+                case MFace.MFaceType.CONE:
+                    break;
+                case MFace.MFaceType.CYLINDER:
+                    break;
+                case MFace.MFaceType.SPHERE:
+                    break;
+            }
+        }
+        using (StreamWriter sw = new StreamWriter(path+"/obj"))
+        {
+            sw.Write(sb.ToString());
+            sw.Flush();
+            sw.Close();
+        }
+        return true;
     }
 
     public bool HitObject(Vector3 pos)
@@ -184,7 +298,7 @@ public class MObject
 
     public void Destroy()
     {
-        Object.Destroy(gameObject);
+        UnityEngine.Object.Destroy(gameObject);
     }
 
     public void SetRefEdge(MLinearEdge edge)
@@ -216,6 +330,90 @@ public class MObject
         // TODO: 根据MEntity的不同类型来生成MRelation类，对于线和面只用考虑直线和多边形面。
         // 求距离时将线段视为直线，将多边形面视为无边界的平面
         // 注意MRelation中的distance是在世界坐标系下的距离，需要根据基准边做变换，具体参考GetEdgeLength。
+		// MRelation relationship;
+		//if (e1.entityType == MEntity.MEntityType.EDGE) {
+		//	MEdge Le1 = (MEdge)e1;
+		//	if (Le1.edgeType == MEdge.MEdgeType.CURVE) 
+		//		return null;
+		//	if (e2.entityType == MEntity.MEntityType.EDGE) {
+		//		MEdge Le2 = (MEdge)e2;
+		//		if (Le2.edgeType == MEdge.MEdgeType.CURVE) 
+		//			return null;
+		//		relationship.relationType = MRelation.EntityRelationType.EDGE_EDGE;
+		//		MHelperFunctions.LineLine (relationship.angle, relationship.distance, Le1.direction, Le1.start, Le2.direction, Le2.start);;
+		//	} 
+		//	else if (e2.entityType == MEntity.MEntityType.POINT) {
+		//		relationship.relationType = MRelation.EntityRelationType.POINT_EDGE;
+		//		relationship.lowerEntity = e2;
+		//		relationship.higherEntity = e1;
+
+		//		MPoint pe2=e2;
+
+		//		relationship.distance= MHelperFunctions.DistanceP2L(pe2.position,Le1.direction,Le1.start);
+				
+		//	} 
+
+		//	else {
+		//		MLinearEdge Le2 = e2;
+		//		if (Le2.MEdgeType == MCurveEdge) {
+		//			return null;
+		//		}
+		//		relationship.relationType = MRelation.EntityRelationType.EDGE_FACE;
+		//		relationship.lowerEntity = e1;
+		//		relationship.higherEntity = e2;
+		//		MPolygonFace fe2 = e2;
+		//		MHelperFunctions.LineFace (relationship.angle, relationship.distance, Le1.start, Le1.direction, fe2.normal, fe2.sortedPoints [0]);
+
+		//	}
+		//} else if (e1.entityType == MEntity.MEntityType.POINT) {
+		//	MPoint pe1 = e1;
+		//	if (e2.entityType == MEntity.MEntityType.EDGE) {
+		//		MLinearEdge Le2 = e2;
+		//		if (Le2.MEdgeType == MCurveEdge) {
+		//			return null;
+		//		}
+		//		relationship.relationType = MRelation.EntityRelationType.POINT_EDGE;
+		//		relationship.lowerEntity = e1;
+		//		relationship.higherEntity = e2;
+		//		relationship.distance =MHelperFunctions.DistanceP2L(pe1.position,Le2.direction,Le2.start);
+        //
+		//	} else if (e2.entityType == MEntity.MEntityType.POINT) {
+		//		relationship.relationType = MRelation.EntityRelationType.POINT_POINT;
+		//		relationship.distance = e1.CalcDistance ((MPoint)e2.position)/refEdgeLength;
+		//	} else {
+		//		MPolygonFace fe2 = e2;
+		//		relationship.relationType = MRelation.EntityRelationType.POINT_FACE;
+		//		relationship.lowerEntity = e1;
+		//		relationship.higherEntity = e2;
+		//		relationship.distance = MHelperFunctions.DistanceP2F (pe1.position,fe2.normal,fe2.sortedPoints [0]);
+		//	}
+		//} else {
+		//	MPolygonFace fe1 = e1;
+		//	if (e2.entityType == MEntity.MEntityType.EDGE) {
+		//		MLinearEdge Le2 = e2;
+		//		if (Le2.MEdgeType == MCurveEdge) {
+		//			return null;
+		//		}
+		//		relationship.relationType = MRelation.EntityRelationType.EDGE_FACE;
+		//		relationship.lowerEntity = e2;
+		//		relationship.higherEntity = e1;
+		//		MHelperFunctions.LineFace(relationship.angle,relationship.distance,Le2.start,Le2.direction,fe1.normal,fe1.sortedPoints [0]);
+
+		//	} else if (e2.entityType == MEntity.MEntityType.POINT) {
+		//		MPoint pe2 = e2;
+		//		relationship.relationType = MRelation.EntityRelationType.POINT_FACE;
+		//		relationship.lowerEntity = e2;
+		//		relationship.higherEntity = e1;
+		//		relationship.distance = MHelperFunctions.DistanceP2F(pe2.position,fe1.normal,fe1.sortedPoints [0]);
+
+		//	} else {
+		//		relationship.relationType = MRelation.EntityRelationType.FACE_FACE;
+		//		MPolygonFace fe2 = e2;
+		//		MHelperFunctions.FaceFace (relationship.angle, relationship.distance, fe1.normal, fe1.sortedPoints [0], fe2.normal, fe2.sortedPoints [0]);
+		//	}
+		//}
+
+
         return null;
     }
 

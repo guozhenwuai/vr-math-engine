@@ -4,6 +4,173 @@ using UnityEngine;
 
 public static class MHelperFunctions
 {
+	// false=parallal true=intersect
+	public static bool LinePlaneIntersection(out Vector3 intersection, Vector3 linePoint, Vector3 lineVec, Vector3 planeNormal, Vector3 planePoint){
+
+		float length;
+		float dotNumerator;
+		float dotDenominator;
+		Vector3 vector;
+		intersection = Vector3.zero;
+
+		//calculate the distance between the linePoint and the line-plane intersection point
+		dotNumerator = Vector3.Dot((planePoint - linePoint), planeNormal);
+		dotDenominator = Vector3.Dot(lineVec, planeNormal);
+
+		//line and plane are not parallel
+		if(dotDenominator != 0.0f){
+			length =  dotNumerator / dotDenominator;
+
+            //create a vector from the linePoint to the intersection point
+            vector = lineVec.normalized * length;
+
+			//get the coordinates of the line-plane intersection point
+			intersection = linePoint + vector;  
+
+			return true;    
+		}
+
+		//output not valid
+		else{
+			return false;
+		}
+	}
+
+	public static void LineFace (out float angle,out float distance, Vector3 linePoint, Vector3 lineVec, Vector3 planeNormal, Vector3 planePoint){
+		Vector3 intersection = Vector3.zero;
+		bool intersect = LinePlaneIntersection (out intersection,linePoint,lineVec,planeNormal,planePoint);
+		if (intersect) {
+			distance = 0;
+			angle = Mathf.Acos (Vector3.Dot(lineVec, planeNormal) / (lineVec.magnitude * planeNormal.magnitude));
+		} else {
+			distance = Mathf.Abs(Vector3.Dot(linePoint - planePoint, planeNormal) / planeNormal.magnitude);
+			angle = 0;
+		}
+	}
+
+	public static bool PlanePlaneIntersection(out Vector3 linePoint, out Vector3 lineVec, Vector3 plane1Normal, Vector3 plane1Position, Vector3 plane2Normal, Vector3 plane2Position){
+
+		linePoint = Vector3.zero;
+		lineVec = Vector3.zero;
+
+		//We can get the direction of the line of intersection of the two planes by calculating the 
+		//cross product of the normals of the two planes. Note that this is just a direction and the line
+		//is not fixed in space yet. We need a point for that to go with the line vector.
+		lineVec = Vector3.Cross(plane1Normal, plane2Normal);
+
+		//Next is to calculate a point on the line to fix it's position in space. This is done by finding a vector from
+		//the plane2 location, moving parallel to it's plane, and intersecting plane1. To prevent rounding
+		//errors, this vector also has to be perpendicular to lineDirection. To get this vector, calculate
+		//the cross product of the normal of plane2 and the lineDirection.      
+		Vector3 ldir = Vector3.Cross(plane2Normal, lineVec);        
+
+		float denominator = Vector3.Dot(plane1Normal, ldir);
+
+		//Prevent divide by zero and rounding errors by requiring about 5 degrees angle between the planes.
+		if(Mathf.Abs(denominator) > 0.006f){
+
+			Vector3 plane1ToPlane2 = plane1Position - plane2Position;
+			float t = Vector3.Dot(plane1Normal, plane1ToPlane2) / denominator;
+			linePoint = plane2Position + t * ldir;
+
+			return true;
+		}
+
+		//output not valid
+		else{
+			return false;
+		}
+	}   
+
+	public static void FaceFace (out float angle,out float distance,Vector3 planeNormal, Vector3 planePoint,Vector3 planeNormal1, Vector3 planePoint1){
+		if (Parallel (planeNormal, planeNormal1)) {
+			angle = 0;
+			distance = Mathf.Abs (Vector3.Dot(planePoint1 - planePoint, planeNormal) / planeNormal.magnitude);
+		} else {
+			
+				distance = 0;
+				Vector3 rotateAxis;
+				CalcRotateAxisAndAngle (out rotateAxis,out angle,planeNormal,planeNormal1);
+
+		}
+	}
+
+	public static void LineLine( out float angle,out float distance,Vector3 linePoint1, Vector3 lineVec1, Vector3 linePoint2, Vector3 lineVec2){
+        float tempAngle;
+        float tempDis = 0;
+		if (Parallel (lineVec1,lineVec2)) {
+			tempAngle = 0;
+			tempDis = DistanceP2L(linePoint1,  lineVec2,  linePoint2);
+		} else {
+			Vector3 rotateAxis = Vector3.zero;
+			Vector3 closepoint1, closepoint2 = Vector3.zero;
+			CalcRotateAxisAndAngle (out rotateAxis,out tempAngle,lineVec1,lineVec2);
+
+			if (LineLineIntersection (out closepoint1,linePoint1,lineVec1,linePoint2,lineVec2)) {
+				tempDis = 0;
+
+
+			} else {
+				if (ClosestPointsOnTwoLines (out closepoint1, out closepoint2, linePoint1,lineVec1, linePoint2,lineVec2)) {
+					tempDis = DistanceP2L(closepoint2,lineVec1,linePoint1);
+				}
+			}
+		}
+        angle = tempAngle;
+        distance = tempDis;
+	}
+	public static bool LineLineIntersection(out Vector3 intersection, Vector3 linePoint1, Vector3 lineVec1, Vector3 linePoint2, Vector3 lineVec2){
+
+		Vector3 lineVec3 = linePoint2 - linePoint1;
+		Vector3 crossVec1and2 = Vector3.Cross(lineVec1, lineVec2);
+		Vector3 crossVec3and2 = Vector3.Cross(lineVec3, lineVec2);
+
+		float planarFactor = Vector3.Dot(lineVec3, crossVec1and2);
+
+
+		if(Mathf.Abs(planarFactor) < 0.0001f && crossVec1and2.sqrMagnitude > 0.0001f)
+		{
+			float s = Vector3.Dot(crossVec3and2, crossVec1and2) / crossVec1and2.sqrMagnitude;
+			intersection = linePoint1 + (lineVec1 * s);
+			return true;
+		}
+		else
+		{
+			intersection = Vector3.zero;
+			return false;
+		}
+	}
+	public static bool ClosestPointsOnTwoLines(out Vector3 closestPointLine1, out Vector3 closestPointLine2, Vector3 linePoint1, Vector3 lineVec1, Vector3 linePoint2, Vector3 lineVec2){
+
+		closestPointLine1 = Vector3.zero;
+		closestPointLine2 = Vector3.zero;
+
+		float a = Vector3.Dot(lineVec1, lineVec1);
+		float b = Vector3.Dot(lineVec1, lineVec2);
+		float e = Vector3.Dot(lineVec2, lineVec2);
+
+		float d = a*e - b*b;
+
+		//lines are not parallel
+		if(d != 0.0f){
+
+			Vector3 r = linePoint1 - linePoint2;
+			float c = Vector3.Dot(lineVec1, r);
+			float f = Vector3.Dot(lineVec2, r);
+
+			float s = (b*f - c*e) / d;
+			float t = (a*f - c*b) / d;
+
+			closestPointLine1 = linePoint1 + lineVec1 * s;
+			closestPointLine2 = linePoint2 + lineVec2 * t;
+
+			return true;
+		}
+
+		else{
+			return false;
+		}
+	}  
 
     // 浮点数的精度判等
     public static bool FloatEqual(float a, float b)
@@ -44,6 +211,13 @@ public static class MHelperFunctions
         return Mathf.Abs(Vector3.Dot(faceNormal, point - facePoint));
     }
 
+    //计算点到直线的距离
+	public static float DistanceP2L(Vector3 point, Vector3 lineVector, Vector3 linePoint)
+	{
+		float d =Mathf.Abs( Vector3.Dot(lineVector, point - linePoint))/lineVector.magnitude ;
+		float h = Mathf.Sqrt ((point - linePoint).magnitude*(point - linePoint).magnitude-d*d);
+		return h;
+	}
     // 计算点在平面上的投影点
     public static Vector3 PointProjectionInFace(Vector3 point, Vector3 faceNormal, Vector3 facePoint)
     {

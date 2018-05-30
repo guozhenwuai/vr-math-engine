@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
     <UnityVersion>2017.3.1f1</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -301,7 +299,6 @@
     <Compile Include="Assets\Scripts\Modeling\MDefinitions.cs" />
     <Compile Include="Assets\Scripts\Modeling\MEdge.cs" />
     <Compile Include="Assets\Scripts\Modeling\MEntity.cs" />
-    <Compile Include="Assets\Scripts\Modeling\MStructs.cs" />
     <Compile Include="Assets\Scripts\Modeling\MFace.cs" />
     <Compile Include="Assets\Scripts\Modeling\MHelperFunctions.cs" />
     <Compile Include="Assets\Scripts\Modeling\MMaterial.cs" />
@@ -309,6 +306,7 @@
     <Compile Include="Assets\Scripts\Modeling\MObject.cs" />
     <Compile Include="Assets\Scripts\Modeling\MPoint.cs" />
     <Compile Include="Assets\Scripts\Modeling\MRelation.cs" />
+    <Compile Include="Assets\Scripts\Modeling\MStructs.cs" />
     <Compile Include="Assets\Scripts\Modeling\Prefab\MCube.cs" />
     <Compile Include="Assets\Scripts\NewBehaviourScript.cs" />
     <Compile Include="Assets\Scripts\SceneManager.cs" />
