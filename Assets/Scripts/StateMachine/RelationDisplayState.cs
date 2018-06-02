@@ -25,11 +25,19 @@ public class RelationDisplayState : IState
         return (uint)SceneManager.SceneStatus.RELATION_DISPLAY;
     }
 
-    public void OnEnter(StateMachine machine, IState prevState)
+    public void OnEnter(StateMachine machine, IState prevState, object param)
     {
         sceneManager.rightEvents.TriggerPressed += rightTriggerPressed;
         textMesh.SetActive(true);
         textMesh.GetComponentInChildren<TextMesh>(true).text = "";
+		foreach (MObject obj in sceneManager.objects)
+		{
+			MLinearEdge refEdge = obj.refEdge;
+			if (refEdge != null)
+			{
+				refEdge.entityStatus = MEntity.MEntityStatus.SPECIAL;
+			}
+		}
     }
 
     public void OnLeave(IState nextState)
@@ -37,6 +45,14 @@ public class RelationDisplayState : IState
         sceneManager.rightEvents.TriggerPressed -= rightTriggerPressed;
         ClearSelectedEntity();
         textMesh.SetActive(false);
+		foreach (MObject obj in sceneManager.objects)
+		{
+			MLinearEdge refEdge = obj.refEdge;
+			if (refEdge != null)
+			{
+				refEdge.entityStatus = MEntity.MEntityStatus.DEFAULT;
+			}
+		}
     }
 
     public void OnUpdate()
@@ -48,7 +64,7 @@ public class RelationDisplayState : IState
 
     private void UpdateTextTransform()
     {
-        textMesh.transform.rotation = Quaternion.LookRotation((sceneManager.camera.transform.position - textMesh.transform.position) * -1, Vector3.up);
+        textMesh.transform.rotation = Quaternion.LookRotation((sceneManager.camera.transform.position - textMesh.transform.position) * -1, Vector3.up) * Quaternion.Euler(-90, 0, 0);
     }
 
     private void UpdateText()
@@ -151,7 +167,7 @@ public class RelationDisplayState : IState
                                 text += "面面距离：" + relation.distance + "\n";
                             }
                         }
-                        else if (MHelperFunctions.FloatEqual(relation.distance, 90))
+                        else if (MHelperFunctions.FloatEqual(relation.angle, 90))
                         {
                             text += "面面垂直\n";
                         }
@@ -272,7 +288,7 @@ public class RelationDisplayState : IState
             {
                 angle = MHelperFunctions.CalcAngle(
                     lowerEntity.obj.localToWorldMatrix.MultiplyVector(le1.direction), 
-                    lowerEntity.obj.localToWorldMatrix.MultiplyVector(le2.direction));
+                    higherEntity.obj.localToWorldMatrix.MultiplyVector(le2.direction));
             }
         }
         else if(lowerEntity.entity.entityType == MEntity.MEntityType.POINT) //点面关系
@@ -327,7 +343,7 @@ public class RelationDisplayState : IState
                 angle = 90 - MHelperFunctions.CalcAngle(((MLinearEdge)edge).direction, normal);
                 if(MHelperFunctions.FloatEqual(angle, 0))
                 {
-                    distance = MHelperFunctions.DistanceP2F(((MLinearEdge)edge).start.position, normal, facePoint);
+					distance = obj.RefEdgeRelativeLength(MHelperFunctions.DistanceP2F(((MLinearEdge)edge).start.position, normal, facePoint));
                 }
             }
             else
@@ -377,7 +393,7 @@ public class RelationDisplayState : IState
                 angle = MHelperFunctions.CalcAngle(normal1, normal2);
                 if (MHelperFunctions.FloatEqual(angle, 0))
                 {
-                    distance = MHelperFunctions.DistanceP2F(facePoint1, normal2, facePoint2);
+					distance = obj.RefEdgeRelativeLength(MHelperFunctions.DistanceP2F(facePoint1, normal2, facePoint2));
                 }
             }
             else

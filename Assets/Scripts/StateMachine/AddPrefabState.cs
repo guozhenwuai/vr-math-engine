@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AddPrefabCubeState : IState
+public class AddPrefabState : IState
 {
     private SceneManager sceneManager;
 
@@ -10,7 +10,7 @@ public class AddPrefabCubeState : IState
 
     private VRTK.ControllerInteractionEventHandler rightTriggerPressed;
 
-    public AddPrefabCubeState(SceneManager sceneManager)
+    public AddPrefabState(SceneManager sceneManager)
     {
         this.sceneManager = sceneManager;
         rightTriggerPressed = new VRTK.ControllerInteractionEventHandler(RightTriggerPressed);
@@ -18,13 +18,14 @@ public class AddPrefabCubeState : IState
 
     public uint GetStateID()
     {
-        return (uint)SceneManager.SceneStatus.ADD_PREFAB_CUBE;
+        return (uint)SceneManager.SceneStatus.ADD_PREFAB;
     }
 
-    public void OnEnter(StateMachine machine, IState prevState)
+    public void OnEnter(StateMachine machine, IState prevState, object param)
     {
         sceneManager.rightEvents.TriggerPressed += rightTriggerPressed;
-        curObject = new MObject(sceneManager.objTemplate, MObject.MPrefabType.CUBE);
+        curObject = new MObject(sceneManager.objTemplate, (MObject.MPrefabType)param);
+        if (curObject == null) return;
         curObject.Select();
         curObject.transform.parent = sceneManager.rightController.transform;
         curObject.transform.localPosition = MDefinitions.DEFAULT_PREFAB_OFFSET;
@@ -34,7 +35,7 @@ public class AddPrefabCubeState : IState
     public void OnLeave(IState nextState)
     {
         sceneManager.rightEvents.TriggerPressed -= rightTriggerPressed;
-        if(curObject != null)
+        if (curObject != null)
         {
             curObject.ResetStatus();
             if (curObject.transform.parent != null)
@@ -47,13 +48,14 @@ public class AddPrefabCubeState : IState
     public void OnUpdate()
     {
         sceneManager.StartRender();
-        if(curObject != null)curObject.Render();
+        if (curObject != null) curObject.Render();
     }
 
     private void RightTriggerPressed(object sender, VRTK.ControllerInteractionEventArgs e)
     {
+        if (sceneManager.pointerOnMenu) return;
         curObject.transform.parent = null;
         sceneManager.objects.Add(curObject);
-        sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.TRANSFORM);
+        sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.TRANSFORM, null);
     }
 }

@@ -28,6 +28,11 @@ public class StateMachine
         return true;
     }
 
+    public IState GetCurState()
+    {
+        return mCurrentState;
+    }
+
     public IState GetState(uint stateID)
     {
         IState state = null;
@@ -63,7 +68,7 @@ public class StateMachine
 
     public BetweenSwitchState BetweenSwitchStateCallBack = null;
 
-    public bool SwitchState(uint newStateID)
+    public bool SwitchState(uint newStateID, object param)
     {
         if (mCurrentState != null && mCurrentState.GetStateID() == newStateID)
         {
@@ -87,7 +92,7 @@ public class StateMachine
             BetweenSwitchStateCallBack(oldState, mCurrentState);
         }
         
-        newState.OnEnter(this, oldState);
+        newState.OnEnter(this, oldState, param);
         return true;
     }
 

@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class MMesh
 {
-    public List<MPoint> pointList { get; }
+    public List<MPoint> pointList { get; private set; }
 
-    public List<MEdge> edgeList { get; }
+    public List<MEdge> edgeList { get; private set; }
 
-    public List<MFace> faceList { get; }
+    public List<MFace> faceList { get; private set; }
 
     public AABB boundingBox { get; private set; }
 
@@ -151,8 +151,16 @@ public class MMesh
 
     public MSphereFace CreateSphereFace(MPoint center, float radius)
     {
-        // TODO: 创建球面
-        return null;
+        MSphereFace face = new MSphereFace(center, radius);
+        if (!face.IsValid()) return null;
+        int i;
+        if((i = AddFaceToMesh(face)) != -1)
+        {
+            return faceList[i] as MSphereFace;
+        } else
+        {
+            return face;
+        }
     }
 
     public float GetClosetPoint(out MPoint point, Vector3 pos)

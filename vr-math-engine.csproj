@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
     <UnityVersion>2017.3.1f1</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -305,21 +307,26 @@
     <Compile Include="Assets\Scripts\Modeling\MMesh.cs" />
     <Compile Include="Assets\Scripts\Modeling\MObject.cs" />
     <Compile Include="Assets\Scripts\Modeling\MPoint.cs" />
+    <Compile Include="Assets\Scripts\Modeling\MPrefab.cs" />
     <Compile Include="Assets\Scripts\Modeling\MRelation.cs" />
     <Compile Include="Assets\Scripts\Modeling\MStructs.cs" />
     <Compile Include="Assets\Scripts\Modeling\Prefab\MCube.cs" />
+    <Compile Include="Assets\Scripts\Modeling\Prefab\MSphere.cs" />
     <Compile Include="Assets\Scripts\NewBehaviourScript.cs" />
+    <Compile Include="Assets\Scripts\PanelMenuListener.cs" />
     <Compile Include="Assets\Scripts\SceneManager.cs" />
-    <Compile Include="Assets\Scripts\StateMachine\AddPrefabCubeState.cs" />
+    <Compile Include="Assets\Scripts\StateMachine\AddPrefabState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\ConnectPointState.cs" />
-    <Compile Include="Assets\Scripts\StateMachine\ExportObjectState.cs" />
+    <Compile Include="Assets\Scripts\StateMachine\CreatePointState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\IState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\RefEdgeState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\RelationDisplayState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\RemoveObjectState.cs" />
+    <Compile Include="Assets\Scripts\StateMachine\SaveObjectState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\StateMachine.cs" />
     <Compile Include="Assets\Scripts\StateMachine\StatisticDisplayState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\TransformState.cs" />
+    <Compile Include="Assets\Scripts\UIPointerListener.cs" />
     <Compile Include="Assets\SteamVR\Extras\SteamVR_GazeTracker.cs" />
     <Compile Include="Assets\SteamVR\Extras\SteamVR_LaserPointer.cs" />
     <Compile Include="Assets\SteamVR\Extras\SteamVR_Teleporter.cs" />

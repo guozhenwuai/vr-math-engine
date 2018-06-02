@@ -105,10 +105,8 @@ public static class MHelperFunctions
     //计算点到直线的距离
 	public static float DistanceP2L(Vector3 point, Vector3 lineVector, Vector3 linePoint)
 	{
-        Vector3 v = point - linePoint;
-        float d =Mathf.Abs( Vector3.Dot(lineVector, v))/lineVector.magnitude ;
-		float h = Mathf.Sqrt (v.magnitude * v.magnitude-d*d);
-		return h;
+        Vector3 p = PointProjectionInLine(point, lineVector, linePoint);
+		return Vector3.Distance(point, p);
 	}
 
     //计算直线到直线的距离
@@ -140,6 +138,12 @@ public static class MHelperFunctions
     public static Vector3 PointProjectionInFace(Vector3 point, Vector3 faceNormal, Vector3 facePoint)
     {
         return point - faceNormal.normalized * Vector3.Dot(faceNormal.normalized, point - facePoint);
+    }
+
+    // 计算点在直线上的投影点
+    public static Vector3 PointProjectionInLine(Vector3 point, Vector3 lineDirection, Vector3 linePoint)
+    {
+        return linePoint + Vector3.Dot(lineDirection.normalized, point - linePoint) * lineDirection.normalized;
     }
     
     // 根据旋转前后向量计算旋转轴和旋转角

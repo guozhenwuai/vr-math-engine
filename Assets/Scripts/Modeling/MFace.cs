@@ -26,6 +26,13 @@ public class MFace: MEntity
     }
 
     override
+    public Vector3 SpecialPointFind(Vector3 point)
+    {
+        Debug.Log("MFace: Virtual SpecialPointFind");
+        return point;
+    }
+
+    override
     public void Render(Matrix4x4 matrix)
     {
         Material mat = null;

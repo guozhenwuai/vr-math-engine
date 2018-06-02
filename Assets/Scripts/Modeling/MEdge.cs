@@ -22,6 +22,13 @@ public class MEdge : MEntity
     }
 
     override
+    public Vector3 SpecialPointFind(Vector3 point)
+    {
+        Debug.Log("MEdge: Virtual SpecialPointFind");
+        return point;
+    }
+
+    override
     public bool IsValid()
     {
         Debug.Log("MEdge: Virtual IsValid");

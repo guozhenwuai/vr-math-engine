@@ -6,7 +6,7 @@ public interface IState
 {
     uint GetStateID();
 
-    void OnEnter(StateMachine machine, IState preState);
+    void OnEnter(StateMachine machine, IState state, object param);
     void OnLeave(IState nextState);
 
     void OnUpdate();

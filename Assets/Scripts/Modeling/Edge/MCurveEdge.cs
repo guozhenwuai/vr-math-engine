@@ -42,6 +42,13 @@ public class MCurveEdge : MEdge
     }
 
     override
+    public Vector3 SpecialPointFind(Vector3 point)
+    {
+        Vector3 p = MHelperFunctions.PointProjectionInFace(point, normal, center.position);
+        return center.position + (p - center.position).normalized * radius;
+    }
+
+    override
     public float GetLength()
     {
         return 2 * Mathf.PI * radius;

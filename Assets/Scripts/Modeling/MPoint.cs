@@ -22,10 +22,30 @@ public class MPoint : MEntity
         InitMesh();
     }
 
+    public void SetPosition(Vector3 position)
+    {
+        this.position = position;
+        InitMesh();
+    }
+
     override
     public float CalcDistance(Vector3 point)
     {
         return Vector3.Distance(position, point);
+    }
+
+    override
+    public Vector3 SpecialPointFind(Vector3 point)
+    {
+        Vector3 v = point - position;
+        if(v.magnitude <= MDefinitions.POINT_PRECISION)
+        {
+            return position + v.normalized * MDefinitions.POINT_PRECISION;
+        }
+        else
+        {
+            return point;
+        }
     }
 
     override
@@ -59,28 +79,13 @@ public class MPoint : MEntity
     private void InitMesh()
     {
         float radius = MDefinitions.POINT_PRECISION;
-        Vector3[] vertices = new Vector3[8];
-        vertices[0] = position + new Vector3(-radius, -radius, -radius);
-        vertices[1] = position + new Vector3(-radius, -radius, radius);
-        vertices[2] = position + new Vector3(radius, -radius, radius);
-        vertices[3] = position + new Vector3(radius, -radius, -radius);
-        vertices[4] = position + new Vector3(-radius, radius, -radius);
-        vertices[5] = position + new Vector3(-radius, radius, radius);
-        vertices[6] = position + new Vector3(radius, radius, radius);
-        vertices[7] = position + new Vector3(radius, radius, -radius);
-        int[] triangles = new int[36]
+        mesh = MPrefab.GetCubeMesh();
+        Vector3[] vertices = new Vector3[mesh.vertices.Length];
+        for (int i = 0; i < mesh.vertices.Length; i++)
         {
-            0,1,2, 0,2,3,
-            5,4,0, 1,5,0,
-            7,3,0, 4,7,0,
-            6,2,3, 7,6,3,
-            6,5,1, 2,6,1,
-            5,6,7, 5,7,4
-        };
-        mesh = new Mesh();
+            vertices[i] = mesh.vertices[i] * radius * 2 + position;
+        }
         mesh.vertices = vertices;
-        mesh.triangles = triangles;
-        mesh.RecalculateNormals();
     }
 
     override

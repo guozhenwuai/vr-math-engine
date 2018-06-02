@@ -69,6 +69,34 @@ public class MLinearEdge : MEdge
     }
 
     override
+    public Vector3 SpecialPointFind(Vector3 point)
+    {
+        Vector3 p = MHelperFunctions.PointProjectionInLine(point, direction, start.position);
+        float ratio = Vector3.Distance(p, start.position) / Vector3.Distance(end.position, start.position);
+        if(Mathf.Abs(ratio - 0.5f) <= MDefinitions.AUTO_REVISE_FACTOR) // 线段中点
+        {
+            return (end.position - start.position) * 0.5f + start.position;
+        } else if(Mathf.Abs(ratio - 1.0f / 3) <= MDefinitions.AUTO_REVISE_FACTOR) // 1/3点
+        {
+            return (end.position - start.position) / 3 + start.position;
+        } else if (Mathf.Abs(ratio - 2.0f / 3) <= MDefinitions.AUTO_REVISE_FACTOR) // 2/3点
+        {
+            return (end.position - start.position) * 2/ 3 + start.position;
+        }
+        else if (Mathf.Abs(ratio - 0.25f) <= MDefinitions.AUTO_REVISE_FACTOR) // 1/4点
+        {
+            return (end.position - start.position) * 0.25f + start.position;
+        }
+        else if (Mathf.Abs(ratio - 0.75f) <= MDefinitions.AUTO_REVISE_FACTOR) // 3/4点
+        {
+            return (end.position - start.position) * 0.75f + start.position;
+        } else
+        {
+            return p;
+        }
+    }
+
+    override
     public float GetLength()
     {
         return Vector3.Distance(start.position, end.position);
@@ -78,7 +106,7 @@ public class MLinearEdge : MEdge
     {
         Vector3 startPosition = start.position;
         Vector3 endPosition = end.position;
-        float radius = MDefinitions.POINT_PRECISION / 2;
+        float radius = MDefinitions.LINE_RADIUS;
         bool trade = false;
         float Xgap = Mathf.Abs(startPosition.x - endPosition.x);
         float Ygap = Mathf.Abs(startPosition.y - endPosition.y);

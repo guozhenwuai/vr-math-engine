@@ -24,7 +24,7 @@ public class RemoveObjectState : IState
         return (uint)SceneManager.SceneStatus.REMOVE_OBJECT;
     }
 
-    public void OnEnter(StateMachine machine, IState prevState)
+    public void OnEnter(StateMachine machine, IState prevState, object param)
     {
         sceneManager.rightEvents.TriggerPressed += rightTriggerPressed;
         sceneManager.rightEvents.GripPressed += rightGripPressed;
@@ -78,7 +78,7 @@ public class RemoveObjectState : IState
             {
                 obj.Select();
                 obj.ActiveTextMesh();
-                obj.SetMeshText("按右手手柄侧键删除当前选中模型");
+                obj.SetMeshText("按右手手柄侧键，\n删除当前选中模型");
             }
             curObj = obj;
         }

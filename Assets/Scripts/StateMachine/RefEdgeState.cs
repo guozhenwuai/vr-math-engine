@@ -19,7 +19,7 @@ public class RefEdgeState : IState
         return (uint)SceneManager.SceneStatus.SELECT_REFEDGE;
     }
 
-    public void OnEnter(StateMachine machine, IState prevState)
+    public void OnEnter(StateMachine machine, IState prevState, object param)
     {
         sceneManager.rightEvents.TriggerPressed += rightTriggerPressed;
         foreach (MObject obj in sceneManager.objects)

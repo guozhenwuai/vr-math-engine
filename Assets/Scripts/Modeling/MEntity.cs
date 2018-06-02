@@ -34,5 +34,8 @@ public abstract class MEntity
 
     abstract
     public void Render(Matrix4x4 matrix);
+
+    abstract
+    public Vector3 SpecialPointFind(Vector3 point);
     
 }

@@ -16,6 +16,8 @@ public class MPolygonFace : MFace
 
     bool buildSuccess = true;
 
+    MeshCollider collider;
+
     public MPolygonFace(List<MLinearEdge> edgeList)
     {
         faceType = MFaceType.POLYGON;
@@ -29,14 +31,6 @@ public class MPolygonFace : MFace
         this.edgeList = edgeList;
         GenerateSortedPoint();
         if(buildSuccess)CalcNormal();
-        if (buildSuccess)
-        {
-            boundingBox = new AABB();
-            foreach (MPoint p in sortedPoints)
-            {
-                boundingBox.AdjustToContain(p.position);
-            }
-        }
         if (buildSuccess) InitMesh();
     }
 
@@ -48,23 +42,30 @@ public class MPolygonFace : MFace
         float rotateAngle;
         MHelperFunctions.CalcRotateAxisAndAngle(out rotateAxis, out rotateAngle, normal, new Vector3(0, 0, 1));
         List<Vector3> rotatePoints = new List<Vector3>();
-        foreach(MPoint p in sortedPoints)
+        foreach (MPoint p in sortedPoints)
         {
             rotatePoints.Add(MHelperFunctions.CalcRotate(p.position, rotateAxis, rotateAngle));
         }
         projectionPoint = MHelperFunctions.CalcRotate(projectionPoint, rotateAxis, rotateAngle);
-        if(MHelperFunctions.InPolygon(projectionPoint, rotatePoints))
+        if (MHelperFunctions.InPolygon(projectionPoint, rotatePoints))
         {
             return MHelperFunctions.DistanceP2F(point, normal, sortedPoints[0].position);
-        } else
+        }
+        else
         {
             float min = float.MaxValue;
-            foreach(MLinearEdge edge in edgeList)
+            foreach (MLinearEdge edge in edgeList)
             {
                 min = Mathf.Min(min, edge.CalcDistance(point));
             }
             return min;
         }
+    }
+
+    override
+    public Vector3 SpecialPointFind(Vector3 point)
+    {
+        return MHelperFunctions.PointProjectionInFace(point, normal, sortedPoints[0].position);
     }
 
     override
@@ -102,6 +103,8 @@ public class MPolygonFace : MFace
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.normals = normals;
+        mesh.RecalculateBounds();
+        boundingBox = new AABB(mesh.bounds);
     }
 
     override

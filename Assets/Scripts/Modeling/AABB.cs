@@ -19,6 +19,12 @@ public class AABB
         max = boundingBox.max;
     }
 
+    public AABB(Bounds bounds)
+    {
+        min = bounds.min;
+        max = bounds.max;
+    }
+
     public AABB(Vector3 min, Vector3 max)
     {
         this.min = min;

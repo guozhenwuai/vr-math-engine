@@ -31,7 +31,13 @@ public class MSphereFace : MFace
     public float CalcDistance(Vector3 point)
     {
         float dis = Vector3.Distance(point, center.position);
-        return Mathf.Abs(dis = radius);
+        return Mathf.Abs(dis - radius);
+    }
+
+    override
+    public Vector3 SpecialPointFind(Vector3 point)
+    {
+        return (point - center.position).normalized * radius + center.position;
     }
 
     override
@@ -42,7 +48,16 @@ public class MSphereFace : MFace
 
     private void InitMesh()
     {
-        // TODO: 球形Mesh的绘制
+        mesh = MPrefab.GetSphereMesh();
+        if(!MHelperFunctions.FloatEqual(radius, 0.5f))
+        {
+            Vector3[] vertices = new Vector3[mesh.vertices.Length];
+            for(int i = 0; i < mesh.vertices.Length; i++)
+            {
+                vertices[i] = mesh.vertices[i] * radius * 2;
+            }
+            mesh.vertices = vertices;
+        }
     }
 
     override

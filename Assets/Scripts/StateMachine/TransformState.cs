@@ -35,7 +35,7 @@ public class TransformState : IState
         return (uint)SceneManager.SceneStatus.TRANSFORM;
     }
 
-    public void OnEnter(StateMachine machine, IState prevState)
+    public void OnEnter(StateMachine machine, IState prevState, object param)
     {
         sceneManager.rightEvents.TriggerPressed += rightTriggerPressed;
         sceneManager.rightEvents.TriggerReleased += rightTriggerReleased;

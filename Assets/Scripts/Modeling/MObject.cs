@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class MObject
 {
-    public enum MPrefabType { CUBE, SPHERE, CYLINDER, PRISM, PYRAMID, CONE, SQUARE};
+    public enum MPrefabType { CUBE, SPHERE, CYLINDER, PRISM, PYRAMID, CONE};
 
     public enum MInteractMode { ALL, POINT_ONLY, EDGE_ONLY, FACE_ONLY};
 
@@ -124,6 +124,9 @@ public class MObject
         {
             case MPrefabType.CUBE:
                 mesh = MCube.GetMMesh();
+                break;
+            case MPrefabType.SPHERE:
+                mesh = MSphere.GetMMesh();
                 break;
             default:
                 Debug.Log("Unknown prefab type: " + type);
@@ -314,6 +317,12 @@ public class MObject
     {
         return RefEdgeRelativeSurface(face.GetSurface());
     }
+
+    public void CreatePoint(Vector3 localSpacePos)
+    {
+        mesh.CreatePoint(localSpacePos);
+    }
+
 
 	public void CreateLinearEdge(MPoint start, MPoint end){
 		mesh.CreateLinearEdge (start, end);

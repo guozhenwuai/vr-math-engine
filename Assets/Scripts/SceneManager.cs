@@ -12,11 +12,25 @@ public class SceneManager : MonoBehaviour {
 
     public GameObject globalInfoMesh;
 
-    [HideInInspector]
-    public VRTK.VRTK_ControllerEvents leftEvents;
+    public GameObject statusMesh;
 
     [HideInInspector]
-    public VRTK.VRTK_ControllerEvents rightEvents;
+    public VRTK.VRTK_ControllerEvents leftEvents
+    {
+        get
+        {
+            return leftController.GetComponent<VRTK.VRTK_ControllerEvents>();
+        }
+    }
+
+    [HideInInspector]
+    public VRTK.VRTK_ControllerEvents rightEvents
+    {
+        get
+        {
+            return rightController.GetComponent<VRTK.VRTK_ControllerEvents>();
+        }
+    }
 
     [HideInInspector]
     public Vector3 leftControllerPosition {
@@ -46,19 +60,19 @@ public class SceneManager : MonoBehaviour {
 
     [HideInInspector]
     public GameObject camera;
-    
+
+    [HideInInspector]
+    public bool pointerOnMenu = false;
 
     public enum SceneStatus { STATISTIC_DISPLAY, SELECT_REFEDGE, RELATION_DISPLAY
-            , TRANSFORM, EXPORT_OBJECT, REMOVE_OBJECT
-            , CONNECT_POINT
-            , ADD_PREFAB_CUBE};
+            , TRANSFORM, SAVE_OBJECT, LOAD_OBJECT, REMOVE_OBJECT
+            , CONNECT_POINT, CREATE_POINT
+            , ADD_PREFAB};
 
 	// Use this for initialization
 	void Start () {
         objects = new List<MObject>();
         AddPrefabObject(MObject.MPrefabType.CUBE);
-        leftEvents = leftController.GetComponent<VRTK.VRTK_ControllerEvents>();
-        rightEvents = rightController.GetComponent<VRTK.VRTK_ControllerEvents>();
         InitStateMachine();
 	}
 	
@@ -77,15 +91,51 @@ public class SceneManager : MonoBehaviour {
     private void InitStateMachine()
     {
         sceneStateMachine = new StateMachine();
+        sceneStateMachine.BetweenSwitchStateCallBack += new StateMachine.BetweenSwitchState(BetweenSwitch);
         sceneStateMachine.RegisterState(new StatisticDisplayState(this, statisticActiveMesh));
         sceneStateMachine.RegisterState(new RefEdgeState(this));
         sceneStateMachine.RegisterState(new TransformState(this));
         sceneStateMachine.RegisterState(new ConnectPointState(this));
         sceneStateMachine.RegisterState(new RelationDisplayState(this, globalInfoMesh));
-        sceneStateMachine.RegisterState(new ExportObjectState(this));
-        sceneStateMachine.RegisterState(new AddPrefabCubeState(this));
+        sceneStateMachine.RegisterState(new SaveObjectState(this));
+        sceneStateMachine.RegisterState(new AddPrefabState(this));
         sceneStateMachine.RegisterState(new RemoveObjectState(this));
-        sceneStateMachine.SwitchState((uint)SceneStatus.STATISTIC_DISPLAY);
+        sceneStateMachine.RegisterState(new CreatePointState(this));
+		sceneStateMachine.SwitchState((uint)SceneStatus.CREATE_POINT, null);
+    }
+
+    private void BetweenSwitch(IState from, IState to)
+    {
+        if (from == null || to == null) return;
+        string text = "Status Switch: from " + GetStatus((SceneStatus)from.GetStateID()) + " to " + GetStatus((SceneStatus)to.GetStateID());
+        statusMesh.GetComponent<TextMesh>().text = text;
+        Debug.Log(text);
+    }
+
+    private string GetStatus(SceneStatus status)
+    {
+        switch (status)
+        {
+            case SceneStatus.ADD_PREFAB:
+                return "[Add prefab]";
+            case SceneStatus.CONNECT_POINT:
+                return "[Connect point]";
+            case SceneStatus.SAVE_OBJECT:
+                return "[Save object]";
+            case SceneStatus.LOAD_OBJECT:
+                return "[Load object]";
+            case SceneStatus.RELATION_DISPLAY:
+                return "[Display relation]";
+            case SceneStatus.REMOVE_OBJECT:
+                return "[Remove object]";
+            case SceneStatus.SELECT_REFEDGE:
+                return "[Select refedge]";
+            case SceneStatus.STATISTIC_DISPLAY:
+                return "[Display statistics]";
+            case SceneStatus.TRANSFORM:
+                return "[Transform object]";
+        }
+        return "";
     }
 
     private void AddPrefabObject(MObject.MPrefabType type)
@@ -97,12 +147,34 @@ public class SceneManager : MonoBehaviour {
     public void UpdateEntityHighlight(MObject.MInteractMode interactMode)
     {
         MEntityPair e = GetAvailEntity(rightControllerPosition, interactMode);
-        if(activeEntity.entity == null || activeEntity.entity != e.entity)
+        if(activeEntity.entity != e.entity)
         {
             UnhighlightEntity(activeEntity.entity);
             HighlightEntity(e.entity);
         }
         activeEntity = e;
+    }
+
+    public void UpdateEntityHighlight(MObject.MInteractMode interactMode, MObject obj)
+    {
+        MEntity entity = null;
+        if (obj.HitObject(rightControllerPosition))
+        {
+            obj.Response(out entity, rightControllerPosition, interactMode);
+        }
+        if (activeEntity.entity != entity)
+        {
+            UnhighlightEntity(activeEntity.entity);
+            HighlightEntity(entity);
+        }
+        if(entity == null)
+        {
+            activeEntity = new MEntityPair(null, null);
+        }
+        else
+        {
+            activeEntity = new MEntityPair(entity, obj);
+        }
     }
 
     public void UpdateObjectHighlight()
@@ -125,8 +197,9 @@ public class SceneManager : MonoBehaviour {
         }
         if (activeEntity.obj != null)
         {
-            activeEntity.obj.ResetStatus();
-            activeEntity.obj = null;
+			if(activeEntity.obj.objectState == MObject.MObjectState.ACTIVE)
+				activeEntity.obj.ResetStatus();
+            activeEntity = new MEntityPair(null, null);
         }
     }
 

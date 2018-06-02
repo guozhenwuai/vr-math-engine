@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ExportObjectState : IState
+public class SaveObjectState : IState
 {
     private SceneManager sceneManager;
 
@@ -12,7 +12,7 @@ public class ExportObjectState : IState
 
     private VRTK.ControllerInteractionEventHandler rightGripPressed;
 
-    public ExportObjectState(SceneManager sceneManager)
+    public SaveObjectState(SceneManager sceneManager)
     {
         this.sceneManager = sceneManager;
         rightTriggerPressed = new VRTK.ControllerInteractionEventHandler(RightTriggerPressed);
@@ -21,10 +21,10 @@ public class ExportObjectState : IState
 
     public uint GetStateID()
     {
-        return (uint)SceneManager.SceneStatus.EXPORT_OBJECT;
+        return (uint)SceneManager.SceneStatus.SAVE_OBJECT;
     }
 
-    public void OnEnter(StateMachine machine, IState prevState)
+    public void OnEnter(StateMachine machine, IState prevState, object param)
     {
         sceneManager.rightEvents.TriggerPressed += rightTriggerPressed;
         sceneManager.rightEvents.GripPressed += rightGripPressed;
@@ -59,7 +59,7 @@ public class ExportObjectState : IState
     {
         if(curObj != null)
         {
-			curObj.ExportObject (MDefinitions.PATH);
+			curObj.ExportObject(MDefinitions.PATH);
             SelectObject(null);
         }
     }
@@ -77,7 +77,7 @@ public class ExportObjectState : IState
             {
                 obj.Select();
                 obj.ActiveTextMesh();
-                obj.SetMeshText("按右手手柄侧键保存当前选中模型");
+                obj.SetMeshText("按右手手柄侧键，\n保存当前选中模型");
             }
             curObj = obj;
         }
