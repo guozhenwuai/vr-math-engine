@@ -113,6 +113,16 @@ public class PanelMenuListener : MonoBehaviour {
         sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.CREATE_POINT, null);
     }
 
+    public void OnVerticalLineButtonClick()
+    {
+        sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.CREATE_VERTICAL_LINE, null);
+    }
+
+    public void OnRemoveEntityButtonClick()
+    {
+        sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.REMOVE_ENTITY, null);
+    }
+
     public void OnPrefabCubeButtonClick()
     {
         sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.ADD_PREFAB, MObject.MPrefabType.CUBE);

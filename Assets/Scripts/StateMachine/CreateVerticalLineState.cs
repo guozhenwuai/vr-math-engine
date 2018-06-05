@@ -46,6 +46,14 @@ public class CreateVerticalLineState : IState
         activePoint = new MPoint(Vector3.zero);
         activePoint.entityStatus = MEntity.MEntityStatus.ACTIVE;
         curObj = null;
+        foreach (MObject obj in sceneManager.objects)
+        {
+            MLinearEdge refEdge = obj.refEdge;
+            if (refEdge != null)
+            {
+                refEdge.entityStatus = MEntity.MEntityStatus.SPECIAL;
+            }
+        }
     }
 
     public void OnLeave(IState nextState)
@@ -54,11 +62,28 @@ public class CreateVerticalLineState : IState
         sceneManager.rightEvents.GripPressed -= rightGripPressed;
         ResetStatus();
         activePoint = null;
+        foreach (MObject obj in sceneManager.objects)
+        {
+            MLinearEdge refEdge = obj.refEdge;
+            if (refEdge != null)
+            {
+                refEdge.entityStatus = MEntity.MEntityStatus.DEFAULT;
+            }
+        }
     }
 
     public void OnUpdate()
     {
-        sceneManager.UpdateEntityHighlight(MObject.MInteractMode.ALL);
+        switch (status)
+        {
+            case STATUS.DEFAULT:
+                sceneManager.UpdateEntityHighlight(MObject.MInteractMode.ALL);
+                break;
+            case STATUS.CONNECTING:
+            case STATUS.SELECT_POINT:
+                sceneManager.UpdateEntityHighlight(MObject.MInteractMode.ALL, curObj);
+                break;
+        }
         sceneManager.StartRender();
         if (status == STATUS.CONNECTING)
         {
@@ -162,7 +187,6 @@ public class CreateVerticalLineState : IState
                 break;
             case STATUS.SELECT_POINT:
                 if(sceneManager.activeEntity.entity == null 
-                    || sceneManager.activeEntity.obj != curObj 
                     || sceneManager.activeEntity.entity.entityType != MEntity.MEntityType.POINT)
                 {
                     ResetStatus();
@@ -177,7 +201,6 @@ public class CreateVerticalLineState : IState
                 break;
             case STATUS.CONNECTING:
                 if(sceneManager.activeEntity.entity == null 
-                    || sceneManager.activeEntity.obj != curObj 
                     || sceneManager.activeEntity.entity.entityType == MEntity.MEntityType.POINT
                     || (sceneManager.activeEntity.entity.entityType == MEntity.MEntityType.EDGE 
                         && ((MEdge)sceneManager.activeEntity.entity).edgeType != MEdge.MEdgeType.LINEAR)

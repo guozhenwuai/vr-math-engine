@@ -66,13 +66,14 @@ public class SceneManager : MonoBehaviour {
 
     public enum SceneStatus { STATISTIC_DISPLAY, SELECT_REFEDGE, RELATION_DISPLAY
             , TRANSFORM, SAVE_OBJECT, LOAD_OBJECT, REMOVE_OBJECT
-            , CONNECT_POINT, CREATE_POINT, CREATE_VERTICAL_LINE
+            , CONNECT_POINT, CREATE_POINT, CREATE_VERTICAL_LINE, REMOVE_ENTITY
             , ADD_PREFAB};
 
 	// Use this for initialization
 	void Start () {
         objects = new List<MObject>();
         AddPrefabObject(MObject.MPrefabType.CUBE);
+        objects[0].CreatePoint(Vector3.zero);
         InitStateMachine();
 	}
 	
@@ -102,7 +103,8 @@ public class SceneManager : MonoBehaviour {
         sceneStateMachine.RegisterState(new RemoveObjectState(this));
         sceneStateMachine.RegisterState(new CreatePointState(this));
         sceneStateMachine.RegisterState(new CreateVerticalLineState(this, statisticActiveMesh));
-		sceneStateMachine.SwitchState((uint)SceneStatus.CREATE_VERTICAL_LINE, null);
+        sceneStateMachine.RegisterState(new RemoveEntityState(this));
+		sceneStateMachine.SwitchState((uint)SceneStatus.REMOVE_ENTITY, null);
     }
 
     private void BetweenSwitch(IState from, IState to)

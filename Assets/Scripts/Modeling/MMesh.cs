@@ -84,6 +84,22 @@ public class MMesh
         }
     }
 
+    public void RemoveEntity(MEntity entity)
+    {
+        switch (entity.entityType)
+        {
+            case MEntity.MEntityType.POINT:
+                RemovePoint((MPoint)entity);
+                break;
+            case MEntity.MEntityType.EDGE:
+                RemoveEdge((MEdge)entity);
+                break;
+            case MEntity.MEntityType.FACE:
+                RemoveFace((MFace)entity);
+                break;
+        }
+    }
+
     public MPoint CreatePoint(Vector3 position)
     {
         MPoint point = new MPoint(position);
@@ -360,6 +376,33 @@ public class MMesh
             boundingBox.AdjustToContain(face.boundingBox);
         }
         return i;
+    }
+
+    private void RemoveFace(MFace face)
+    {
+        faceList.Remove(face);
+    }
+
+    private void RemoveEdge(MEdge edge)
+    {
+        if (!edgeList.Remove(edge)) return;
+        foreach(MFace face in edge.faces)
+        {
+            RemoveFace(face);
+        }
+    }
+
+    private void RemovePoint(MPoint point)
+    {
+        if (!pointList.Remove(point)) return;
+        foreach(MEdge edge in point.edges)
+        {
+            RemoveEdge(edge);
+        }
+        foreach(MFace face in point.faces)
+        {
+            RemoveFace(face);
+        }
     }
 
 }

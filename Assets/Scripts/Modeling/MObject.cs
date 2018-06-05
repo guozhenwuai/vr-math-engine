@@ -345,6 +345,11 @@ public class MObject
         UnityEngine.Object.Destroy(gameObject);
     }
 
+    public void RemoveEntity(MEntity entity)
+    {
+        mesh.RemoveEntity(entity);
+    }
+
     public void SetRefEdge(MLinearEdge edge)
     {
         refEdge = edge;

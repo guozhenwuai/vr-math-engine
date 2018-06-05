@@ -323,6 +323,7 @@
     <Compile Include="Assets\Scripts\StateMachine\IState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\RefEdgeState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\RelationDisplayState.cs" />
+    <Compile Include="Assets\Scripts\StateMachine\RemoveEntityState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\RemoveObjectState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\SaveObjectState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\StateMachine.cs" />
