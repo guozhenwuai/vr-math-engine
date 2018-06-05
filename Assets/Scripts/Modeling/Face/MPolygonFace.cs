@@ -69,6 +69,18 @@ public class MPolygonFace : MFace
     }
 
     override
+    public Vector3 GetProjection(Vector3 target, Vector3 assistant)
+    {
+        return MHelperFunctions.PointProjectionInFace(target, normal, sortedPoints[0].position);
+    }
+
+    override
+    public Vector3 GetVerticalPoint(Vector3 startPoint, Vector3 curPoint)
+    {
+        return MHelperFunctions.PointProjectionInLine(curPoint, normal, startPoint);
+    }
+
+    override
     public float GetSurface()
     {
         float surface = 0;
@@ -79,6 +91,12 @@ public class MPolygonFace : MFace
             surface += MHelperFunctions.TriangleSurface(v, sortedPoints[i].position, sortedPoints[i + 1].position);
         }
         return surface;
+    }
+
+    override
+    public void UpdateMesh()
+    {
+        InitMesh();
     }
 
     private void InitMesh()

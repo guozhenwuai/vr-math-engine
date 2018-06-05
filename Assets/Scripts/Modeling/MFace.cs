@@ -33,6 +33,19 @@ public class MFace: MEntity
     }
 
     override
+    public Vector3 GetProjection(Vector3 target, Vector3 assistant)
+    {
+        Debug.Log("MFace: Virtual GetProjection");
+        return assistant;
+    }
+
+    override
+    public void UpdateMesh()
+    {
+        Debug.Log("MEdge: Virtual UpdateMesh");
+    }
+
+    override
     public void Render(Matrix4x4 matrix)
     {
         Material mat = null;
@@ -58,6 +71,13 @@ public class MFace: MEntity
                 break;
         }
         if (mat != null && mesh != null) Graphics.DrawMesh(mesh, matrix, mat, 0);
+    }
+
+    virtual
+    public Vector3 GetVerticalPoint(Vector3 startPoint, Vector3 curPoint)
+    {
+        Debug.Log("MFace: Virtual GetVerticalPoint");
+        return curPoint;
     }
 
     virtual

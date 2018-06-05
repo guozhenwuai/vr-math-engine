@@ -49,6 +49,23 @@ public class MCurveEdge : MEdge
     }
 
     override
+    public Vector3 GetProjection(Vector3 target, Vector3 assistant)
+    {
+        Vector3 p = MHelperFunctions.PointProjectionInFace(assistant, normal, center.position);
+        return center.position + (p - center.position).normalized * radius;
+    }
+
+    override
+    public void UpdateMesh()
+    {
+        InitMesh();
+        foreach (MFace face in faces)
+        {
+            face.UpdateMesh();
+        }
+    }
+
+    override
     public float GetLength()
     {
         return 2 * Mathf.PI * radius;
@@ -56,7 +73,7 @@ public class MCurveEdge : MEdge
 
     private void InitMesh()
     {
-        // TODO: 曲线Mesh的绘制
+        mesh = MPrefab.GetCircleEdgeMesh(center.position, normal, radius, MDefinitions.LINE_RADIUS);
     }
 
     override

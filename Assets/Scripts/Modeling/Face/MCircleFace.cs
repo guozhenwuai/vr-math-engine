@@ -36,6 +36,24 @@ public class MCircleFace : MFace
     }
 
     override
+    public Vector3 SpecialPointFind(Vector3 point)
+    {
+        return MHelperFunctions.PointProjectionInFace(point, circle.normal, circle.center.position);
+    }
+
+    override
+    public Vector3 GetProjection(Vector3 target, Vector3 assistant)
+    {
+        return MHelperFunctions.PointProjectionInFace(target, circle.normal, circle.center.position);
+    }
+
+    override
+    public Vector3 GetVerticalPoint(Vector3 startPoint, Vector3 curPoint)
+    {
+        return MHelperFunctions.PointProjectionInLine(curPoint, circle.normal, startPoint);
+    }
+
+    override
     public float GetSurface()
     {
         return Mathf.PI * Mathf.Pow(circle.radius, 2);

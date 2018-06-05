@@ -41,6 +41,12 @@ public class MSphereFace : MFace
     }
 
     override
+    public Vector3 GetProjection(Vector3 target, Vector3 assistant)
+    {
+        return SpecialPointFind(assistant);
+    }
+
+    override
     public float GetSurface()
     {
         return 4 * Mathf.PI * Mathf.Pow(radius, 2);

@@ -113,7 +113,17 @@ public class MMesh
 
     public MCurveEdge CreateCurveEdge(MPoint center, float radius, Vector3 normal)
     {
-        // TODO: 创建圆边
+        MCurveEdge edge = new MCurveEdge(center, normal, radius);
+        if (!edge.IsValid()) return null;
+        int i;
+        if((i = AddEdgeToMesh(edge)) != -1)
+        {
+            return edgeList[i] as MCurveEdge;
+        }
+        else
+        {
+            return edge;
+        }
         return null;
     }
 

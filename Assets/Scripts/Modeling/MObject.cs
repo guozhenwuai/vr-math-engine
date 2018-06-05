@@ -9,7 +9,7 @@ public class MObject
 {
     public enum MPrefabType { CUBE, SPHERE, CYLINDER, PRISM, PYRAMID, CONE};
 
-    public enum MInteractMode { ALL, POINT_ONLY, EDGE_ONLY, FACE_ONLY};
+    public enum MInteractMode { ALL, POINT_ONLY, EDGE_ONLY, FACE_ONLY, POINT_EXPT, EDGE_EXPT, FACE_EXPT};
 
     public enum MObjectState { DEFAULT, ACTIVE, SELECT};
 
@@ -128,6 +128,9 @@ public class MObject
             case MPrefabType.SPHERE:
                 mesh = MSphere.GetMMesh();
                 break;
+            case MPrefabType.CYLINDER:
+                mesh = MCylinder.GetMMesh();
+                break;
             default:
                 Debug.Log("Unknown prefab type: " + type);
                 return;
@@ -215,7 +218,6 @@ public class MObject
                 dis = mesh.GetClosetPoint(out point, p);
                 if(dis < MDefinitions.ACTIVE_DISTANCE)
                 {
-                    //HitPoint(point);
                     e = point;
                     res = dis;
                     break;
@@ -223,15 +225,13 @@ public class MObject
                 dis = mesh.GetClosetEdge(out edge, p);
                 if(dis < MDefinitions.ACTIVE_DISTANCE)
                 {
-                    //HitEdge(edge);
                     e = edge;
                     res = dis;
                     break;
                 }
-                dis = mesh.GetClosetFace(out face, p, true, MDefinitions.ACTIVE_DISTANCE);
+                dis = mesh.GetClosetFace(out face, p, true, MDefinitions.ACTIVE_DISTANCE / scale);
                 if(dis < MDefinitions.ACTIVE_DISTANCE)
                 {
-                    //HitFace(face);
                     e = face;
                     res = dis;
                     break;
@@ -241,7 +241,6 @@ public class MObject
                 dis = mesh.GetClosetPoint(out point, p);
                 if (dis < MDefinitions.ACTIVE_DISTANCE)
                 {
-                    //HitPoint(point);
                     e = point;
                     res = dis;
                 }
@@ -250,7 +249,6 @@ public class MObject
                 dis = mesh.GetClosetEdge(out edge, p);
                 if (dis < MDefinitions.ACTIVE_DISTANCE)
                 {
-                    //HitEdge(edge);
                     e = edge;
                     res = dis;
                 }
@@ -259,9 +257,56 @@ public class MObject
                 dis = mesh.GetClosetFace(out face, p, true, MDefinitions.ACTIVE_DISTANCE / scale);
                 if (dis < MDefinitions.ACTIVE_DISTANCE)
                 {
-                    //HitFace(face);
                     e = face;
                     res = dis;
+                }
+                break;
+            case MInteractMode.POINT_EXPT:
+                dis = mesh.GetClosetEdge(out edge, p);
+                if (dis < MDefinitions.ACTIVE_DISTANCE)
+                {
+                    e = edge;
+                    res = dis;
+                    break;
+                }
+                dis = mesh.GetClosetFace(out face, p, true, MDefinitions.ACTIVE_DISTANCE / scale);
+                if (dis < MDefinitions.ACTIVE_DISTANCE)
+                {
+                    e = face;
+                    res = dis;
+                    break;
+                }
+                break;
+            case MInteractMode.EDGE_EXPT:
+                dis = mesh.GetClosetPoint(out point, p);
+                if (dis < MDefinitions.ACTIVE_DISTANCE)
+                {
+                    e = point;
+                    res = dis;
+                    break;
+                }
+                dis = mesh.GetClosetFace(out face, p, true, MDefinitions.ACTIVE_DISTANCE / scale);
+                if (dis < MDefinitions.ACTIVE_DISTANCE)
+                {
+                    e = face;
+                    res = dis;
+                    break;
+                }
+                break;
+            case MInteractMode.FACE_EXPT:
+                dis = mesh.GetClosetPoint(out point, p);
+                if (dis < MDefinitions.ACTIVE_DISTANCE)
+                {
+                    e = point;
+                    res = dis;
+                    break;
+                }
+                dis = mesh.GetClosetEdge(out edge, p);
+                if (dis < MDefinitions.ACTIVE_DISTANCE)
+                {
+                    e = edge;
+                    res = dis;
+                    break;
                 }
                 break;
             default:
@@ -322,7 +367,6 @@ public class MObject
     {
         mesh.CreatePoint(localSpacePos);
     }
-
 
 	public void CreateLinearEdge(MPoint start, MPoint end){
 		mesh.CreateLinearEdge (start, end);

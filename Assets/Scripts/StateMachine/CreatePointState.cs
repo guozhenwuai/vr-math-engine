@@ -28,7 +28,7 @@ public class CreatePointState : IState
         sceneManager.rightEvents.TriggerPressed += rightTriggerPressed;
         sceneManager.rightEvents.GripPressed += RightGripPressed;
         activePoint = new MPoint(Vector3.zero);
-        activePoint.entityStatus = MEntity.MEntityStatus.SELECT;
+        activePoint.entityStatus = MEntity.MEntityStatus.ACTIVE;
         curObj = null;
     }
 

@@ -210,7 +210,6 @@ public class RelationDisplayState : IState
     private void RemoveEntity(MEntityPair entityPair)
     {
         MEntity entity = entityPair.entity;
-        MObject obj = entityPair.obj;
         if (entity.entityStatus == MEntity.MEntityStatus.SELECT)
         {
             entity.entityStatus = MEntity.MEntityStatus.DEFAULT;
@@ -221,10 +220,9 @@ public class RelationDisplayState : IState
     private void AddEntity(MEntityPair entityPair)
     {
         MEntity entity = entityPair.entity;
-        MObject obj = entityPair.obj;
-        if (entityPair.entity.entityStatus != MEntity.MEntityStatus.SPECIAL)
+        if (entity.entityStatus != MEntity.MEntityStatus.SPECIAL)
         {
-            entityPair.entity.entityStatus = MEntity.MEntityStatus.SELECT;
+            entity.entityStatus = MEntity.MEntityStatus.SELECT;
         }
         selectedEntity.Add(entityPair);
     }

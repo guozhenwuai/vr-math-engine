@@ -311,6 +311,7 @@
     <Compile Include="Assets\Scripts\Modeling\MRelation.cs" />
     <Compile Include="Assets\Scripts\Modeling\MStructs.cs" />
     <Compile Include="Assets\Scripts\Modeling\Prefab\MCube.cs" />
+    <Compile Include="Assets\Scripts\Modeling\Prefab\MCylinder.cs" />
     <Compile Include="Assets\Scripts\Modeling\Prefab\MSphere.cs" />
     <Compile Include="Assets\Scripts\NewBehaviourScript.cs" />
     <Compile Include="Assets\Scripts\PanelMenuListener.cs" />
@@ -318,6 +319,7 @@
     <Compile Include="Assets\Scripts\StateMachine\AddPrefabState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\ConnectPointState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\CreatePointState.cs" />
+    <Compile Include="Assets\Scripts\StateMachine\CreateVerticalLineState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\IState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\RefEdgeState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\RelationDisplayState.cs" />

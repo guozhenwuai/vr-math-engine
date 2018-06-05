@@ -76,6 +76,19 @@ public static class MHelperFunctions
         else return 1;
     }
 
+    // 线圈上任意一点
+    public static Vector3 RandomPointInCircle(Vector3 center, Vector3 normal, float radius)
+    {
+        while (true)
+        {
+            Vector3 dir = new Vector3(Random.value, Random.value, Random.value);
+            if (!MHelperFunctions.Parallel(dir, normal))
+            {
+                return (dir - Vector3.Dot(dir, normal) * normal).normalized * radius + center;
+            }
+        }
+    }
+
     // 判断向量是否平行
     public static bool Parallel(Vector3 v1, Vector3 v2)
     {

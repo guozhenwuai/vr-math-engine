@@ -66,7 +66,7 @@ public class SceneManager : MonoBehaviour {
 
     public enum SceneStatus { STATISTIC_DISPLAY, SELECT_REFEDGE, RELATION_DISPLAY
             , TRANSFORM, SAVE_OBJECT, LOAD_OBJECT, REMOVE_OBJECT
-            , CONNECT_POINT, CREATE_POINT
+            , CONNECT_POINT, CREATE_POINT, CREATE_VERTICAL_LINE
             , ADD_PREFAB};
 
 	// Use this for initialization
@@ -101,7 +101,8 @@ public class SceneManager : MonoBehaviour {
         sceneStateMachine.RegisterState(new AddPrefabState(this));
         sceneStateMachine.RegisterState(new RemoveObjectState(this));
         sceneStateMachine.RegisterState(new CreatePointState(this));
-		sceneStateMachine.SwitchState((uint)SceneStatus.CREATE_POINT, null);
+        sceneStateMachine.RegisterState(new CreateVerticalLineState(this, statisticActiveMesh));
+		sceneStateMachine.SwitchState((uint)SceneStatus.CREATE_VERTICAL_LINE, null);
     }
 
     private void BetweenSwitch(IState from, IState to)

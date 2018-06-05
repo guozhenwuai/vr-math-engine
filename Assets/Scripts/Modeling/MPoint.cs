@@ -7,7 +7,7 @@ public class MPoint : MEntity
     public Vector3 position
     {
         get;
-        set;
+        private set;
     }
 
     public List<MEdge> edges = new List<MEdge>();
@@ -25,6 +25,20 @@ public class MPoint : MEntity
     public void SetPosition(Vector3 position)
     {
         this.position = position;
+        UpdateMesh();
+        foreach(MEdge edge in edges)
+        {
+            edge.UpdateMesh();
+        }
+        foreach(MFace face in faces)
+        {
+            face.UpdateMesh();
+        }
+    }
+
+    override
+    public void UpdateMesh()
+    {
         InitMesh();
     }
 
@@ -46,6 +60,12 @@ public class MPoint : MEntity
         {
             return point;
         }
+    }
+
+    override
+    public Vector3 GetProjection(Vector3 target, Vector3 assistant)
+    {
+        return position;
     }
 
     override

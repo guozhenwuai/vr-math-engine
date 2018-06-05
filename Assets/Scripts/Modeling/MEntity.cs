@@ -36,6 +36,12 @@ public abstract class MEntity
     public void Render(Matrix4x4 matrix);
 
     abstract
+    public void UpdateMesh();
+
+    abstract
     public Vector3 SpecialPointFind(Vector3 point);
+
+    abstract
+    public Vector3 GetProjection(Vector3 target, Vector3 assistant);
     
 }

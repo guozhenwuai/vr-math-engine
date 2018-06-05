@@ -29,6 +29,19 @@ public class MEdge : MEntity
     }
 
     override
+    public Vector3 GetProjection(Vector3 target, Vector3 assistant)
+    {
+        Debug.Log("MEdge: Virtual GetProjection");
+        return assistant;
+    }
+
+    override
+    public void UpdateMesh()
+    {
+        Debug.Log("MEdge: Virtual UpdateMesh");
+    }
+
+    override
     public bool IsValid()
     {
         Debug.Log("MEdge: Virtual IsValid");

@@ -58,10 +58,11 @@ public class ConnectPointState : IState
         {
             activeEdge = new MLinearEdge(selectPoint, new MPoint(v));
             activeEdge.entityStatus = MEntity.MEntityStatus.ACTIVE;
+            activeEdge.end.edges.Add(activeEdge);
         }
         else
         {
-            activeEdge.SetEndPoint(v);
+            activeEdge.end.SetPosition(v);
         }
         if(activeEdge != null && activeEdge.IsValid())
         {
@@ -71,10 +72,10 @@ public class ConnectPointState : IState
 
     private void RightTriggerPressed(object sender, VRTK.ControllerInteractionEventArgs e)
     {
+        activeEdge = null;
         if(sceneManager.activeEntity.entity == null || sceneManager.activeEntity.entity.entityType != MEntity.MEntityType.POINT)
         {
             connecting = false;
-            activeEdge = null;
             curObject = null;
             ClearSelectPoint();
         }
@@ -82,13 +83,11 @@ public class ConnectPointState : IState
         {
             if(curObject != sceneManager.activeEntity.obj)
             {
-                activeEdge = null;
                 curObject = sceneManager.activeEntity.obj;
                 SelectPoint((MPoint)sceneManager.activeEntity.entity);
             } else if((MPoint)sceneManager.activeEntity.entity == selectPoint)
             {
                 connecting = false;
-                activeEdge = null;
                 curObject = null;
                 ClearSelectPoint();
             } else
@@ -96,7 +95,6 @@ public class ConnectPointState : IState
                 MPoint p = (MPoint)sceneManager.activeEntity.entity;
                 curObject.CreateLinearEdge(selectPoint, p);
                 connecting = false;
-                activeEdge = null;
                 curObject = null;
                 ClearSelectPoint();
             }
@@ -104,7 +102,6 @@ public class ConnectPointState : IState
         else
         {
             connecting = true;
-            activeEdge = null;
             curObject = sceneManager.activeEntity.obj;
             SelectPoint((MPoint)sceneManager.activeEntity.entity);
         }
