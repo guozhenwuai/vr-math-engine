@@ -140,7 +140,21 @@ public class MMesh
         {
             return edge;
         }
-        return null;
+    }
+
+    public MGeneralEdge CreateGeneralEdge(List<Vector3> points)
+    {
+        MGeneralEdge edge = new MGeneralEdge(points);
+        if (!edge.IsValid()) return null;
+        int i;
+        if((i = AddEdgeToMesh(edge)) != -1)
+        {
+            return edgeList[i] as MGeneralEdge;
+        }
+        else
+        {
+            return edge;
+        }
     }
 
     public MPolygonFace CreatePolygonFace(List<MLinearEdge> edges)
@@ -291,6 +305,8 @@ public class MMesh
                         ce.center = pointList[j];
                     }
                     ce.center.edges.Add(edge);
+                    break;
+                case MEdge.MEdgeType.GENERAL:
                     break;
                 default:
                     Debug.Log("MMesh: AddEdgeToList: unhandled edge type " + edge.edgeType);

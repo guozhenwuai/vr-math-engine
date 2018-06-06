@@ -292,6 +292,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Modeling\AABB.cs" />
     <Compile Include="Assets\Scripts\Modeling\Edge\MCurveEdge.cs" />
+    <Compile Include="Assets\Scripts\Modeling\Edge\MGeneralEdge.cs" />
     <Compile Include="Assets\Scripts\Modeling\Edge\MLinearEdge.cs" />
     <Compile Include="Assets\Scripts\Modeling\Face\MCircleFace.cs" />
     <Compile Include="Assets\Scripts\Modeling\Face\MConeFace.cs" />

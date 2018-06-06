@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MEdge : MEntity
 {
-    public enum MEdgeType {LINEAR, CURVE}
+    public enum MEdgeType {LINEAR, CURVE, GENERAL}
 
     public MEdgeType edgeType
     {

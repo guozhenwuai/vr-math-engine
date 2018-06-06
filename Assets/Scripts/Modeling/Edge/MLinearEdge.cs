@@ -53,18 +53,7 @@ public class MLinearEdge : MEdge
     override
     public float CalcDistance(Vector3 point)
     {
-        float d1 = Vector3.Dot(end.position - start.position, point - start.position);
-        if (MHelperFunctions.FloatZero(d1) <= 0)
-        {
-            return Vector3.Distance(point, start.position);
-        }
-        float d2 = Vector3.Dot(end.position - start.position, end.position - start.position);
-        if(d1 >= d2)
-        {
-            return Vector3.Distance(point, end.position);
-        }
-        float r = d1 / d2;
-        return Vector3.Distance(point,r * end.position + (1 - r) * start.position);
+        return MHelperFunctions.DistanceP2S(point, start.position, end.position);
     }
 
     override

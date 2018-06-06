@@ -73,7 +73,6 @@ public class SceneManager : MonoBehaviour {
 	void Start () {
         objects = new List<MObject>();
         AddPrefabObject(MObject.MPrefabType.CUBE);
-        objects[0].CreatePoint(Vector3.zero);
         InitStateMachine();
 	}
 	
@@ -104,7 +103,7 @@ public class SceneManager : MonoBehaviour {
         sceneStateMachine.RegisterState(new CreatePointState(this));
         sceneStateMachine.RegisterState(new CreateVerticalLineState(this, statisticActiveMesh));
         sceneStateMachine.RegisterState(new RemoveEntityState(this));
-		sceneStateMachine.SwitchState((uint)SceneStatus.REMOVE_ENTITY, null);
+		sceneStateMachine.SwitchState((uint)SceneStatus.STATISTIC_DISPLAY, null);
     }
 
     private void BetweenSwitch(IState from, IState to)

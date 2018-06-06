@@ -109,6 +109,23 @@ public static class MHelperFunctions
         return angle;
     }
 
+    // 计算点到线段的距离
+    public static float DistanceP2S(Vector3 point, Vector3 start, Vector3 end)
+    {
+        float d1 = Vector3.Dot(end - start, point - start);
+        if (MHelperFunctions.FloatZero(d1) <= 0)
+        {
+            return Vector3.Distance(point, start);
+        }
+        float d2 = Vector3.Dot(end - start, end - start);
+        if (d1 >= d2)
+        {
+            return Vector3.Distance(point, end);
+        }
+        float r = d1 / d2;
+        return Vector3.Distance(point, r * end + (1 - r) * start);
+    }
+
     // 计算点到平面的距离
     public static float DistanceP2F(Vector3 point, Vector3 faceNormal, Vector3 facePoint)
     {
