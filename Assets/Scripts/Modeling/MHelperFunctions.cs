@@ -109,6 +109,46 @@ public static class MHelperFunctions
         return angle;
     }
 
+    public static Vector3 Min(Vector3 a, Vector3 b, Vector3 c)
+    {
+        return Vector3.Min(a, Vector3.Min(b, c));
+    }
+
+    public static Vector3 Max(Vector3 a, Vector3 b, Vector3 c)
+    {
+        return Vector3.Max(a, Vector3.Max(b, c));
+    }
+
+    // 计算点到三角形的距离
+    public static float DistanceP2T(Vector3 point, Vector3 p1, Vector3 p2, Vector3 p3)
+    {
+        List<Vector3> points = new List<Vector3> { p1, p2, p3 };
+        Vector3 normal = Vector3.Cross(p2 - p1, p3 - p1).normalized;
+        Vector3 projectionPoint = PointProjectionInFace(point, normal, p1);
+        Vector3 rotateAxis;
+        float rotateAngle;
+        CalcRotateAxisAndAngle(out rotateAxis, out rotateAngle, normal, new Vector3(0, 0, 1));
+        List<Vector3> rotatePoints = new List<Vector3>();
+        foreach (Vector3 p in points)
+        {
+            rotatePoints.Add(CalcRotate(p, rotateAxis, rotateAngle));
+        }
+        projectionPoint = CalcRotate(projectionPoint, rotateAxis, rotateAngle);
+        if (InPolygon(projectionPoint, rotatePoints))
+        {
+            return DistanceP2F(point, normal, points[0]);
+        }
+        else
+        {
+            float min = float.MaxValue;
+            for (int i = 0; i < 3; i++)
+            {
+                min = Mathf.Min(min, DistanceP2S(point, points[i], points[(i + 1) % 3]));
+            }
+            return min;
+        }
+    }
+
     // 计算点到线段的距离
     public static float DistanceP2S(Vector3 point, Vector3 start, Vector3 end)
     {

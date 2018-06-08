@@ -103,41 +103,15 @@ public class SceneManager : MonoBehaviour {
         sceneStateMachine.RegisterState(new CreatePointState(this));
         sceneStateMachine.RegisterState(new CreateVerticalLineState(this, statisticActiveMesh));
         sceneStateMachine.RegisterState(new RemoveEntityState(this));
-		sceneStateMachine.SwitchState((uint)SceneStatus.CREATE_VERTICAL_LINE, null);
+		sceneStateMachine.SwitchState((uint)SceneStatus.CREATE_POINT, null);
     }
 
     private void BetweenSwitch(IState from, IState to)
     {
         if (from == null || to == null) return;
-        string text = "Status Switch: from " + GetStatus((SceneStatus)from.GetStateID()) + " to " + GetStatus((SceneStatus)to.GetStateID());
+        string text = "Status Switch: from " + (SceneStatus)from.GetStateID() + " to " + (SceneStatus)to.GetStateID();
         statusMesh.GetComponent<TextMesh>().text = text;
         Debug.Log(text);
-    }
-
-    private string GetStatus(SceneStatus status)
-    {
-        switch (status)
-        {
-            case SceneStatus.ADD_PREFAB:
-                return "[Add prefab]";
-            case SceneStatus.CONNECT_POINT:
-                return "[Connect point]";
-            case SceneStatus.SAVE_OBJECT:
-                return "[Save object]";
-            case SceneStatus.LOAD_OBJECT:
-                return "[Load object]";
-            case SceneStatus.RELATION_DISPLAY:
-                return "[Display relation]";
-            case SceneStatus.REMOVE_OBJECT:
-                return "[Remove object]";
-            case SceneStatus.SELECT_REFEDGE:
-                return "[Select refedge]";
-            case SceneStatus.STATISTIC_DISPLAY:
-                return "[Display statistics]";
-            case SceneStatus.TRANSFORM:
-                return "[Transform object]";
-        }
-        return "";
     }
 
     private void AddPrefabObject(MObject.MPrefabType type)

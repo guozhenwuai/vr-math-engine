@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MFace: MEntity
 {
-    public enum MFaceType { POLYGON, CIRCLE, CYLINDER, SPHERE, CONE}
+    public enum MFaceType { POLYGON, CIRCLE, CYLINDER, SPHERE, CONE, GENERAL_FLAT, GENERAL_CURVE}
 
     public MFaceType faceType
     {

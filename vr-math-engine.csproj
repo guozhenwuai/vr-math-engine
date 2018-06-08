@@ -297,6 +297,8 @@
     <Compile Include="Assets\Scripts\Modeling\Face\MCircleFace.cs" />
     <Compile Include="Assets\Scripts\Modeling\Face\MConeFace.cs" />
     <Compile Include="Assets\Scripts\Modeling\Face\MCylinderFace.cs" />
+    <Compile Include="Assets\Scripts\Modeling\Face\MGeneralCurveFace.cs" />
+    <Compile Include="Assets\Scripts\Modeling\Face\MGeneralFlatFace.cs" />
     <Compile Include="Assets\Scripts\Modeling\Face\MPolygonFace.cs" />
     <Compile Include="Assets\Scripts\Modeling\Face\MSphereFace.cs" />
     <Compile Include="Assets\Scripts\Modeling\MDefinitions.cs" />

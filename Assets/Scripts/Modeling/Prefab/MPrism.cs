@@ -9,12 +9,12 @@ public static class MPrism
     public static MMesh GetMMesh()
     {
         mesh = new MMesh();
-        MPoint a = mesh.CreatePoint(new Vector3(Mathf.Sqrt(3)/2, -0.75f, -0.5f));
-        MPoint b = mesh.CreatePoint(new Vector3(-Mathf.Sqrt(3)/2, -0.75f, -0.5f));
-        MPoint c = mesh.CreatePoint(new Vector3(0, -0.75f, 1));
-        MPoint e = mesh.CreatePoint(new Vector3(Mathf.Sqrt(3)/2, 0.75f, -0.5f));
-        MPoint f = mesh.CreatePoint(new Vector3(-Mathf.Sqrt(3)/2, 0.75f, -0.5f));
-        MPoint g = mesh.CreatePoint(new Vector3(0, 0.75f, 1));
+        MPoint a = mesh.CreatePoint(new Vector3(Mathf.Sqrt(3)/4, -0.75f, -0.25f));
+        MPoint b = mesh.CreatePoint(new Vector3(-Mathf.Sqrt(3)/4, -0.75f, -0.25f));
+        MPoint c = mesh.CreatePoint(new Vector3(0, -0.75f, 0.5f));
+        MPoint e = mesh.CreatePoint(new Vector3(Mathf.Sqrt(3)/4, 0.75f, -0.25f));
+        MPoint f = mesh.CreatePoint(new Vector3(-Mathf.Sqrt(3)/4, 0.75f, -0.25f));
+        MPoint g = mesh.CreatePoint(new Vector3(0, 0.75f, 0.5f));
         MLinearEdge ab = mesh.CreateLinearEdge(a, b);
         MLinearEdge bc = mesh.CreateLinearEdge(b, c);
         MLinearEdge ca = mesh.CreateLinearEdge(c, a);

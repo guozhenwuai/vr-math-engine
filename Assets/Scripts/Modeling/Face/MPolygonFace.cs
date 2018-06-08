@@ -16,7 +16,7 @@ public class MPolygonFace : MFace
 
     bool buildSuccess = true;
 
-    MeshCollider collider;
+    float surface;
 
     public MPolygonFace(List<MLinearEdge> edgeList)
     {
@@ -32,6 +32,7 @@ public class MPolygonFace : MFace
         GenerateSortedPoint();
         if(buildSuccess)CalcNormal();
         if (buildSuccess) InitMesh();
+        if (buildSuccess) CalcSurface();
     }
 
     override
@@ -83,13 +84,6 @@ public class MPolygonFace : MFace
     override
     public float GetSurface()
     {
-        float surface = 0;
-        int count = sortedPoints.Count;
-        Vector3 v = sortedPoints[0].position;
-        for(int i = 1; i < count - 1; i++)
-        {
-            surface += MHelperFunctions.TriangleSurface(v, sortedPoints[i].position, sortedPoints[i + 1].position);
-        }
         return surface;
     }
 
@@ -97,6 +91,7 @@ public class MPolygonFace : MFace
     public void UpdateMesh()
     {
         InitMesh();
+        CalcSurface();
     }
 
     private void InitMesh()
@@ -132,7 +127,6 @@ public class MPolygonFace : MFace
         foreach(MLinearEdge edge in edgeList)
         {
             if (!edge.IsValid()) return false;
-            if (!MHelperFunctions.Perpendicular(edge.direction, normal)) return false;
         }
         return true;
     }
@@ -160,6 +154,17 @@ public class MPolygonFace : MFace
         return this.sortedPoints.GetHashCode();
     }
 
+    private void CalcSurface()
+    {
+        surface = 0;
+        int count = sortedPoints.Count;
+        Vector3 v = sortedPoints[0].position;
+        for (int i = 1; i < count - 1; i++)
+        {
+            surface += MHelperFunctions.TriangleSurface(v, sortedPoints[i].position, sortedPoints[i + 1].position);
+        }
+    }
+
     private void CalcNormal()
     {
         MLinearEdge e1 = edgeList[0];
@@ -179,6 +184,17 @@ public class MPolygonFace : MFace
         {
             Debug.Log("MPolygonFace: CalcNormal: wrong edgeList");
             buildSuccess = false;
+        }
+        if (buildSuccess)
+        {
+            foreach(MLinearEdge edge in edgeList)
+            {
+                if (!MHelperFunctions.Perpendicular(edge.direction, normal))
+                {
+                    buildSuccess = false;
+                    return;
+                }
+            }
         }
     }
 

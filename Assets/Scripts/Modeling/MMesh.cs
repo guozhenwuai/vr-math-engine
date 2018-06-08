@@ -230,6 +230,36 @@ public class MMesh
         }
     }
 
+    public MGeneralFlatFace CreateGeneralFlatFace(List<Vector3> points)
+    {
+        MGeneralFlatFace face = new MGeneralFlatFace(points);
+        if (!face.IsValid()) return null;
+        int i;
+        if ((i = AddFaceToMesh(face)) != -1)
+        {
+            return faceList[i] as MGeneralFlatFace;
+        }
+        else
+        {
+            return face;
+        }
+    }
+
+    public MGeneralCurveFace CreateGeneralCurveFace(Mesh mesh)
+    {
+        MGeneralCurveFace face = new MGeneralCurveFace(mesh);
+        if (!face.IsValid()) return null;
+        int i;
+        if ((i = AddFaceToMesh(face)) != -1)
+        {
+            return faceList[i] as MGeneralCurveFace;
+        }
+        else
+        {
+            return face;
+        }
+    }
+
     public float GetClosetPoint(out MPoint point, Vector3 pos)
     {
         float min = float.MaxValue;
@@ -421,6 +451,10 @@ public class MMesh
                         sf.center = pointList[j];
                     }
                     sf.center.faces.Add(face);
+                    break;
+                case MFace.MFaceType.GENERAL_FLAT:
+                    break;
+                case MFace.MFaceType.GENERAL_CURVE:
                     break;
                 default:
                     Debug.Log("MMesh: AddFaceToList: unhandled edge type " + face.faceType);

@@ -179,7 +179,8 @@ public class CreateVerticalLineState : IState
                         curObj = sceneManager.activeEntity.obj;
                     }
                     else if(((MFace)sceneManager.activeEntity.entity).faceType == MFace.MFaceType.POLYGON 
-                        || ((MFace)sceneManager.activeEntity.entity).faceType == MFace.MFaceType.CIRCLE)
+                        || ((MFace)sceneManager.activeEntity.entity).faceType == MFace.MFaceType.CIRCLE
+                        || ((MFace)sceneManager.activeEntity.entity).faceType == MFace.MFaceType.GENERAL_FLAT)
                     {
                         status = STATUS.SELECT_POINT;
                         SelectEntity(sceneManager.activeEntity.entity);
@@ -204,6 +205,8 @@ public class CreateVerticalLineState : IState
                 if(sceneManager.activeEntity.entity == null 
                     || (sceneManager.activeEntity.entity.entityType == MEntity.MEntityType.EDGE 
                         && ((MEdge)sceneManager.activeEntity.entity).edgeType != MEdge.MEdgeType.LINEAR)
+                    || (sceneManager.activeEntity.entity.entityType == MEntity.MEntityType.FACE
+                        && ((MFace)sceneManager.activeEntity.entity).faceType == MFace.MFaceType.GENERAL_CURVE)
                   )
                 {
                     ResetStatus();

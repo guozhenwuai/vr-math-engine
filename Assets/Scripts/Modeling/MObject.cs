@@ -65,10 +65,13 @@ public class MObject
         using(StreamReader sr = new StreamReader(MDefinitions.PATH + "/" + filename))
         {
             string line = sr.ReadLine();
+            string[] lineComponent;
+            bool parseLine;
             while (line!=null)
             {
-                string[] lineComponent = line.Split(' ');
+                lineComponent = line.Split(' ');
                 string type = lineComponent[0];
+                parseLine = true;
                 switch (type)
                 {
                     case "p":
@@ -94,23 +97,44 @@ public class MObject
                         mesh.CreateCurveEdge(mesh.pointList[center], radius, normal);
                         break;
                     case "ge":
-                        int count = (lineComponent.Length - 2) / 3;
                         List<Vector3> points = new List<Vector3>();
-                        for(int i = 0; i < count; i++)
+                        line = sr.ReadLine();
+                        while (line != null)
                         {
-                            points.Add(new Vector3(
-                                (float)Convert.ToDouble(lineComponent[3 * i + 1]),
-                                (float)Convert.ToDouble(lineComponent[3 * i + 2]),
-                                (float)Convert.ToDouble(lineComponent[3 * i + 3])));
+                            lineComponent = line.Split(' ');
+                            if(lineComponent[0] != "v")
+                            {
+                                parseLine = false;
+                                break;
+                            }
+                            else
+                            {
+                                points.Add(new Vector3(
+                                (float)Convert.ToDouble(lineComponent[1]),
+                                (float)Convert.ToDouble(lineComponent[2]),
+                                (float)Convert.ToDouble(lineComponent[3])));
+                            }
+                            line = sr.ReadLine();
                         }
                         mesh.CreateGeneralEdge(points);
                         break;
                     case "polyf":
                         List<MLinearEdge> edgeList = new List<MLinearEdge>();
-                        for (int i = 1; i < lineComponent.Length-1; i++)
+                        line = sr.ReadLine();
+                        while (line != null)
                         {
-                            int index = Convert.ToInt32(lineComponent[i]);
-                            edgeList.Add((MLinearEdge)mesh.edgeList[index]);
+                            lineComponent = line.Split(' ');
+                            if (lineComponent[0] != "e")
+                            {
+                                parseLine = false;
+                                break;
+                            }
+                            else
+                            {
+                                int index = Convert.ToInt32(lineComponent[1]);
+                                edgeList.Add((MLinearEdge)mesh.edgeList[index]);
+                            }
+                            line = sr.ReadLine();
                         }
                         mesh.CreatePolygonFace(edgeList);
                         break;
@@ -133,8 +157,74 @@ public class MObject
                         radius = (float)Convert.ToDouble(lineComponent[2]);
                         mesh.CreateSphereFace(mesh.pointList[center], radius);
                         break;
+                    case "gff":
+                        points = new List<Vector3>();
+                        line = sr.ReadLine();
+                        while (line != null)
+                        {
+                            lineComponent = line.Split(' ');
+                            if (lineComponent[0] != "v")
+                            {
+                                parseLine = false;
+                                break;
+                            }
+                            else
+                            {
+                                points.Add(new Vector3(
+                                (float)Convert.ToDouble(lineComponent[1]),
+                                (float)Convert.ToDouble(lineComponent[2]),
+                                (float)Convert.ToDouble(lineComponent[3])));
+                            }
+                            line = sr.ReadLine();
+                        }
+                        mesh.CreateGeneralFlatFace(points);
+                        break;
+                    case "gcf":
+                        List<Vector3> vertices = new List<Vector3>();
+                        line = sr.ReadLine();
+                        while (line != null)
+                        {
+                            lineComponent = line.Split(' ');
+                            if (lineComponent[0] != "v")
+                            {
+                                parseLine = false;
+                                break;
+                            }
+                            else
+                            {
+                                vertices.Add(new Vector3(
+                                (float)Convert.ToDouble(lineComponent[1]),
+                                (float)Convert.ToDouble(lineComponent[2]),
+                                (float)Convert.ToDouble(lineComponent[3])));
+                            }
+                            line = sr.ReadLine();
+                        }
+                        List<int> triangles = new List<int>();
+                        if (!parseLine) line = sr.ReadLine();
+                        while (line != null)
+                        {
+                            lineComponent = line.Split(' ');
+                            if (lineComponent[0] != "f")
+                            {
+                                parseLine = false;
+                                break;
+                            }
+                            else
+                            {
+                                triangles.Add(Convert.ToInt32(lineComponent[1]));
+                                triangles.Add(Convert.ToInt32(lineComponent[2]));
+                                triangles.Add(Convert.ToInt32(lineComponent[3]));
+                            }
+                            line = sr.ReadLine();
+                        }
+                        Mesh m = new Mesh();
+                        m.vertices = vertices.ToArray();
+                        m.triangles = triangles.ToArray();
+                        m.RecalculateNormals();
+                        mesh.CreateGeneralCurveFace(m);
+                        break;
                 }
-                line = sr.ReadLine();
+                if(parseLine)line = sr.ReadLine();
             }
             sr.Close();
         }
@@ -198,12 +288,11 @@ public class MObject
                     break;
                 case MEdge.MEdgeType.GENERAL:
                     MGeneralEdge ge = edge as MGeneralEdge;
-                    sb.Append("ge ");
+                    sb.Append("ge\n");
                     foreach(Vector3 v in ge.points)
                     {
-                        sb.Append(string.Format("{0} {1} {2} ", v.x, v.y, v.z));
+                        sb.Append(string.Format("v {0} {1} {2}\n", v.x, v.y, v.z));
                     }
-                    sb.Append("\n");
                     break;
             }
         }
@@ -212,13 +301,12 @@ public class MObject
             switch (face.faceType)
             {
                 case MFace.MFaceType.POLYGON:
-                    sb.Append("polyf ");
+                    sb.Append("polyf\n");
                     foreach(MLinearEdge edge in ((MPolygonFace)face).edgeList)
                     {
                         int index = edgeList.IndexOf(edge);
-                        sb.Append(string.Format("{0} ", index));
+                        sb.Append(string.Format("e {0}\n", index));
                     }
-                    sb.Append("\n");
                     break;
                 case MFace.MFaceType.CIRCLE:
                     MCircleFace circf = face as MCircleFace;
@@ -241,6 +329,27 @@ public class MObject
                     MSphereFace sf = face as MSphereFace;
                     int center = pointList.IndexOf(sf.center);
                     sb.Append(string.Format("sf {0} {1}\n", center, sf.radius));
+                    break;
+                case MFace.MFaceType.GENERAL_FLAT:
+                    MGeneralFlatFace gff = face as MGeneralFlatFace;
+                    sb.Append("gff\n");
+                    foreach (Vector3 v in gff.points)
+                    {
+                        sb.Append(string.Format("v {0} {1} {2}\n", v.x, v.y, v.z));
+                    }
+                    break;
+                case MFace.MFaceType.GENERAL_CURVE:
+                    MGeneralCurveFace gcf = face as MGeneralCurveFace;
+                    sb.Append("gcf\n");
+                    foreach(Vector3 v in gcf.mesh.vertices)
+                    {
+                        sb.Append(string.Format("v {0} {1} {2}\n", v.x, v.y, v.z));
+                    }
+                    int count = gcf.mesh.triangles.Length / 3;
+                    for(int i = 0; i < count; i++)
+                    {
+                        sb.Append(string.Format("f {0} {1} {2}\n", gcf.mesh.triangles[3 * i], gcf.mesh.triangles[3 * i + 1], gcf.mesh.triangles[3 * i + 2]));
+                    }
                     break;
             }
         }
