@@ -68,45 +68,70 @@ public class MObject
             while (line!=null)
             {
                 string[] lineComponent = line.Split(' ');
-                char type = Convert.ToChar(lineComponent[0]);
+                string type = lineComponent[0];
                 switch (type)
                 {
-                    case 'p':
+                    case "p":
                         float x = (float)Convert.ToDouble(lineComponent[1]);
                         float y = (float)Convert.ToDouble(lineComponent[2]);
                         float z = (float)Convert.ToDouble(lineComponent[3]);
                         Vector3 position = new Vector3(x, y, z);
-                        MPoint p = mesh.CreatePoint(position);
+                        mesh.CreatePoint(position);
                         break;
-                    case 'e':
-                        char edgeType = Convert.ToChar(lineComponent[1]);
-                        switch (edgeType)
-                        {
-                            case 'l':
-                                int start = Convert.ToInt32(lineComponent[2]);
-                                int end = Convert.ToInt32(lineComponent[3]);
-                                List<MPoint> pointList = mesh.pointList;
-                                MLinearEdge edge = mesh.CreateLinearEdge(pointList[start], pointList[end]);
-                                break;
-                            case 'c':
-                                break;
-                        }
+                    case "le":
+                        int start = Convert.ToInt32(lineComponent[1]);
+                        int end = Convert.ToInt32(lineComponent[2]);
+                        List<MPoint> pointList = mesh.pointList;
+                        mesh.CreateLinearEdge(pointList[start], pointList[end]);
                         break;
-                    case 'f':
-                        char faceType = Convert.ToChar(lineComponent[1]);
-                        switch (faceType)
+                    case "ce":
+                        int center = Convert.ToInt32(lineComponent[1]);
+                        float radius = (float)Convert.ToDouble(lineComponent[2]);
+                        Vector3 normal = new Vector3(
+                            (float)Convert.ToDouble(lineComponent[3]), 
+                            (float)Convert.ToDouble(lineComponent[4]), 
+                            (float)Convert.ToDouble(lineComponent[5]));
+                        mesh.CreateCurveEdge(mesh.pointList[center], radius, normal);
+                        break;
+                    case "ge":
+                        int count = (lineComponent.Length - 2) / 3;
+                        List<Vector3> points = new List<Vector3>();
+                        for(int i = 0; i < count; i++)
                         {
-                            case 'p':
-                                List<MLinearEdge> edgeList = new List<MLinearEdge>();
-                                Debug.Log(lineComponent.Length);
-                                for (int i = 2; i < lineComponent.Length-1; i++)
-                                {
-                                    int index = Convert.ToInt32(lineComponent[i]);
-                                    edgeList.Add((MLinearEdge)mesh.edgeList[index]);
-                                }
-                                MPolygonFace face = mesh.CreatePolygonFace(edgeList);
-                                break;
+                            points.Add(new Vector3(
+                                (float)Convert.ToDouble(lineComponent[3 * i + 1]),
+                                (float)Convert.ToDouble(lineComponent[3 * i + 2]),
+                                (float)Convert.ToDouble(lineComponent[3 * i + 3])));
                         }
+                        mesh.CreateGeneralEdge(points);
+                        break;
+                    case "polyf":
+                        List<MLinearEdge> edgeList = new List<MLinearEdge>();
+                        for (int i = 1; i < lineComponent.Length-1; i++)
+                        {
+                            int index = Convert.ToInt32(lineComponent[i]);
+                            edgeList.Add((MLinearEdge)mesh.edgeList[index]);
+                        }
+                        mesh.CreatePolygonFace(edgeList);
+                        break;
+                    case "circf":
+                        int circle = Convert.ToInt32(lineComponent[1]);
+                        mesh.CreateCircleFace((MCurveEdge)mesh.edgeList[circle]);
+                        break;
+                    case "conf":
+                        int top = Convert.ToInt32(lineComponent[1]);
+                        int bottom = Convert.ToInt32(lineComponent[2]);
+                        mesh.CreateConeFace(mesh.pointList[top], (MCurveEdge)mesh.edgeList[bottom]);
+                        break;
+                    case "cylf":
+                        top = Convert.ToInt32(lineComponent[1]);
+                        bottom = Convert.ToInt32(lineComponent[2]);
+                        mesh.CreateCylinderFace((MCurveEdge)mesh.edgeList[top], (MCurveEdge)mesh.edgeList[bottom]);
+                        break;
+                    case "sf":
+                        center = Convert.ToInt32(lineComponent[1]);
+                        radius = (float)Convert.ToDouble(lineComponent[2]);
+                        mesh.CreateSphereFace(mesh.pointList[center], radius);
                         break;
                 }
                 line = sr.ReadLine();
@@ -164,9 +189,21 @@ public class MObject
                 case MEdge.MEdgeType.LINEAR:
                     int start = pointList.IndexOf(((MLinearEdge)edge).start);
                     int end = pointList.IndexOf(((MLinearEdge)edge).end);
-                    sb.Append(string.Format("e l {0} {1}\n", start, end));
+                    sb.Append(string.Format("le {0} {1}\n", start, end));
                     break;
                 case MEdge.MEdgeType.CURVE:
+                    MCurveEdge ce = edge as MCurveEdge;
+                    int center = pointList.IndexOf(ce.center);
+                    sb.Append(string.Format("ce {0} {1} {2} {3} {4}\n", center, ce.radius, ce.normal.x, ce.normal.y, ce.normal.z));
+                    break;
+                case MEdge.MEdgeType.GENERAL:
+                    MGeneralEdge ge = edge as MGeneralEdge;
+                    sb.Append("ge ");
+                    foreach(Vector3 v in ge.points)
+                    {
+                        sb.Append(string.Format("{0} {1} {2} ", v.x, v.y, v.z));
+                    }
+                    sb.Append("\n");
                     break;
             }
         }
@@ -175,7 +212,7 @@ public class MObject
             switch (face.faceType)
             {
                 case MFace.MFaceType.POLYGON:
-                    sb.Append("f p ");
+                    sb.Append("polyf ");
                     foreach(MLinearEdge edge in ((MPolygonFace)face).edgeList)
                     {
                         int index = edgeList.IndexOf(edge);
@@ -184,12 +221,26 @@ public class MObject
                     sb.Append("\n");
                     break;
                 case MFace.MFaceType.CIRCLE:
+                    MCircleFace circf = face as MCircleFace;
+                    int circle = edgeList.IndexOf(circf.circle);
+                    sb.Append(string.Format("circf {0}\n", circle));
                     break;
                 case MFace.MFaceType.CONE:
+                    MConeFace conf = face as MConeFace;
+                    int top = pointList.IndexOf(conf.top);
+                    int bottom = edgeList.IndexOf(conf.bottom);
+                    sb.Append(string.Format("conf {0} {1}\n", top, bottom));
                     break;
                 case MFace.MFaceType.CYLINDER:
+                    MCylinderFace cylindf = face as MCylinderFace;
+                    top = edgeList.IndexOf(cylindf.top);
+                    bottom = edgeList.IndexOf(cylindf.bottom);
+                    sb.Append(string.Format("cylf {0} {1}\n", top, bottom));
                     break;
                 case MFace.MFaceType.SPHERE:
+                    MSphereFace sf = face as MSphereFace;
+                    int center = pointList.IndexOf(sf.center);
+                    sb.Append(string.Format("sf {0} {1}\n", center, sf.radius));
                     break;
             }
         }

@@ -26,6 +26,6 @@ public static class MDefinitions
 
     public static Vector3 DEFAULT_PREFAB_OFFSET = Vector3.zero;
 
-    public static string PATH = "/Models";
+    public static string PATH = Application.dataPath + "/Models";
 
 }

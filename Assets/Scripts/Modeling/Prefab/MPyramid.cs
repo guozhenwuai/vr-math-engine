@@ -9,8 +9,8 @@ public static class MPyramid
     public static MMesh GetMMesh()
     {
         mesh = new MMesh();
-        MPoint a = mesh.CreatePoint(new Vector3(-Mathf.Sqrt(3) / 2, -0.75f, -0.5f));
-        MPoint b = mesh.CreatePoint(new Vector3(Mathf.Sqrt(3) / 2, -0.75f, -0.5f));
+        MPoint a = mesh.CreatePoint(new Vector3(Mathf.Sqrt(3) / 2, -0.75f, -0.5f));
+        MPoint b = mesh.CreatePoint(new Vector3(-Mathf.Sqrt(3) / 2, -0.75f, -0.5f));
         MPoint c = mesh.CreatePoint(new Vector3(0, -0.75f, 1));
         MPoint d = mesh.CreatePoint(new Vector3(0, 0.75f, 0));
         MLinearEdge ab = mesh.CreateLinearEdge(a, b);
