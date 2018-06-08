@@ -58,11 +58,11 @@ public class MObject
     }
 
     // 针对导入模型的初始化
-    public MObject(GameObject template, string path)
+    public MObject(GameObject template, string filename)
     {
         gameObject = GameObject.Instantiate(template);
         mesh = new MMesh();
-        using(StreamReader sr = new StreamReader(path + "/obj"))
+        using(StreamReader sr = new StreamReader(MDefinitions.PATH + "/" + filename))
         {
             string line = sr.ReadLine();
             while (line!=null)
@@ -131,6 +131,15 @@ public class MObject
             case MPrefabType.CYLINDER:
                 mesh = MCylinder.GetMMesh();
                 break;
+            case MPrefabType.CONE:
+                mesh = MCone.GetMMesh();
+                break;
+            case MPrefabType.PRISM:
+                mesh = MPrism.GetMMesh();
+                break;
+            case MPrefabType.PYRAMID:
+                mesh = MPyramid.GetMMesh();
+                break;
             default:
                 Debug.Log("Unknown prefab type: " + type);
                 return;
@@ -138,7 +147,7 @@ public class MObject
         InitObject();
     }
 
-    public bool ExportObject(string path)
+    public bool ExportObject(string filename)
     {
         StringBuilder sb = new StringBuilder();
         List<MPoint> pointList = mesh.pointList;
@@ -184,7 +193,11 @@ public class MObject
                     break;
             }
         }
-        using (StreamWriter sw = new StreamWriter(path+"/obj"))
+        if (!Directory.Exists(MDefinitions.PATH))
+        {
+            Directory.CreateDirectory(MDefinitions.PATH);
+        }
+        using (StreamWriter sw = new StreamWriter(MDefinitions.PATH+"/" + filename))
         {
             sw.Write(sb.ToString());
             sw.Flush();

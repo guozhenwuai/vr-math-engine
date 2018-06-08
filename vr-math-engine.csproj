@@ -311,8 +311,11 @@
     <Compile Include="Assets\Scripts\Modeling\MPrefab.cs" />
     <Compile Include="Assets\Scripts\Modeling\MRelation.cs" />
     <Compile Include="Assets\Scripts\Modeling\MStructs.cs" />
+    <Compile Include="Assets\Scripts\Modeling\Prefab\MCone.cs" />
     <Compile Include="Assets\Scripts\Modeling\Prefab\MCube.cs" />
     <Compile Include="Assets\Scripts\Modeling\Prefab\MCylinder.cs" />
+    <Compile Include="Assets\Scripts\Modeling\Prefab\MPrism.cs" />
+    <Compile Include="Assets\Scripts\Modeling\Prefab\MPyramid.cs" />
     <Compile Include="Assets\Scripts\Modeling\Prefab\MSphere.cs" />
     <Compile Include="Assets\Scripts\NewBehaviourScript.cs" />
     <Compile Include="Assets\Scripts\PanelMenuListener.cs" />

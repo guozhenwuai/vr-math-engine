@@ -72,7 +72,7 @@ public class SceneManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         objects = new List<MObject>();
-        AddPrefabObject(MObject.MPrefabType.CUBE);
+        AddPrefabObject(MObject.MPrefabType.PYRAMID);
         InitStateMachine();
 	}
 	
@@ -103,7 +103,7 @@ public class SceneManager : MonoBehaviour {
         sceneStateMachine.RegisterState(new CreatePointState(this));
         sceneStateMachine.RegisterState(new CreateVerticalLineState(this, statisticActiveMesh));
         sceneStateMachine.RegisterState(new RemoveEntityState(this));
-		sceneStateMachine.SwitchState((uint)SceneStatus.STATISTIC_DISPLAY, null);
+		sceneStateMachine.SwitchState((uint)SceneStatus.CREATE_VERTICAL_LINE, null);
     }
 
     private void BetweenSwitch(IState from, IState to)

@@ -173,20 +173,47 @@ public class MMesh
 
     public MCircleFace CreateCircleFace(MCurveEdge edge)
     {
-        // TODO： 创建圆形
-        return null;
+        MCircleFace face = new MCircleFace(edge);
+        if (!face.IsValid()) return null;
+        int i;
+        if ((i = AddFaceToMesh(face)) != -1)
+        {
+            return faceList[i] as MCircleFace;
+        }
+        else
+        {
+            return face;
+        }
     }
 
     public MConeFace CreateConeFace(MPoint top, MCurveEdge bottom)
     {
-        // TODO: 创建锥面
-        return null;
+        MConeFace face = new MConeFace(top, bottom);
+        if (!face.IsValid()) return null;
+        int i;
+        if ((i = AddFaceToMesh(face)) != -1)
+        {
+            return faceList[i] as MConeFace;
+        }
+        else
+        {
+            return face;
+        }
     }
 
     public MCylinderFace CreateCylinderFace(MCurveEdge top, MCurveEdge bottom)
     {
-        // TODO: 创建柱面
-        return null;
+        MCylinderFace face = new MCylinderFace(top, bottom);
+        if (!face.IsValid()) return null;
+        int i;
+        if ((i = AddFaceToMesh(face)) != -1)
+        {
+            return faceList[i] as MCylinderFace;
+        }
+        else
+        {
+            return face;
+        }
     }
 
     public MSphereFace CreateSphereFace(MPoint center, float radius)
@@ -270,6 +297,7 @@ public class MMesh
         if ((i = pointList.IndexOf(point)) == -1)
         {
             pointList.Add(point);
+            boundingBox.AdjustToContain(point.position);
         }
         return i;
     }
@@ -299,6 +327,10 @@ public class MMesh
                     break;
                 case MEdge.MEdgeType.CURVE:
                     MCurveEdge ce = edge as MCurveEdge;
+                    foreach(Vector3 v in ce.mesh.vertices)
+                    {
+                        boundingBox.AdjustToContain(v);
+                    }
                     j = AddPointToMesh(ce.center);
                     if(j != -1)
                     {
@@ -307,6 +339,11 @@ public class MMesh
                     ce.center.edges.Add(edge);
                     break;
                 case MEdge.MEdgeType.GENERAL:
+                    MGeneralEdge ge = edge as MGeneralEdge;
+                    foreach(Vector3 v in ge.points)
+                    {
+                        boundingBox.AdjustToContain(v);
+                    }
                     break;
                 default:
                     Debug.Log("MMesh: AddEdgeToList: unhandled edge type " + edge.edgeType);

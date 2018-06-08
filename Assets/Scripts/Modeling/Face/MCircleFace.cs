@@ -16,8 +16,6 @@ public class MCircleFace : MFace
         faceType = MFaceType.CIRCLE;
         entityType = MEntityType.FACE;
         entityStatus = MEntityStatus.DEFAULT;
-        boundingBox = new AABB();
-        // TODO: 计算圆面的包围盒
         InitMesh();
     }
 
@@ -61,7 +59,9 @@ public class MCircleFace : MFace
 
     private void InitMesh()
     {
-        // TODO: 圆形Mesh的绘制
+        mesh = MPrefab.GetCircleFaceMesh(circle.center.position, circle.normal, circle.radius);
+        mesh.RecalculateBounds();
+        boundingBox = new AABB(mesh.bounds);
     }
 
     override

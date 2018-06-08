@@ -77,11 +77,13 @@ public class CreateVerticalLineState : IState
         switch (status)
         {
             case STATUS.DEFAULT:
-                sceneManager.UpdateEntityHighlight(MObject.MInteractMode.ALL);
+                sceneManager.UpdateEntityHighlight(MObject.MInteractMode.EDGE_EXPT);
                 break;
             case STATUS.CONNECTING:
+                sceneManager.UpdateEntityHighlight(MObject.MInteractMode.POINT_EXPT, curObj);
+                break;
             case STATUS.SELECT_POINT:
-                sceneManager.UpdateEntityHighlight(MObject.MInteractMode.ALL, curObj);
+                sceneManager.UpdateEntityHighlight(MObject.MInteractMode.POINT_ONLY, curObj);
                 break;
         }
         sceneManager.StartRender();
@@ -167,7 +169,7 @@ public class CreateVerticalLineState : IState
         switch (status)
         {
             case STATUS.DEFAULT:
-                if(sceneManager.activeEntity.entity != null && sceneManager.activeEntity.entity.entityType != MEntity.MEntityType.EDGE)
+                if(sceneManager.activeEntity.entity != null)
                 {
                     if (sceneManager.activeEntity.entity.entityType == MEntity.MEntityType.POINT)
                     {
@@ -186,8 +188,7 @@ public class CreateVerticalLineState : IState
                 }
                 break;
             case STATUS.SELECT_POINT:
-                if(sceneManager.activeEntity.entity == null 
-                    || sceneManager.activeEntity.entity.entityType != MEntity.MEntityType.POINT)
+                if(sceneManager.activeEntity.entity == null)
                 {
                     ResetStatus();
                 }
@@ -201,12 +202,9 @@ public class CreateVerticalLineState : IState
                 break;
             case STATUS.CONNECTING:
                 if(sceneManager.activeEntity.entity == null 
-                    || sceneManager.activeEntity.entity.entityType == MEntity.MEntityType.POINT
                     || (sceneManager.activeEntity.entity.entityType == MEntity.MEntityType.EDGE 
                         && ((MEdge)sceneManager.activeEntity.entity).edgeType != MEdge.MEdgeType.LINEAR)
-                    || (sceneManager.activeEntity.entity.entityType == MEntity.MEntityType.FACE 
-                        && (((MFace)sceneManager.activeEntity.entity).faceType != MFace.MFaceType.POLYGON 
-                            && ((MFace)sceneManager.activeEntity.entity).faceType != MFace.MFaceType.CIRCLE)))
+                  )
                 {
                     ResetStatus();
                 }
