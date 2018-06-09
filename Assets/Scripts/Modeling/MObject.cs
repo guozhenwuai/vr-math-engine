@@ -262,6 +262,14 @@ public class MObject
         InitObject();
     }
 
+    // 针对分割后模型的初始化
+    public MObject(GameObject template, MMesh mesh)
+    {
+        gameObject = GameObject.Instantiate(template);
+        this.mesh = mesh;
+        InitObject();
+    }
+
     public bool ExportObject(string filename)
     {
         StringBuilder sb = new StringBuilder();
@@ -488,6 +496,421 @@ public class MObject
         }
         entity = e;
         return res;
+    }
+
+    public List<MObject> PlaneSplit(Vector3 normal, Vector3 planePoint)
+    {
+        normal = worldToLocalMatrix.MultiplyVector(normal).normalized;
+        planePoint = worldToLocalMatrix.MultiplyPoint(planePoint);
+        MMesh mesh1 = new MMesh();
+        MMesh mesh2 = new MMesh();
+        foreach(MPoint p in mesh.pointList)
+        {
+            int r = MHelperFunctions.FloatZero(Vector3.Dot(p.position - planePoint, normal));
+            if(r == 0)
+            {
+                mesh1.CreatePoint(p.position);
+                mesh2.CreatePoint(p.position);
+            }
+            else if(r > 0)
+            {
+                mesh1.CreatePoint(p.position);
+            }
+            else
+            {
+                mesh2.CreatePoint(p.position);
+            }
+        }
+        Dictionary<MEdge, List<MEdge>> edgeMap = new Dictionary<MEdge, List<MEdge>>();
+        List<MFace> facesNeedSplit = new List<MFace>();
+        foreach(MEdge edge in mesh.edgeList)
+        {
+            switch (edge.edgeType)
+            {
+                case MEdge.MEdgeType.LINEAR:
+                    {
+                        MLinearEdge le = edge as MLinearEdge;
+                        Vector3 v1 = le.start.position - MHelperFunctions.PointProjectionInFace(le.start.position, normal, planePoint);
+                        Vector3 v2 = le.end.position - MHelperFunctions.PointProjectionInFace(le.end.position, normal, planePoint);
+                        int r1 = MHelperFunctions.FloatZero(Vector3.Dot(v1, normal));
+                        int r2 = MHelperFunctions.FloatZero(Vector3.Dot(v2, normal));
+                        if (r1 == 0 && r2 == 0)
+                        {
+                            mesh1.CreateLinearEdge(new MPoint(le.start.position), new MPoint(le.end.position));
+                            mesh2.CreateLinearEdge(new MPoint(le.start.position), new MPoint(le.end.position));
+                        }
+                        else if (r1 >= 0 && r2 >= 0)
+                        {
+                            mesh1.CreateLinearEdge(new MPoint(le.start.position), new MPoint(le.end.position));
+                        }
+                        else if (r1 <= 0 && r2 <= 0)
+                        {
+                            mesh2.CreateLinearEdge(new MPoint(le.start.position), new MPoint(le.end.position));
+                        }
+                        else
+                        {
+                            foreach (MFace face in le.faces)
+                            {
+                                if(!facesNeedSplit.Contains(face))facesNeedSplit.Add(face);
+                            }
+                            List<MEdge> edgeList = new List<MEdge>();
+                            Vector3 v = (le.end.position - le.start.position).normalized * v1.magnitude / (v1.magnitude + v2.magnitude) + le.start.position;
+                            if (r1 > 0)
+                            {
+                                edgeList.Add(mesh1.CreateLinearEdge(new MPoint(le.start.position), new MPoint(v)));
+                                edgeList.Add(mesh2.CreateLinearEdge(new MPoint(v), new MPoint(le.end.position)));
+                            }
+                            else
+                            {
+                                edgeList.Add(mesh1.CreateLinearEdge(new MPoint(le.end.position), new MPoint(v)));
+                                edgeList.Add(mesh2.CreateLinearEdge(new MPoint(v), new MPoint(le.start.position)));
+                            }
+                            edgeMap.Add(le, edgeList);
+                        }
+                        break;
+                    }
+                case MEdge.MEdgeType.CURVE:
+                    {
+                        MCurveEdge ce = edge as MCurveEdge;
+                        int r = MHelperFunctions.FloatZero(Vector3.Dot(ce.center.position - planePoint, normal));
+                        if (MHelperFunctions.Parallel(normal, ce.normal))
+                        {
+                            if (r == 0)
+                            {
+                                mesh1.CreateCurveEdge(ce.center, ce.radius, ce.normal);
+                                mesh2.CreateCurveEdge(ce.center, ce.radius, ce.normal);
+                            }
+                            else if (r > 0)
+                            {
+                                mesh1.CreateCurveEdge(ce.center, ce.radius, ce.normal);
+                            }
+                            else
+                            {
+                                mesh2.CreateCurveEdge(ce.center, ce.radius, ce.normal);
+                            }
+                        }
+                        else
+                        {
+                            float sin = Vector3.Cross(normal.normalized, ce.normal.normalized).magnitude;
+                            float h = MHelperFunctions.DistanceP2F(ce.center.position, normal, planePoint);
+                            float thresh = h / ce.radius;
+                            if (sin <= thresh) //不相交
+                            {
+                                if (r > 0)
+                                {
+                                    mesh1.CreateCurveEdge(ce.center, ce.radius, ce.normal);
+                                }
+                                else
+                                {
+                                    mesh2.CreateCurveEdge(ce.center, ce.radius, ce.normal);
+                                }
+                            }
+                            else //相交
+                            {
+                                foreach (MFace face in ce.faces)
+                                {
+                                    facesNeedSplit.Add(face);
+                                }
+                                Vector3 centerProjection = MHelperFunctions.PointProjectionInFace(ce.center.position, normal, planePoint);
+                                Vector3 intersection = MHelperFunctions.IntersectionLineWithFace(ce.normal, ce.center.position, normal, planePoint);
+                                Vector3 p = (centerProjection - intersection).normalized * (h * h / Vector3.Distance(centerProjection, intersection)) + centerProjection;
+                                Vector3 n = Vector3.Cross(normal, ce.normal).normalized;
+                                float l = Vector3.Distance(p, ce.center.position);
+                                float d = Mathf.Sqrt(ce.radius * ce.radius - l * l);
+                                Vector3 secp1 = p + n * d;
+                                Vector3 secp2 = p - n * d;
+                                List<MEdge> edgeList = new List<MEdge>();
+                                List<Vector3> points1 = MHelperFunctions.GenerateArcPoint(secp1, secp2, ce.normal, ce.center.position);
+                                List<Vector3> points2 = MHelperFunctions.GenerateArcPoint(secp2, secp1, ce.normal, ce.center.position);
+                                Vector3 sample = points1.Count >= points2.Count ? points1[1] : points2[1];
+                                r = MHelperFunctions.FloatZero(Vector3.Dot(sample, normal));
+                                if((r > 0 && points1.Count >= points2.Count) || (r < 0 && points1.Count < points2.Count))
+                                {
+                                    edgeList.Add(mesh1.CreateGeneralEdge(points2));
+                                    edgeList.Add(mesh2.CreateGeneralEdge(points1));
+                                }
+                                else
+                                {
+                                    edgeList.Add(mesh1.CreateGeneralEdge(points1));
+                                    edgeList.Add(mesh2.CreateGeneralEdge(points2));
+                                }
+                                edgeMap.Add(ce, edgeList);
+                            }
+                        }
+                        break;
+                    }
+                case MEdge.MEdgeType.GENERAL:
+                    {
+                        MGeneralEdge ge = edge as MGeneralEdge;
+                        Vector3 p;
+                        int r;
+                        int topHalf = 0;
+                        int count = ge.points.Count;
+                        List<Vector3> points = new List<Vector3>();
+                        for(int i = 0; i < count; i++)
+                        {
+                            p = ge.points[i];
+                            r = MHelperFunctions.FloatZero(Vector3.Dot(p - planePoint, normal));
+                            if(topHalf != 0)
+                            {
+                                if(r > 0 && topHalf < 0)
+                                {
+                                    Vector3 intersection = MHelperFunctions.IntersectionLineWithFace(p - ge.points[i - 1], p, normal, planePoint);
+                                    points.Add(intersection);
+                                    mesh2.CreateGeneralEdge(points);
+                                    points = new List<Vector3>();
+                                    points.Add(intersection);
+                                    topHalf = 1;
+                                } else if(r < 0 && topHalf > 0)
+                                {
+                                    Vector3 intersection = MHelperFunctions.IntersectionLineWithFace(p - ge.points[i - 1], p, normal, planePoint);
+                                    points.Add(intersection);
+                                    mesh1.CreateGeneralEdge(points);
+                                    points = new List<Vector3>();
+                                    points.Add(intersection);
+                                    topHalf = -1;
+                                }
+                            }
+                            else
+                            {
+                                topHalf = r;
+                            }
+                            points.Add(p);
+                        }
+                        if(points.Count > 1)
+                        {
+                            if(topHalf > 0)
+                            {
+                                mesh1.CreateGeneralEdge(points);
+                            }
+                            else
+                            {
+                                mesh2.CreateGeneralEdge(points);
+                            }
+                        }
+                        break;
+                    }
+            }
+        }
+        List<List<Vector3>> splitPoints = new List<List<Vector3>>();
+        foreach(MFace face in mesh.faceList)
+        {
+            switch (face.faceType)
+            {
+                case MFace.MFaceType.CIRCLE:
+                    {
+                        MCircleFace cirf = face as MCircleFace;
+                        if (facesNeedSplit.Contains(cirf))
+                        {
+                            List<MEdge> edges;
+                            if (!edgeMap.TryGetValue(cirf.circle, out edges)) break;
+                            List<Vector3> points1 = new List<Vector3>(((MGeneralEdge)edges[0]).points);
+                            List<Vector3> points2 = new List<Vector3>(((MGeneralEdge)edges[1]).points);
+                            List<Vector3> split = new List<Vector3>();
+                            split.Add(points1[0]);
+                            split.Add(points2[0]);
+                            splitPoints.Add(split);
+                            mesh1.CreateLinearEdge(new MPoint(points1[0]), new MPoint(points2[0]));
+                            mesh2.CreateLinearEdge(new MPoint(points1[0]), new MPoint(points2[0]));
+                            points1.Add(points1[0]);
+                            points2.Add(points2[0]);
+                            mesh1.CreateGeneralFlatFace(points1);
+                            mesh2.CreateGeneralFlatFace(points2);
+                        }
+                        else
+                        {
+                            int r = MHelperFunctions.FloatZero(Vector3.Dot(cirf.circle.center.position - planePoint, normal));
+                            if(r == 0)
+                            {
+                                mesh1.CreateCircleFace(new MCurveEdge(new MPoint(cirf.circle.center.position), cirf.circle.normal, cirf.circle.radius));
+                                mesh2.CreateCircleFace(new MCurveEdge(new MPoint(cirf.circle.center.position), cirf.circle.normal, cirf.circle.radius));
+                            } else if(r > 0)
+                            {
+                                mesh1.CreateCircleFace(new MCurveEdge(new MPoint(cirf.circle.center.position), cirf.circle.normal, cirf.circle.radius));
+                            } else
+                            {
+                                mesh2.CreateCircleFace(new MCurveEdge(new MPoint(cirf.circle.center.position), cirf.circle.normal, cirf.circle.radius));
+                            }
+                        }
+                        break;
+                    }
+                case MFace.MFaceType.CONE:
+                case MFace.MFaceType.CYLINDER:
+                case MFace.MFaceType.SPHERE:
+                case MFace.MFaceType.GENERAL_CURVE:
+                    {
+                        List<List<Vector3>> split;
+                        List<Mesh> meshs = MHelperFunctions.MeshSplit(face.mesh, normal, planePoint, out split);
+                        mesh1.CreateGeneralCurveFace(meshs[0]);
+                        mesh2.CreateGeneralCurveFace(meshs[1]);
+                        foreach(List<Vector3> l in split)
+                        {
+                            splitPoints.Add(l);
+                            mesh1.CreateGeneralEdge(new List<Vector3>(l));
+                            mesh2.CreateGeneralEdge(new List<Vector3>(l));
+                        }
+                        break;
+                    }
+                case MFace.MFaceType.POLYGON:
+                    {
+                        MPolygonFace polyf = face as MPolygonFace;
+                        if (facesNeedSplit.Contains(polyf))
+                        {
+                            List<MEdge> edges;
+                            List<MLinearEdge> edges1 = new List<MLinearEdge>();
+                            List<MLinearEdge> edges2 = new List<MLinearEdge>();
+                            List<Vector3> split = new List<Vector3>();
+                            foreach(MLinearEdge edge in polyf.edgeList)
+                            {
+                                if(edgeMap.TryGetValue(edge, out edges))
+                                {
+                                    MLinearEdge le = edges[0] as MLinearEdge;
+                                    edges1.Add(new MLinearEdge(new MPoint(le.start.position), new MPoint(le.end.position)));
+                                    split.Add(le.end.position);
+                                    le = edges[1] as MLinearEdge;
+                                    edges2.Add(new MLinearEdge(new MPoint(le.start.position), new MPoint(le.end.position)));
+                                }
+                                else
+                                {
+                                    int r1 = MHelperFunctions.FloatZero(Vector3.Dot(edge.start.position - planePoint, normal));
+                                    int r2 = MHelperFunctions.FloatZero(Vector3.Dot(edge.end.position - planePoint, normal));
+                                    if (r1 == 0 && r2 == 0)
+                                    {
+                                        edges1.Add(new MLinearEdge(new MPoint(edge.start.position), new MPoint(edge.end.position)));
+                                        edges2.Add(new MLinearEdge(new MPoint(edge.start.position), new MPoint(edge.end.position)));
+                                    } else if(r1 >= 0 && r2 >= 0)
+                                    {
+                                        edges1.Add(new MLinearEdge(new MPoint(edge.start.position), new MPoint(edge.end.position)));
+                                    } else if(r1 <= 0 && r2 <= 0)
+                                    {
+                                        edges2.Add(new MLinearEdge(new MPoint(edge.start.position), new MPoint(edge.end.position)));
+                                    }
+                                    else
+                                    {
+                                        Debug.Log("r1: " + r1 + ", r2: " + r2);
+                                    }
+                                }
+                            }
+                            if(split.Count != 2)
+                            {
+                                // TODO: 非凸多边形 被分割成了大于2个面
+                            }
+                            else
+                            {
+                                edges1.Add(new MLinearEdge(new MPoint(split[0]), new MPoint(split[1])));
+                                edges2.Add(new MLinearEdge(new MPoint(split[0]), new MPoint(split[1])));
+                            }
+                            splitPoints.Add(split);
+                            mesh1.CreatePolygonFace(edges1);
+                            mesh2.CreatePolygonFace(edges2);
+                        }
+                        else
+                        {
+                            int r = MHelperFunctions.FloatZero(Vector3.Dot(polyf.edgeList[0].start.position - planePoint, normal));
+                            if (r == 0)
+                            {
+                                List<MLinearEdge> edges1 = new List<MLinearEdge>();
+                                List<MLinearEdge> edges2 = new List<MLinearEdge>();
+                                foreach(MLinearEdge e in polyf.edgeList)
+                                {
+                                    edges1.Add(new MLinearEdge(new MPoint(e.start.position), new MPoint(e.end.position)));
+                                    edges2.Add(new MLinearEdge(new MPoint(e.start.position), new MPoint(e.end.position)));
+                                }
+                                mesh1.CreatePolygonFace(edges1);
+                                mesh2.CreatePolygonFace(edges2);
+                            }
+                            else
+                            {
+                                List<MLinearEdge> edges = new List<MLinearEdge>();
+                                foreach (MLinearEdge e in polyf.edgeList)
+                                {
+                                    edges.Add(new MLinearEdge(new MPoint(e.start.position), new MPoint(e.end.position)));
+                                }
+                                if(r > 0)
+                                {
+                                    mesh1.CreatePolygonFace(edges);
+                                }
+                                else
+                                {
+                                    mesh2.CreatePolygonFace(edges);
+                                }
+                            }
+                        }
+                        break;
+                    }
+                case MFace.MFaceType.GENERAL_FLAT:
+                    {
+                        MGeneralFlatFace gff = face as MGeneralFlatFace;
+                        List<Vector3> points1 = new List<Vector3>();
+                        List<Vector3> points2 = new List<Vector3>();
+                        List<Vector3> split = new List<Vector3>();
+                        Vector3 p;
+                        int lastr = 0;
+                        int r;
+                        int count = gff.points.Count;
+                        for (int i = 0; i < count; i++)
+                        {
+                            p = gff.points[i];
+                            r = MHelperFunctions.FloatZero(Vector3.Dot(p - planePoint, normal));
+                            if(lastr >= 0 && r >= 0)
+                            {
+                                points1.Add(p);
+                            } else if(lastr <= 0 && r <= 0)
+                            {
+                                points2.Add(p);
+                            }
+                            else
+                            {
+                                Vector3 intersect = MHelperFunctions.IntersectionLineWithFace(p - gff.points[i - 1], p, normal, planePoint);
+                                split.Add(intersect);
+                                points1.Add(intersect);
+                                points2.Add(intersect);
+                                if(r > 0)
+                                {
+                                    points1.Add(p);
+                                }
+                                else
+                                {
+                                    points2.Add(p);
+                                }
+                            }
+                            lastr = r;
+                        }
+                        if (split.Count != 2)
+                        {
+                            // TODO: 非凸多边形 被分割成了大于2个面
+                        }
+                        else
+                        {
+                            mesh1.CreateLinearEdge(new MPoint(split[0]), new MPoint(split[1]));
+                            mesh2.CreateLinearEdge(new MPoint(split[0]), new MPoint(split[1]));
+                        }
+                        splitPoints.Add(split);
+                        mesh1.CreateGeneralFlatFace(points1);
+                        mesh2.CreateGeneralFlatFace(points2);
+                        break;
+                    }
+            }
+        }
+        //TODO: 根据splitPoints生成切割平面
+        List<MObject> objects = new List<MObject>();
+        if (!mesh1.IsEmpty())
+        {
+            MObject obj = new MObject(gameObject, mesh1);
+            obj.transform.position = transform.position;
+            obj.transform.rotation = transform.rotation;
+            obj.transform.localScale = transform.localScale;
+            objects.Add(obj);
+        }
+        if (!mesh2.IsEmpty())
+        {
+            MObject obj = new MObject(gameObject, mesh2);
+            obj.transform.position = transform.position;
+            obj.transform.rotation = transform.rotation;
+            obj.transform.localScale = transform.localScale;
+            objects.Add(obj);
+        }
+        return objects;
     }
 
     public void Highlight()

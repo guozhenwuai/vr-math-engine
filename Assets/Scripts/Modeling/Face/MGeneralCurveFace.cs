@@ -72,7 +72,7 @@ public class MGeneralCurveFace : MFace
     override
     public bool IsValid()
     {
-        return mesh != null;
+        return mesh != null && mesh.triangles.Length != 0;
     }
 
     override

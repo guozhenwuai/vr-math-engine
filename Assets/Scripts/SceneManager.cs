@@ -14,6 +14,8 @@ public class SceneManager : MonoBehaviour {
 
     public GameObject statusMesh;
 
+    public GameObject quad;
+
     [HideInInspector]
     public VRTK.VRTK_ControllerEvents leftEvents
     {
@@ -65,14 +67,14 @@ public class SceneManager : MonoBehaviour {
     public bool pointerOnMenu = false;
 
     public enum SceneStatus { STATISTIC_DISPLAY, SELECT_REFEDGE, RELATION_DISPLAY
-            , TRANSFORM, SAVE_OBJECT, LOAD_OBJECT, REMOVE_OBJECT
+            , TRANSFORM, SAVE_OBJECT, LOAD_OBJECT, REMOVE_OBJECT, OBJECT_CUTTING
             , CONNECT_POINT, CREATE_POINT, CREATE_VERTICAL_LINE, REMOVE_ENTITY
             , ADD_PREFAB};
 
 	// Use this for initialization
 	void Start () {
         objects = new List<MObject>();
-        AddPrefabObject(MObject.MPrefabType.PYRAMID);
+        AddPrefabObject(MObject.MPrefabType.CYLINDER);
         InitStateMachine();
 	}
 	
@@ -103,7 +105,8 @@ public class SceneManager : MonoBehaviour {
         sceneStateMachine.RegisterState(new CreatePointState(this));
         sceneStateMachine.RegisterState(new CreateVerticalLineState(this, statisticActiveMesh));
         sceneStateMachine.RegisterState(new RemoveEntityState(this));
-		sceneStateMachine.SwitchState((uint)SceneStatus.CREATE_POINT, null);
+        sceneStateMachine.RegisterState(new ObjectCuttingState(this, quad));
+		sceneStateMachine.SwitchState((uint)SceneStatus.OBJECT_CUTTING, null);
     }
 
     private void BetweenSwitch(IState from, IState to)

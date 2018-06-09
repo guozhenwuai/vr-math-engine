@@ -321,6 +321,11 @@ public class MMesh
         return null;
     }
 
+    public bool IsEmpty()
+    {
+        return pointList.Count == 0 && edgeList.Count == 0 && faceList.Count == 0;
+    }
+
     private int AddPointToMesh(MPoint point)
     {
         int i;

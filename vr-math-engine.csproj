@@ -327,6 +327,7 @@
     <Compile Include="Assets\Scripts\StateMachine\CreatePointState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\CreateVerticalLineState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\IState.cs" />
+    <Compile Include="Assets\Scripts\StateMachine\ObjectCuttingState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\RefEdgeState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\RelationDisplayState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\RemoveEntityState.cs" />

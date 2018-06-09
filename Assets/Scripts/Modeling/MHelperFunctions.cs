@@ -119,6 +119,31 @@ public static class MHelperFunctions
         return Vector3.Max(a, Vector3.Max(b, c));
     }
 
+    public static List<Vector3> GenerateArcPoint(Vector3 start, Vector3 end, Vector3 normal, Vector3 center)
+    {
+        float angle = Mathf.PI / 24;
+        Vector3 cross = Vector3.Cross((end - center).normalized, (start - center).normalized);
+        float totalAngle = Mathf.Acos(Vector3.Dot((end - center).normalized, (start - center).normalized));
+        if (Vector3.Dot(cross, normal) > 0) totalAngle = Mathf.PI * 2 - totalAngle;
+        List<Vector3> points = new List<Vector3>();
+        Vector3 p = start;
+        for(float count = angle; count < totalAngle; count += angle)
+        {
+            points.Add(p);
+            p = MHelperFunctions.CalcRotate(p - center, normal, angle) + center;
+        }
+        points.Add(end);
+        return points;
+    }
+
+    // 计算直线与平面的交点
+    public static Vector3 IntersectionLineWithFace(Vector3 lineDir, Vector3 linePoint, Vector3 normal, Vector3 facePoint)
+    {
+        lineDir.Normalize();
+        normal.Normalize();
+        return linePoint + lineDir * (Vector3.Dot(facePoint - linePoint, normal) / Vector3.Dot(lineDir, normal));
+    }
+
     // 计算点到三角形的距离
     public static float DistanceP2T(Vector3 point, Vector3 p1, Vector3 p2, Vector3 p3)
     {
@@ -258,5 +283,148 @@ public static class MHelperFunctions
 
         float p = (la + lb + lc) / 2;
         return Mathf.Sqrt(p * (p - la) * (p - lb) * (p - lc));
+    }
+
+    // 分割网格
+    public static List<Mesh> MeshSplit(Mesh mesh, Vector3 normal, Vector3 planePoint, out List<List<Vector3>> splits)
+    {
+        List<Vector3> vertices1 = new List<Vector3>();
+        List<Vector3> vertices2 = new List<Vector3>();
+        List<int> triangles1 = new List<int>();
+        List<int> triangles2 = new List<int>();
+        List<Vector3> splitPointPair = new List<Vector3>();
+        foreach(Vector3 p in mesh.vertices)
+        {
+            int r = FloatZero(Vector3.Dot(p - planePoint, normal));
+            if(r == 0)
+            {
+                vertices1.Add(p);
+                vertices2.Add(p);
+            }
+            else if(r > 0)
+            {
+                vertices1.Add(p);
+            }
+            else
+            {
+                vertices2.Add(p);
+            }
+        }
+        int count = mesh.triangles.Length / 3;
+        for(int i = 0; i < count; i++)
+        {
+            int i1 = mesh.triangles[3 * i];
+            int i2 = mesh.triangles[3 * i + 1];
+            int i3 = mesh.triangles[3 * i + 2];
+            Vector3 p1 = mesh.vertices[i1];
+            Vector3 p2 = mesh.vertices[i2];
+            Vector3 p3 = mesh.vertices[i3];
+
+            int r1 = FloatZero(Vector3.Dot(p1 - planePoint, normal));
+            int r2 = FloatZero(Vector3.Dot(p2 - planePoint, normal));
+            int r3 = FloatZero(Vector3.Dot(p3 - planePoint, normal));
+
+            if(r1 == 0 && r2 == 0 && r3 == 0)
+            {
+                triangles1.Add(vertices1.IndexOf(p1));
+                triangles1.Add(vertices1.IndexOf(p2));
+                triangles1.Add(vertices1.IndexOf(p3));
+                triangles2.Add(vertices2.IndexOf(p1));
+                triangles2.Add(vertices2.IndexOf(p2));
+                triangles2.Add(vertices2.IndexOf(p3));
+            }
+            else if(r1 >= 0 && r2 >= 0 && r3 >= 0)
+            {
+                triangles1.Add(vertices1.IndexOf(p1));
+                triangles1.Add(vertices1.IndexOf(p2));
+                triangles1.Add(vertices1.IndexOf(p3));
+            }
+            else if(r1 <= 0 && r2 <= 0 && r3 <= 0)
+            {
+                triangles2.Add(vertices2.IndexOf(p1));
+                triangles2.Add(vertices2.IndexOf(p2));
+                triangles2.Add(vertices2.IndexOf(p3));
+            }
+            else if(r1 < 0 && r2 >= 0 && r3 >= 0)
+            {
+                SplitTriangleMesh(p1, p2, p3,
+                    ref vertices1, ref triangles1,
+                    ref vertices2, ref triangles2,
+                    ref splitPointPair, normal, planePoint);
+            }
+            else if(r1 > 0 && r2 <= 0 && r3 <= 0)
+            {
+                SplitTriangleMesh(p1, p2, p3,
+                    ref vertices2, ref triangles2,
+                    ref vertices1, ref triangles1,
+                    ref splitPointPair, normal, planePoint);
+            } else if(r2 < 0 && r1 >= 0 && r3 >= 0)
+            {
+                SplitTriangleMesh(p2, p3, p1,
+                    ref vertices1, ref triangles1,
+                    ref vertices2, ref triangles2,
+                    ref splitPointPair, normal, planePoint);
+            } else if(r2 > 0 && r1 <= 0 && r3 <= 0)
+            {
+                SplitTriangleMesh(p2, p3, p1,
+                    ref vertices2, ref triangles2,
+                    ref vertices1, ref triangles1,
+                    ref splitPointPair, normal, planePoint);
+            } else if(r3 < 0 && r1 >= 0 && r2 >= 0)
+            {
+                SplitTriangleMesh(p3, p1, p2,
+                    ref vertices1, ref triangles1,
+                    ref vertices2, ref triangles2,
+                    ref splitPointPair, normal, planePoint);
+            } else if(r3 > 0 && r1 <= 0 && r2 <= 0)
+            {
+                SplitTriangleMesh(p3, p1, p2,
+                    ref vertices2, ref triangles2,
+                    ref vertices1, ref triangles1,
+                    ref splitPointPair, normal, planePoint);
+            }
+            else
+            {
+                Debug.Log("r1: " + r1 + ", r2: " + r2 + ", r3: " + r3);
+            }
+        }
+        Mesh mesh1 = new Mesh();
+        Mesh mesh2 = new Mesh();
+        mesh1.vertices = vertices1.ToArray();
+        mesh1.triangles = triangles1.ToArray();
+        mesh2.vertices = vertices2.ToArray();
+        mesh2.triangles = triangles2.ToArray();
+        mesh1.RecalculateNormals();
+        mesh2.RecalculateNormals();
+        List<Mesh> meshs = new List<Mesh>();
+        meshs.Add(mesh1);
+        meshs.Add(mesh2);
+        // TODO: 根据splitPointPair生成splits
+        splits = new List<List<Vector3>>();
+        return meshs;
+    }
+
+    private static void SplitTriangleMesh(Vector3 p1, Vector3 p2, Vector3 p3,
+        ref List<Vector3> vertices1, ref List<int> triangles1, 
+        ref List<Vector3> vertices2, ref List<int> triangles2,
+        ref List<Vector3> splitPointPair, Vector3 normal, Vector3 planePoint) 
+    {
+        Vector3 sec12 = IntersectionLineWithFace(p2 - p1, p1, normal, planePoint);
+        Vector3 sec13 = IntersectionLineWithFace(p3 - p1, p1, normal, planePoint);
+        splitPointPair.Add(sec12);
+        splitPointPair.Add(sec13);
+        vertices1.Add(sec12);
+        vertices1.Add(sec13);
+        vertices2.Add(sec12);
+        vertices2.Add(sec13);
+        triangles1.Add(vertices1.IndexOf(sec12));
+        triangles1.Add(vertices1.IndexOf(p2));
+        triangles1.Add(vertices1.IndexOf(sec13));
+        triangles1.Add(vertices1.IndexOf(sec13));
+        triangles1.Add(vertices1.IndexOf(p2));
+        triangles1.Add(vertices1.IndexOf(p3));
+        triangles2.Add(vertices2.IndexOf(p1));
+        triangles2.Add(vertices2.IndexOf(sec12));
+        triangles2.Add(vertices2.IndexOf(sec13));
     }
 }

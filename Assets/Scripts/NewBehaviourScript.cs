@@ -14,8 +14,12 @@ public class NewBehaviourScript : MonoBehaviour {
         Vector3 v2 = new Vector3(1, 0, 0);
         Vector3 v3 = new Vector3(-1, -1, 0);
 
-        Debug.Log(MHelperFunctions.CalcAngle(v1, v2));
-        Debug.Log(MHelperFunctions.CalcAngle(v2, v3));
+        List<Vector3> l = new List<Vector3>();
+        l.Add(v1);
+        l.Add(v2);
+        l.Add(v3);
+
+        Debug.Log(l.IndexOf(new Vector3(0, 1, 0)));
     }
     
 

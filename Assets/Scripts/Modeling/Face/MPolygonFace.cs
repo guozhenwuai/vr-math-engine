@@ -197,14 +197,16 @@ public class MPolygonFace : MFace
             }
         }
     }
-
+    
     private void GenerateSortedPoint()
     {
         sortedPoints = new List<MPoint>();
+        List<MLinearEdge> orderedEdges = new List<MLinearEdge>();
         List<MLinearEdge> edges = new List<MLinearEdge>(edgeList);
         MLinearEdge edge = edges[0];
         MPoint p = edge.start;
         edges.Remove(edge);
+        orderedEdges.Add(edge);
         sortedPoints.Add(p);
         p = edge.end;
         bool find = false;
@@ -214,14 +216,14 @@ public class MPolygonFace : MFace
             find = false;
             foreach(MLinearEdge e in edges)
             {
-                if(e.start == p)
+                if(e.start.Equals(p))
                 {
                     edge = e;
                     sortedPoints.Add(p);
                     p = e.end;
                     find = true;
                     break;
-                } else if(e.end == p)
+                } else if(e.end.Equals(p))
                 {
                     edge = e;
                     sortedPoints.Add(p);
@@ -238,9 +240,13 @@ public class MPolygonFace : MFace
             } else
             {
                 edges.Remove(edge);
+                orderedEdges.Add(edge);
             }
         }
+        edgeList = orderedEdges;
     }
+
+
     
     private bool IdenticalLoop(List<MPoint> p1, List<MPoint> p2)
     {
