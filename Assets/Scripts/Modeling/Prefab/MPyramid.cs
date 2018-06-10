@@ -23,22 +23,22 @@ public static class MPyramid
         abc.Add(ab);
         abc.Add(bc);
         abc.Add(ca);
-        MPolygonFace f1 = mesh.CreatePolygonFace(abc);
+        mesh.CreatePolygonFace(abc);
         List<MLinearEdge> abd = new List<MLinearEdge>();
         abd.Add(ab);
         abd.Add(bd);
         abd.Add(ad);
-        MPolygonFace f2 = mesh.CreatePolygonFace(abd);
+        mesh.CreatePolygonFace(abd);
         List<MLinearEdge> bcd = new List<MLinearEdge>();
         bcd.Add(bc);
         bcd.Add(bd);
         bcd.Add(cd);
-        MPolygonFace f3 = mesh.CreatePolygonFace(bcd);
+        mesh.CreatePolygonFace(bcd);
         List<MLinearEdge> cad = new List<MLinearEdge>();
         cad.Add(ca);
         cad.Add(cd);
         cad.Add(ad);
-        MPolygonFace f4 = mesh.CreatePolygonFace(cad);
+        mesh.CreatePolygonFace(cad);
         return mesh;
     }
 }

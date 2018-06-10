@@ -10,7 +10,7 @@ public static class MSphere
     {
         mesh = new MMesh();
         MPoint center = mesh.CreatePoint(Vector3.zero);
-        MSphereFace face = mesh.CreateSphereFace(center, 0.5f);
+        mesh.CreateSphereFace(center, 0.5f);
         return mesh;
     }
 }

@@ -5,59 +5,59 @@ using UnityEngine;
 public static class MHelperFunctions
 {
 
-	public static bool LineLineIntersection(out Vector3 intersection, Vector3 linePoint1, Vector3 lineVec1, Vector3 linePoint2, Vector3 lineVec2){
+    public static bool LineLineIntersection(out Vector3 intersection, Vector3 linePoint1, Vector3 lineVec1, Vector3 linePoint2, Vector3 lineVec2) {
 
-		Vector3 lineVec3 = linePoint2 - linePoint1;
-		Vector3 crossVec1and2 = Vector3.Cross(lineVec1, lineVec2);
-		Vector3 crossVec3and2 = Vector3.Cross(lineVec3, lineVec2);
+        Vector3 lineVec3 = linePoint2 - linePoint1;
+        Vector3 crossVec1and2 = Vector3.Cross(lineVec1, lineVec2);
+        Vector3 crossVec3and2 = Vector3.Cross(lineVec3, lineVec2);
 
-		float planarFactor = Vector3.Dot(lineVec3, crossVec1and2);
+        float planarFactor = Vector3.Dot(lineVec3, crossVec1and2);
 
 
-		if(Mathf.Abs(planarFactor) < 0.0001f && crossVec1and2.sqrMagnitude > 0.0001f)
-		{
-			float s = Vector3.Dot(crossVec3and2, crossVec1and2) / crossVec1and2.sqrMagnitude;
-			intersection = linePoint1 + (lineVec1 * s);
-			return true;
-		}
-		else
-		{
-			intersection = Vector3.zero;
-			return false;
-		}
-	}
+        if (Mathf.Abs(planarFactor) < 0.0001f && crossVec1and2.sqrMagnitude > 0.0001f)
+        {
+            float s = Vector3.Dot(crossVec3and2, crossVec1and2) / crossVec1and2.sqrMagnitude;
+            intersection = linePoint1 + (lineVec1 * s);
+            return true;
+        }
+        else
+        {
+            intersection = Vector3.zero;
+            return false;
+        }
+    }
 
-	public static bool ClosestPointsOnTwoLines(out Vector3 closestPointLine1, out Vector3 closestPointLine2, Vector3 linePoint1, Vector3 lineVec1, Vector3 linePoint2, Vector3 lineVec2){
+    public static bool ClosestPointsOnTwoLines(out Vector3 closestPointLine1, out Vector3 closestPointLine2, Vector3 linePoint1, Vector3 lineVec1, Vector3 linePoint2, Vector3 lineVec2) {
 
-		closestPointLine1 = Vector3.zero;
-		closestPointLine2 = Vector3.zero;
+        closestPointLine1 = Vector3.zero;
+        closestPointLine2 = Vector3.zero;
 
-		float a = Vector3.Dot(lineVec1, lineVec1);
-		float b = Vector3.Dot(lineVec1, lineVec2);
-		float e = Vector3.Dot(lineVec2, lineVec2);
+        float a = Vector3.Dot(lineVec1, lineVec1);
+        float b = Vector3.Dot(lineVec1, lineVec2);
+        float e = Vector3.Dot(lineVec2, lineVec2);
 
-		float d = a*e - b*b;
+        float d = a * e - b * b;
 
-		//lines are not parallel
-		if(d != 0.0f){
+        //lines are not parallel
+        if (d != 0.0f) {
 
-			Vector3 r = linePoint1 - linePoint2;
-			float c = Vector3.Dot(lineVec1, r);
-			float f = Vector3.Dot(lineVec2, r);
+            Vector3 r = linePoint1 - linePoint2;
+            float c = Vector3.Dot(lineVec1, r);
+            float f = Vector3.Dot(lineVec2, r);
 
-			float s = (b*f - c*e) / d;
-			float t = (a*f - c*b) / d;
+            float s = (b * f - c * e) / d;
+            float t = (a * f - c * b) / d;
 
-			closestPointLine1 = linePoint1 + lineVec1 * s;
-			closestPointLine2 = linePoint2 + lineVec2 * t;
+            closestPointLine1 = linePoint1 + lineVec1 * s;
+            closestPointLine2 = linePoint2 + lineVec2 * t;
 
-			return true;
-		}
+            return true;
+        }
 
-		else{
-			return false;
-		}
-	}  
+        else {
+            return false;
+        }
+    }
 
     // 浮点数的精度判等
     public static bool FloatEqual(float a, float b)
@@ -92,7 +92,7 @@ public static class MHelperFunctions
     // 判断向量是否平行
     public static bool Parallel(Vector3 v1, Vector3 v2)
     {
-        return FloatEqual(Mathf.Abs(Vector3.Dot(v1.normalized, v2.normalized)),1);
+        return FloatEqual(Mathf.Abs(Vector3.Dot(v1.normalized, v2.normalized)), 1);
     }
 
     // 判断向量是否垂直
@@ -127,7 +127,7 @@ public static class MHelperFunctions
         if (Vector3.Dot(cross, normal) > 0) totalAngle = Mathf.PI * 2 - totalAngle;
         List<Vector3> points = new List<Vector3>();
         Vector3 p = start;
-        for(float count = angle; count < totalAngle; count += angle)
+        for (float count = angle; count < totalAngle; count += angle)
         {
             points.Add(p);
             p = MHelperFunctions.CalcRotate(p - center, normal, angle) + center;
@@ -198,11 +198,11 @@ public static class MHelperFunctions
     }
 
     //计算点到直线的距离
-	public static float DistanceP2L(Vector3 point, Vector3 lineVector, Vector3 linePoint)
-	{
+    public static float DistanceP2L(Vector3 point, Vector3 lineVector, Vector3 linePoint)
+    {
         Vector3 p = PointProjectionInLine(point, lineVector, linePoint);
-		return Vector3.Distance(point, p);
-	}
+        return Vector3.Distance(point, p);
+    }
 
     //计算直线到直线的距离
     public static float DistanceL2L(Vector3 linePoint1, Vector3 lineVec1, Vector3 linePoint2, Vector3 lineVec2)
@@ -240,7 +240,7 @@ public static class MHelperFunctions
     {
         return linePoint + Vector3.Dot(lineDirection.normalized, point - linePoint) * lineDirection.normalized;
     }
-    
+
     // 根据旋转前后向量计算旋转轴和旋转角
     public static void CalcRotateAxisAndAngle(out Vector3 rotateAxis, out float rotateAngle, Vector3 oldVec, Vector3 newVec)
     {
@@ -285,6 +285,19 @@ public static class MHelperFunctions
         return Mathf.Sqrt(p * (p - la) * (p - lb) * (p - lc));
     }
 
+    public static bool PointsInLine(List<Vector3> points)
+    {
+        if (points.Count < 2) return false;
+        if (points.Count == 2) return true;
+        Vector3 dir = points[1] - points[0];
+        int count = points.Count;
+        for (int i = 1; i < count - 1; i++)
+        {
+            if (!Parallel(dir, points[i + 1] - points[i])) return false;
+        }
+        return true;
+    }
+
     // 分割网格
     public static List<Mesh> MeshSplit(Mesh mesh, Vector3 normal, Vector3 planePoint, out List<List<Vector3>> splits)
     {
@@ -292,16 +305,16 @@ public static class MHelperFunctions
         List<Vector3> vertices2 = new List<Vector3>();
         List<int> triangles1 = new List<int>();
         List<int> triangles2 = new List<int>();
-        List<Vector3> splitPointPair = new List<Vector3>();
-        foreach(Vector3 p in mesh.vertices)
+        Dictionary<Vector3, List<Vector3>> pointGraph = new Dictionary<Vector3, List<Vector3>>();
+        foreach (Vector3 p in mesh.vertices)
         {
             int r = FloatZero(Vector3.Dot(p - planePoint, normal));
-            if(r == 0)
+            if (r == 0)
             {
                 vertices1.Add(p);
                 vertices2.Add(p);
             }
-            else if(r > 0)
+            else if (r > 0)
             {
                 vertices1.Add(p);
             }
@@ -311,7 +324,7 @@ public static class MHelperFunctions
             }
         }
         int count = mesh.triangles.Length / 3;
-        for(int i = 0; i < count; i++)
+        for (int i = 0; i < count; i++)
         {
             int i1 = mesh.triangles[3 * i];
             int i2 = mesh.triangles[3 * i + 1];
@@ -324,7 +337,7 @@ public static class MHelperFunctions
             int r2 = FloatZero(Vector3.Dot(p2 - planePoint, normal));
             int r3 = FloatZero(Vector3.Dot(p3 - planePoint, normal));
 
-            if(r1 == 0 && r2 == 0 && r3 == 0)
+            if (r1 == 0 && r2 == 0 && r3 == 0)
             {
                 triangles1.Add(vertices1.IndexOf(p1));
                 triangles1.Add(vertices1.IndexOf(p2));
@@ -333,55 +346,55 @@ public static class MHelperFunctions
                 triangles2.Add(vertices2.IndexOf(p2));
                 triangles2.Add(vertices2.IndexOf(p3));
             }
-            else if(r1 >= 0 && r2 >= 0 && r3 >= 0)
+            else if (r1 >= 0 && r2 >= 0 && r3 >= 0)
             {
                 triangles1.Add(vertices1.IndexOf(p1));
                 triangles1.Add(vertices1.IndexOf(p2));
                 triangles1.Add(vertices1.IndexOf(p3));
             }
-            else if(r1 <= 0 && r2 <= 0 && r3 <= 0)
+            else if (r1 <= 0 && r2 <= 0 && r3 <= 0)
             {
                 triangles2.Add(vertices2.IndexOf(p1));
                 triangles2.Add(vertices2.IndexOf(p2));
                 triangles2.Add(vertices2.IndexOf(p3));
             }
-            else if(r1 < 0 && r2 >= 0 && r3 >= 0)
+            else if (r1 < 0 && r2 >= 0 && r3 >= 0)
             {
                 SplitTriangleMesh(p1, p2, p3,
                     ref vertices1, ref triangles1,
                     ref vertices2, ref triangles2,
-                    ref splitPointPair, normal, planePoint);
+                    ref pointGraph, normal, planePoint);
             }
-            else if(r1 > 0 && r2 <= 0 && r3 <= 0)
+            else if (r1 > 0 && r2 <= 0 && r3 <= 0)
             {
                 SplitTriangleMesh(p1, p2, p3,
                     ref vertices2, ref triangles2,
                     ref vertices1, ref triangles1,
-                    ref splitPointPair, normal, planePoint);
-            } else if(r2 < 0 && r1 >= 0 && r3 >= 0)
+                    ref pointGraph, normal, planePoint);
+            } else if (r2 < 0 && r1 >= 0 && r3 >= 0)
             {
                 SplitTriangleMesh(p2, p3, p1,
                     ref vertices1, ref triangles1,
                     ref vertices2, ref triangles2,
-                    ref splitPointPair, normal, planePoint);
-            } else if(r2 > 0 && r1 <= 0 && r3 <= 0)
+                    ref pointGraph, normal, planePoint);
+            } else if (r2 > 0 && r1 <= 0 && r3 <= 0)
             {
                 SplitTriangleMesh(p2, p3, p1,
                     ref vertices2, ref triangles2,
                     ref vertices1, ref triangles1,
-                    ref splitPointPair, normal, planePoint);
-            } else if(r3 < 0 && r1 >= 0 && r2 >= 0)
+                    ref pointGraph, normal, planePoint);
+            } else if (r3 < 0 && r1 >= 0 && r2 >= 0)
             {
                 SplitTriangleMesh(p3, p1, p2,
                     ref vertices1, ref triangles1,
                     ref vertices2, ref triangles2,
-                    ref splitPointPair, normal, planePoint);
-            } else if(r3 > 0 && r1 <= 0 && r2 <= 0)
+                    ref pointGraph, normal, planePoint);
+            } else if (r3 > 0 && r1 <= 0 && r2 <= 0)
             {
                 SplitTriangleMesh(p3, p1, p2,
                     ref vertices2, ref triangles2,
                     ref vertices1, ref triangles1,
-                    ref splitPointPair, normal, planePoint);
+                    ref pointGraph, normal, planePoint);
             }
             else
             {
@@ -399,20 +412,304 @@ public static class MHelperFunctions
         List<Mesh> meshs = new List<Mesh>();
         meshs.Add(mesh1);
         meshs.Add(mesh2);
-        // TODO: 根据splitPointPair生成splits
-        splits = new List<List<Vector3>>();
+        splits = GroupSplits(pointGraph);
         return meshs;
     }
 
+    public static List<List<Vector3>> GroupLoop(Dictionary<Vector3, List<KeyValuePair<Vector3, int>>> splitGraph, List<List<Vector3>> splitPoints)
+    {
+        List<List<Vector3>> res = new List<List<Vector3>>();
+        FindLoop(splitGraph, splitPoints, res);
+        return res;
+    }
+
+    public static void FindLoop(Dictionary<Vector3, List<KeyValuePair<Vector3, int>>> splitGraph, List<List<Vector3>> splitPoints, List<List<Vector3>> res)
+    {
+        Delete1Degree(splitGraph);
+        if(splitGraph.Count < 2)
+        {
+            splitGraph.Clear();
+            return;
+        }
+        KeyValuePair<Vector3, List<KeyValuePair<Vector3, int>>> pair = new KeyValuePair<Vector3, List<KeyValuePair<Vector3, int>>>();
+        foreach (KeyValuePair<Vector3, List<KeyValuePair<Vector3, int>>> pp in splitGraph)
+        {
+            pair = pp;
+            break;
+        }
+        List<Vector3> temp = new List<Vector3>();
+        List<Vector3> points = new List<Vector3>();
+        int lastIndex = -1;
+        Vector3 p = pair.Key;
+        temp.Add(p);
+        List<KeyValuePair<Vector3, int>> list;
+        bool findLoop = false;
+        KeyValuePair<Vector3, int> find = new KeyValuePair<Vector3, int>();
+        while (BlurTryGetValue(splitGraph, p, out list))
+        {
+            if (list.Count < 2) break;
+            foreach (KeyValuePair<Vector3, int> adj in list)
+            {
+                if (lastIndex >= 0 && lastIndex == adj.Value) continue;
+                if (temp.Count > 0 && BlurEqual(temp[0], adj.Key))
+                {
+                    findLoop = true;
+                    find = adj;
+                    break;
+                }
+                else
+                {
+                    temp.Add(adj.Key);
+                    lastIndex = adj.Value;
+                    List<Vector3> pl = splitPoints[adj.Value];
+                    if (BlurEqual(pl[0], p))
+                    {
+                        for (int i = 1; i < pl.Count; i++)
+                        {
+                            points.Add(pl[i]);
+                        }
+                    }
+                    else
+                    {
+                        for (int i = pl.Count - 2; i >= 0; i--)
+                        {
+                            points.Add(pl[i]);
+                        }
+                    }
+                    p = adj.Key;
+                    break;
+                }
+            }
+            if (findLoop) break;
+        }
+        if (findLoop)
+        {
+            List<Vector3> pl = splitPoints[find.Value];
+            if(BlurEqual(pl[0], p))
+            {
+                for(int i = 1; i < pl.Count; i++)
+                {
+                    points.Add(pl[i]);
+                }
+            }
+            else
+            {
+                for (int i = pl.Count - 2; i >= 0; i--)
+                {
+                    points.Add(pl[i]);
+                }
+            }
+            res.Add(points);
+            points = new List<Vector3>();
+            RemoveFromGraph(splitGraph, temp);
+            FindLoop(splitGraph, splitPoints, res);
+        }
+    }
+
+    private static void RemoveFromGraph(Dictionary<Vector3, List<KeyValuePair<Vector3, int>>> splitGraph, List<Vector3> points)
+    {
+        List<KeyValuePair<Vector3, int>> list;
+        int count = points.Count;
+        for(int i = 0; i < count; i++)
+        {
+            if(BlurTryGetValue(splitGraph, points[i], out list))
+            {
+                if(list.Count <= 2)
+                {
+                    BlurRemove(splitGraph, points[i]);
+                }
+                else
+                {
+                    BlurRemove(list, points[(i + count - 1) % count]);
+                    BlurRemove(list, points[(i + 1) % count]);
+                }
+            }
+        }
+    }
+
+    private static void Delete1Degree(Dictionary<Vector3, List<KeyValuePair<Vector3, int>>> splitGraph)
+    {
+        bool hasLine = true;
+        while (splitGraph.Count != 0 && hasLine)
+        {
+            hasLine = false;
+            KeyValuePair<Vector3, List<KeyValuePair<Vector3, int>>> tempPair = new KeyValuePair<Vector3, List<KeyValuePair<Vector3, int>>>();
+            foreach (KeyValuePair<Vector3, List<KeyValuePair<Vector3, int>>> pair in splitGraph)
+            {
+                if (pair.Value.Count == 1)
+                {
+                    hasLine = true;
+                    tempPair = pair;
+                    break;
+                }
+            }
+            if (hasLine)
+            {
+                Vector3 lastp = tempPair.Key;
+                splitGraph.Remove(lastp);
+                Vector3 p = tempPair.Value[0].Key;
+                List<KeyValuePair<Vector3, int>> list = new List<KeyValuePair<Vector3, int>>();
+                if (BlurTryGetValue(splitGraph, p, out list))
+                {
+                    if (list.Count == 1)
+                    {
+                        BlurRemove(splitGraph, p);
+                    }
+                    else
+                    {
+                        BlurRemove(list, tempPair.Key);
+                    }
+                }
+            }
+        }
+    }
+
+    private static List<List<Vector3>> GroupSplits(Dictionary<Vector3, List<Vector3>> pointGraph)
+    {
+        List<List<Vector3>> res = new List<List<Vector3>>();
+        bool hasLine = true;
+        while (pointGraph.Count != 0 && hasLine)
+        {
+            hasLine = false;
+            List<Vector3> line = new List<Vector3>();
+            KeyValuePair<Vector3, List<Vector3>> tempPair = new KeyValuePair<Vector3, List<Vector3>>();
+            foreach (KeyValuePair<Vector3, List<Vector3>> pair in pointGraph)
+            {
+                if (pair.Value.Count == 1)
+                {
+                    hasLine = true;
+                    tempPair = pair;
+                    break;
+                }
+            }
+            if (hasLine)
+            {
+                Vector3 lastp = tempPair.Key;
+                line.Add(lastp);
+                pointGraph.Remove(lastp);
+                Vector3 p = tempPair.Value[0];
+                List<Vector3> list;
+                while (BlurTryGetValue(pointGraph, p, out list))
+                {
+                    if (list.Count == 1)
+                    {
+                        line.Add(p);
+                        BlurRemove(pointGraph, p);
+                        break;
+                    }
+                    else if (list.Count == 2)
+                    {
+                        line.Add(p);
+                        BlurRemove(list, lastp);
+                        lastp = p;
+                        p = list[0];
+                        BlurRemove(pointGraph, lastp);
+                    }
+                    else if (list.Count > 2)
+                    {
+                        BlurRemove(list, lastp);
+                        line.Add(p);
+                        break;
+                    }
+                    else
+                    {
+                        Debug.Log("pointGraph list count = 0");
+                    }
+                }
+                res.Add(line);
+            }
+        }
+        if (pointGraph.Count == 0) return res;
+        bool connectLoop = false;
+        foreach (KeyValuePair<Vector3, List<Vector3>> pair in pointGraph)
+        {
+            if (pair.Value.Count > 2)
+            {
+                connectLoop = true;
+                break;
+            }
+        }
+        if (connectLoop)
+        {
+            Debug.Log("Unhandled connectloop");
+            return res;
+        }
+        bool hasLoop = true;
+        while (pointGraph.Count != 0 && hasLoop)
+        {
+            hasLoop = false;
+            List<Vector3> loop = new List<Vector3>();
+            KeyValuePair<Vector3, List<Vector3>> tempPair = new KeyValuePair<Vector3, List<Vector3>>();
+            foreach (KeyValuePair<Vector3, List<Vector3>> pair in pointGraph)
+            {
+                if (pair.Value.Count == 2)
+                {
+                    hasLoop = true;
+                    tempPair = pair;
+                    break;
+                }
+                else
+                {
+                    Debug.Log("unexpected list count");
+                    break;
+                }
+            }
+            if (hasLoop)
+            {
+                Vector3 lastp = tempPair.Key;
+                loop.Add(lastp);
+                pointGraph.Remove(lastp);
+                Vector3 p = tempPair.Value[0];
+                List<Vector3> list;
+                while (BlurTryGetValue(pointGraph, p, out list))
+                {
+                    if (list.Count == 2)
+                    {
+                        loop.Add(p);
+                        BlurRemove(list, lastp);
+                        lastp = p;
+                        p = list[0];
+                        BlurRemove(pointGraph, lastp);
+                    }
+                    else
+                    {
+                        Debug.Log("unexpected list count " + list.Count);
+                        break;
+                    }
+                }
+                loop.Add(p);
+                res.Add(loop);
+            }
+        }
+        return res;
+    }
+
     private static void SplitTriangleMesh(Vector3 p1, Vector3 p2, Vector3 p3,
-        ref List<Vector3> vertices1, ref List<int> triangles1, 
+        ref List<Vector3> vertices1, ref List<int> triangles1,
         ref List<Vector3> vertices2, ref List<int> triangles2,
-        ref List<Vector3> splitPointPair, Vector3 normal, Vector3 planePoint) 
+        ref Dictionary<Vector3, List<Vector3>> pointGraph, Vector3 normal, Vector3 planePoint)
     {
         Vector3 sec12 = IntersectionLineWithFace(p2 - p1, p1, normal, planePoint);
         Vector3 sec13 = IntersectionLineWithFace(p3 - p1, p1, normal, planePoint);
-        splitPointPair.Add(sec12);
-        splitPointPair.Add(sec13);
+        List<Vector3> v;
+        if (BlurTryGetValue(pointGraph, sec12, out v))
+        {
+            v.Add(sec13);
+        }
+        else
+        {
+            v = new List<Vector3> { sec13 };
+            pointGraph.Add(sec12, v);
+        }
+        if (BlurTryGetValue(pointGraph, sec13, out v))
+        {
+            v.Add(sec12);
+        }
+        else
+        {
+            v = new List<Vector3> { sec12 };
+            pointGraph.Add(sec13, v);
+        }
         vertices1.Add(sec12);
         vertices1.Add(sec13);
         vertices2.Add(sec12);
@@ -426,5 +723,155 @@ public static class MHelperFunctions
         triangles2.Add(vertices2.IndexOf(p1));
         triangles2.Add(vertices2.IndexOf(sec12));
         triangles2.Add(vertices2.IndexOf(sec13));
+    }
+
+    public static bool BlurContains(List<Vector3> list, Vector3 key)
+    {
+        foreach (Vector3 v in list)
+        {
+            if (BlurEqual(v, key))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static bool BlurEqual(Vector3 v1, Vector3 v2)
+    {
+        return Vector3.Distance(v1, v2) < MDefinitions.VECTOR3_PRECISION;
+    }
+
+    public static void BlurRemove(List<Vector3> list, Vector3 key)
+    {
+        float min = float.MaxValue;
+        float temp;
+        Vector3 k = new Vector3();
+        foreach (Vector3 v in list)
+        {
+            if ((temp = Vector3.Distance(v, key)) < min)
+            {
+                min = temp;
+                k = v;
+            }
+        }
+        if (min < MDefinitions.VECTOR3_PRECISION)
+        {
+            list.Remove(k);
+        }
+    }
+
+    public static void BlurRemove(List<KeyValuePair<Vector3, int>> list, Vector3 key)
+    {
+        float min = float.MaxValue;
+        float temp;
+        KeyValuePair<Vector3, int> k = new KeyValuePair<Vector3, int>();
+        foreach (KeyValuePair<Vector3, int> p in list)
+        {
+            if ((temp = Vector3.Distance(p.Key, key)) < min)
+            {
+                min = temp;
+                k = p;
+            }
+        }
+        if (min < MDefinitions.VECTOR3_PRECISION)
+        {
+            list.Remove(k);
+        }
+    }
+
+    public static void BlurRemove(Dictionary<Vector3, List<Vector3>> dictionary, Vector3 key)
+    {
+        float min = float.MaxValue;
+        float temp;
+        Vector3 k = new Vector3();
+        foreach (Vector3 v in dictionary.Keys)
+        {
+            if ((temp = Vector3.Distance(v, key)) < min)
+            {
+                min = temp;
+                k = v;
+            }
+        }
+        if (min < MDefinitions.VECTOR3_PRECISION)
+        {
+            dictionary.Remove(k);
+        }
+    }
+
+    public static void BlurRemove(Dictionary<Vector3, List<KeyValuePair<Vector3, int>>> dictionary, Vector3 key)
+    {
+        float min = float.MaxValue;
+        float temp;
+        Vector3 k = new Vector3();
+        foreach (Vector3 v in dictionary.Keys)
+        {
+            if ((temp = Vector3.Distance(v, key)) < min)
+            {
+                min = temp;
+                k = v;
+            }
+        }
+        if (min < MDefinitions.VECTOR3_PRECISION)
+        {
+            dictionary.Remove(k);
+        }
+    }
+
+    public static bool BlurTryGetValue(Dictionary<Vector3, List<Vector3>> dictionary, Vector3 key, out List<Vector3> value)
+    {
+        float min = float.MaxValue;
+        float temp;
+        List<Vector3> list = null;
+        foreach (KeyValuePair<Vector3, List<Vector3>> pair in dictionary)
+        {
+            if((temp = Vector3.Distance(pair.Key, key)) < min)
+            {
+                min = temp;
+                list = pair.Value;
+            }
+        }
+        if(min < MDefinitions.VECTOR3_PRECISION)
+        {
+            value = list;
+            return true;
+        }
+        value = null;
+        return false;
+    }
+
+    public static bool BlurTryGetValue(Dictionary<Vector3, List<KeyValuePair<Vector3, int>>> dictionary, Vector3 key, out List<KeyValuePair<Vector3, int>> value)
+    {
+        float min = float.MaxValue;
+        float temp;
+        List<KeyValuePair<Vector3, int>> list = null;
+        foreach (KeyValuePair<Vector3, List<KeyValuePair<Vector3, int>>> pair in dictionary)
+        {
+            if ((temp = Vector3.Distance(pair.Key, key)) < min)
+            {
+                min = temp;
+                list = pair.Value;
+            }
+        }
+        if (min < MDefinitions.VECTOR3_PRECISION)
+        {
+            value = list;
+            return true;
+        }
+        value = null;
+        return false;
+    }
+
+    public static void AddValToDictionary(Dictionary<Vector3, List<KeyValuePair<Vector3, int>>> dictionary, Vector3 key, Vector3 val, int index)
+    {
+        List<KeyValuePair<Vector3, int>> list;
+        if (MHelperFunctions.BlurTryGetValue(dictionary, key, out list))
+        {
+            list.Add(new KeyValuePair<Vector3, int>(val, index));
+        }
+        else
+        {
+            dictionary.Add(key, new List<KeyValuePair<Vector3, int>> { new KeyValuePair<Vector3, int>(val, index) });
+        }
     }
 }

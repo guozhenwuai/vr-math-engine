@@ -74,7 +74,7 @@ public class SceneManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         objects = new List<MObject>();
-        AddPrefabObject(MObject.MPrefabType.CYLINDER);
+        AddPrefabObject(MObject.MPrefabType.CONE);
         InitStateMachine();
 	}
 	

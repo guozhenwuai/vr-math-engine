@@ -74,7 +74,6 @@ public class MConeFace : MFace
     public Vector3 GetProjection(Vector3 target, Vector3 assistant)
     {
         Vector3 v = MHelperFunctions.PointProjectionInLine(target, bottom.center.position - top.position, top.position);
-        float h = Vector3.Distance(top.position, bottom.center.position);
         Vector3 p;
         if (Vector3.Distance(target, v) < MDefinitions.FLOAT_PRECISION)
         {

@@ -28,30 +28,30 @@ public static class MPrism
         abc.Add(ab);
         abc.Add(bc);
         abc.Add(ca);
-        MPolygonFace f1 = mesh.CreatePolygonFace(abc);
+        mesh.CreatePolygonFace(abc);
         List<MLinearEdge> efg = new List<MLinearEdge>();
         efg.Add(ef);
         efg.Add(fg);
         efg.Add(ge);
-        MPolygonFace f2 = mesh.CreatePolygonFace(efg);
+        mesh.CreatePolygonFace(efg);
         List<MLinearEdge> abef = new List<MLinearEdge>();
         abef.Add(ab);
         abef.Add(ae);
         abef.Add(ef);
         abef.Add(bf);
-        MPolygonFace f3 = mesh.CreatePolygonFace(abef);
+        mesh.CreatePolygonFace(abef);
         List<MLinearEdge> bcfg = new List<MLinearEdge>();
         bcfg.Add(bc);
         bcfg.Add(bf);
         bcfg.Add(fg);
         bcfg.Add(cg);
-        MPolygonFace f4 = mesh.CreatePolygonFace(bcfg);
+        mesh.CreatePolygonFace(bcfg);
         List<MLinearEdge> cage = new List<MLinearEdge>();
         cage.Add(ca);
         cage.Add(cg);
         cage.Add(ge);
         cage.Add(ae);
-        MPolygonFace f5 = mesh.CreatePolygonFace(cage);
+        mesh.CreatePolygonFace(cage);
         return mesh;
     }
 }

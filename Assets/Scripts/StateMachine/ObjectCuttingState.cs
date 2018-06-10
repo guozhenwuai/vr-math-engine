@@ -69,14 +69,24 @@ public class ObjectCuttingState : IState
                 break;
             case STATUS.CUT:
                 List<MObject> objects = curObj.PlaneSplit(quad.transform.TransformDirection(Vector3.forward).normalized, quad.transform.TransformPoint(Vector3.zero));
-                sceneManager.objects.Remove(curObj);
-                foreach(MObject obj in objects)
+                if(objects.Count > 1)
                 {
-                    sceneManager.objects.Add(obj);
+                    sceneManager.objects.Remove(curObj);
+                    foreach (MObject obj in objects)
+                    {
+                        sceneManager.objects.Add(obj);
+                    }
+                    curObj.Destroy();
+                    curObj = null;
+                    sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.TRANSFORM, null);
                 }
-                curObj.Destroy();
-                curObj = null;
-                sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.TRANSFORM, null);
+                else
+                {
+                    foreach(MObject obj in objects)
+                    {
+                        obj.Destroy();
+                    }
+                }
                 break;
         }
         

@@ -162,10 +162,15 @@ public class MGeneralFlatFace : MFace
         }
         if (buildSuccess)
         {
-            for(i = 0; i < count; i++)
+            Vector3 p = points[0];
+            for(i = 1; i < count; i++)
             {
-                Vector3 v = points[(i + 1) % count] - points[i];
-                if(!MHelperFunctions.Perpendicular(v, normal))
+                Vector3 v = MHelperFunctions.PointProjectionInFace(points[i], normal, points[0]);
+                if(Vector3.Distance(points[i], v) < MDefinitions.VECTOR3_PRECISION)
+                {
+                    points[i] = v;
+                }
+                else
                 {
                     buildSuccess = false;
                     return;

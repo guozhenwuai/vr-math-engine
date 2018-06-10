@@ -611,9 +611,18 @@ public class MObject
                                 {
                                     facesNeedSplit.Add(face);
                                 }
+                                Vector3 p;
                                 Vector3 centerProjection = MHelperFunctions.PointProjectionInFace(ce.center.position, normal, planePoint);
-                                Vector3 intersection = MHelperFunctions.IntersectionLineWithFace(ce.normal, ce.center.position, normal, planePoint);
-                                Vector3 p = (centerProjection - intersection).normalized * (h * h / Vector3.Distance(centerProjection, intersection)) + centerProjection;
+                                if (!MHelperFunctions.Perpendicular(ce.normal, normal))
+                                {
+                                    
+                                    Vector3 intersection = MHelperFunctions.IntersectionLineWithFace(ce.normal, ce.center.position, normal, planePoint);
+                                    p = (centerProjection - intersection).normalized * (h * h / Vector3.Distance(centerProjection, intersection)) + centerProjection;
+                                }
+                                else
+                                {
+                                    p = centerProjection;
+                                }
                                 Vector3 n = Vector3.Cross(normal, ce.normal).normalized;
                                 float l = Vector3.Distance(p, ce.center.position);
                                 float d = Mathf.Sqrt(ce.radius * ce.radius - l * l);
@@ -622,17 +631,19 @@ public class MObject
                                 List<MEdge> edgeList = new List<MEdge>();
                                 List<Vector3> points1 = MHelperFunctions.GenerateArcPoint(secp1, secp2, ce.normal, ce.center.position);
                                 List<Vector3> points2 = MHelperFunctions.GenerateArcPoint(secp2, secp1, ce.normal, ce.center.position);
-                                Vector3 sample = points1.Count >= points2.Count ? points1[1] : points2[1];
+                                int count1 = points1.Count;
+                                int count2 = points2.Count;
+                                Vector3 sample = count1 >= count2 ? points1[count1/2] : points2[count2/2];
                                 r = MHelperFunctions.FloatZero(Vector3.Dot(sample, normal));
                                 if((r > 0 && points1.Count >= points2.Count) || (r < 0 && points1.Count < points2.Count))
                                 {
-                                    edgeList.Add(mesh1.CreateGeneralEdge(points2));
-                                    edgeList.Add(mesh2.CreateGeneralEdge(points1));
+                                    edgeList.Add(mesh1.CreateGeneralEdge(points1));
+                                    edgeList.Add(mesh2.CreateGeneralEdge(points2));
                                 }
                                 else
                                 {
-                                    edgeList.Add(mesh1.CreateGeneralEdge(points1));
-                                    edgeList.Add(mesh2.CreateGeneralEdge(points2));
+                                    edgeList.Add(mesh1.CreateGeneralEdge(points2));
+                                    edgeList.Add(mesh2.CreateGeneralEdge(points1));
                                 }
                                 edgeMap.Add(ce, edgeList);
                             }
@@ -693,6 +704,7 @@ public class MObject
             }
         }
         List<List<Vector3>> splitPoints = new List<List<Vector3>>();
+        Dictionary<Vector3, List<KeyValuePair<Vector3, int>>> splitGraph = new Dictionary<Vector3, List<KeyValuePair<Vector3, int>>>();
         foreach(MFace face in mesh.faceList)
         {
             switch (face.faceType)
@@ -709,7 +721,10 @@ public class MObject
                             List<Vector3> split = new List<Vector3>();
                             split.Add(points1[0]);
                             split.Add(points2[0]);
+                            int count = splitPoints.Count;
                             splitPoints.Add(split);
+                            MHelperFunctions.AddValToDictionary(splitGraph, points1[0], points2[0], count);
+                            MHelperFunctions.AddValToDictionary(splitGraph, points2[0], points1[0], count);
                             mesh1.CreateLinearEdge(new MPoint(points1[0]), new MPoint(points2[0]));
                             mesh2.CreateLinearEdge(new MPoint(points1[0]), new MPoint(points2[0]));
                             points1.Add(points1[0]);
@@ -736,7 +751,6 @@ public class MObject
                     }
                 case MFace.MFaceType.CONE:
                 case MFace.MFaceType.CYLINDER:
-                case MFace.MFaceType.SPHERE:
                 case MFace.MFaceType.GENERAL_CURVE:
                     {
                         List<List<Vector3>> split;
@@ -745,9 +759,44 @@ public class MObject
                         mesh2.CreateGeneralCurveFace(meshs[1]);
                         foreach(List<Vector3> l in split)
                         {
-                            splitPoints.Add(l);
+                            if(l.Count < 2)
+                            {
+                                Debug.Log("unexpected list count");
+                                continue;
+                            }
+                            if(MHelperFunctions.BlurEqual(l[0], l[l.Count - 1]))
+                            {
+                                mesh1.CreateGeneralFlatFace(l);
+                                mesh2.CreateGeneralFlatFace(l);
+                            }
+                            else
+                            {
+                                int count = splitPoints.Count;
+                                splitPoints.Add(l);
+                                MHelperFunctions.AddValToDictionary(splitGraph, l[0], l[l.Count - 1], count);
+                                MHelperFunctions.AddValToDictionary(splitGraph, l[l.Count - 1],l[0], count);
+                            }
                             mesh1.CreateGeneralEdge(new List<Vector3>(l));
                             mesh2.CreateGeneralEdge(new List<Vector3>(l));
+                        }
+                        break;
+                    }
+                case MFace.MFaceType.SPHERE:
+                    {
+                        MSphereFace sf = face as MSphereFace;
+                        List<List<Vector3>> split;
+                        List<Mesh> meshs = MHelperFunctions.MeshSplit(face.mesh, normal, planePoint, out split);
+                        mesh1.CreateGeneralCurveFace(meshs[0]);
+                        mesh2.CreateGeneralCurveFace(meshs[1]);
+                        Vector3 projCenter = MHelperFunctions.PointProjectionInFace(sf.center.position, normal, planePoint);
+                        float dis = Vector3.Distance(sf.center.position, projCenter);
+                        if(dis < sf.radius)
+                        {
+                            float r = Mathf.Sqrt(sf.radius * sf.radius - dis * dis);
+                            MCurveEdge ce = mesh1.CreateCurveEdge(new MPoint(projCenter), r, normal);
+                            mesh1.CreateCircleFace(ce);
+                            ce = mesh2.CreateCurveEdge(new MPoint(projCenter), r, normal);
+                            mesh2.CreateCircleFace(ce);
                         }
                         break;
                     }
@@ -794,13 +843,18 @@ public class MObject
                             if(split.Count != 2)
                             {
                                 // TODO: 非凸多边形 被分割成了大于2个面
+                                Debug.Log("unexpected split count");
+                                continue;
                             }
                             else
                             {
                                 edges1.Add(new MLinearEdge(new MPoint(split[0]), new MPoint(split[1])));
                                 edges2.Add(new MLinearEdge(new MPoint(split[0]), new MPoint(split[1])));
                             }
+                            int count = splitPoints.Count;
                             splitPoints.Add(split);
+                            MHelperFunctions.AddValToDictionary(splitGraph, split[0], split[1], count);
+                            MHelperFunctions.AddValToDictionary(splitGraph, split[1], split[0], count);
                             mesh1.CreatePolygonFace(edges1);
                             mesh2.CreatePolygonFace(edges2);
                         }
@@ -879,20 +933,30 @@ public class MObject
                         if (split.Count != 2)
                         {
                             // TODO: 非凸多边形 被分割成了大于2个面
+                            Debug.Log("unexpected split count");
+                            continue;
                         }
                         else
                         {
                             mesh1.CreateLinearEdge(new MPoint(split[0]), new MPoint(split[1]));
                             mesh2.CreateLinearEdge(new MPoint(split[0]), new MPoint(split[1]));
                         }
+                        int cnt = splitPoints.Count;
                         splitPoints.Add(split);
+                        MHelperFunctions.AddValToDictionary(splitGraph, split[0], split[1], cnt);
+                        MHelperFunctions.AddValToDictionary(splitGraph, split[1], split[0], cnt);
                         mesh1.CreateGeneralFlatFace(points1);
                         mesh2.CreateGeneralFlatFace(points2);
                         break;
                     }
             }
         }
-        //TODO: 根据splitPoints生成切割平面
+        List<List<Vector3>> loops = MHelperFunctions.GroupLoop(splitGraph, splitPoints);
+        foreach(List<Vector3> list in loops)
+        {
+            mesh1.CreateGeneralFlatFace(list);
+            mesh2.CreateGeneralFlatFace(list);
+        }
         List<MObject> objects = new List<MObject>();
         if (!mesh1.IsEmpty())
         {
