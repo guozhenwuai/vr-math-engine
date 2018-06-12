@@ -139,6 +139,11 @@ public class PanelMenuListener : MonoBehaviour {
         sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.CREATE_VERTICAL_LINE, null);
     }
 
+    public void OnAngleSpecifiedLineButtonClick()
+    {
+        sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.CREATE_ANGLE, null);
+    }
+
     public void OnRemoveEntityButtonClick()
     {
         sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.REMOVE_ENTITY, null);

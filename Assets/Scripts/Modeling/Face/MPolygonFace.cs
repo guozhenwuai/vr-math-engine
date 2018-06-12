@@ -35,6 +35,11 @@ public class MPolygonFace : MFace
         if (buildSuccess) CalcSurface();
     }
 
+    public bool PointInFace(MPoint p)
+    {
+        return sortedPoints.Contains(p);
+    }
+
     override
     public float CalcDistance(Vector3 point)
     {

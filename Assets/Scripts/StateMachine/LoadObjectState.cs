@@ -59,7 +59,7 @@ public class LoadObjectState : IState
                 DateTime.FromFileTime(Convert.ToInt64(name));
                 if(!objects.Contains(name))objects.Add(name);
             }
-            catch(Exception e)
+            catch(Exception)
             {
             }
         }

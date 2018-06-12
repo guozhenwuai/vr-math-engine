@@ -325,6 +325,7 @@
     <Compile Include="Assets\Scripts\SceneManager.cs" />
     <Compile Include="Assets\Scripts\StateMachine\AddPrefabState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\ConnectPointState.cs" />
+    <Compile Include="Assets\Scripts\StateMachine\CreateAngleState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\CreatePointState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\CreateVerticalLineState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\IState.cs" />

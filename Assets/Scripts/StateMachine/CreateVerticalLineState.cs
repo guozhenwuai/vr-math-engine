@@ -31,6 +31,7 @@ public class CreateVerticalLineState : IState
         rightTriggerPressed = new VRTK.ControllerInteractionEventHandler(RightTriggerPressed);
         rightGripPressed = new VRTK.ControllerInteractionEventHandler(RightGripPressed);
         selectedEntity = new List<MEntity>();
+        activePoint = new MPoint(Vector3.zero);
     }
 
     public uint GetStateID()
@@ -43,7 +44,6 @@ public class CreateVerticalLineState : IState
         sceneManager.rightEvents.TriggerPressed += rightTriggerPressed;
         sceneManager.rightEvents.GripPressed += rightGripPressed;
         status = STATUS.DEFAULT;
-        activePoint = new MPoint(Vector3.zero);
         activePoint.entityStatus = MEntity.MEntityStatus.ACTIVE;
         curObj = null;
         foreach (MObject obj in sceneManager.objects)
@@ -61,7 +61,6 @@ public class CreateVerticalLineState : IState
         sceneManager.rightEvents.TriggerPressed -= rightTriggerPressed;
         sceneManager.rightEvents.GripPressed -= rightGripPressed;
         ResetStatus();
-        activePoint = null;
         foreach (MObject obj in sceneManager.objects)
         {
             MLinearEdge refEdge = obj.refEdge;
@@ -81,19 +80,16 @@ public class CreateVerticalLineState : IState
                 break;
             case STATUS.CONNECTING:
                 sceneManager.UpdateEntityHighlight(MObject.MInteractMode.POINT_EXPT, curObj);
+                UpdateConnecting();
                 break;
             case STATUS.SELECT_POINT:
                 sceneManager.UpdateEntityHighlight(MObject.MInteractMode.POINT_ONLY, curObj);
                 break;
+            case STATUS.ADJUST_LEN:
+                UpdateAdjustLen();
+                break;
         }
         sceneManager.StartRender();
-        if (status == STATUS.CONNECTING)
-        {
-            UpdateConnecting();
-        } else if(status == STATUS.ADJUST_LEN)
-        {
-            UpdateAdjustLen();
-        }
     }
 
     private void UpdateConnecting()

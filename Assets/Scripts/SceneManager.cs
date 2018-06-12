@@ -73,7 +73,7 @@ public class SceneManager : MonoBehaviour {
 
     public enum SceneStatus { STATISTIC_DISPLAY, SELECT_REFEDGE, RELATION_DISPLAY
             , TRANSFORM, SAVE_OBJECT, LOAD_OBJECT, REMOVE_OBJECT, OBJECT_CUTTING
-            , CONNECT_POINT, CREATE_POINT, CREATE_VERTICAL_LINE, REMOVE_ENTITY
+            , CONNECT_POINT, CREATE_POINT, CREATE_VERTICAL_LINE, CREATE_ANGLE, REMOVE_ENTITY
             , ADD_PREFAB};
 
 	// Use this for initialization
@@ -112,7 +112,8 @@ public class SceneManager : MonoBehaviour {
         sceneStateMachine.RegisterState(new RemoveEntityState(this));
         sceneStateMachine.RegisterState(new ObjectCuttingState(this, quad));
         sceneStateMachine.RegisterState(new LoadObjectState(this, panelMenuListener, loadListListener));
-		sceneStateMachine.SwitchState((uint)SceneStatus.LOAD_OBJECT, null);
+        sceneStateMachine.RegisterState(new CreateAngleState(this, statisticActiveMesh));
+		sceneStateMachine.SwitchState((uint)SceneStatus.CREATE_ANGLE, null);
     }
 
     private void BetweenSwitch(IState from, IState to)

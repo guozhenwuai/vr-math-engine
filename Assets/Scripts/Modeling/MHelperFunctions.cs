@@ -109,6 +109,16 @@ public static class MHelperFunctions
         return angle;
     }
 
+    public static float CalcRealAngle(Vector3 v1, Vector3 v2)
+    {
+        return Mathf.Acos(Vector3.Dot(v1.normalized, v2.normalized)) * Mathf.Rad2Deg;
+    }
+
+    public static float CalcRadAngle(Vector3 v1, Vector3 v2)
+    {
+        return Mathf.Acos(Vector3.Dot(v1.normalized, v2.normalized));
+    }
+
     public static Vector3 Min(Vector3 a, Vector3 b, Vector3 c)
     {
         return Vector3.Min(a, Vector3.Min(b, c));
@@ -254,6 +264,12 @@ public static class MHelperFunctions
         float cos = Mathf.Cos(rotateAngle);
         float sin = Mathf.Sin(rotateAngle);
         return r * cos + (1 - cos) * Vector3.Dot(rotateAxis, r) * rotateAxis + sin * Vector3.Cross(rotateAxis, r);
+    }
+
+    public static Vector3 CalcDirectionByAngle(Vector3 oldVec, Vector3 newVec, float angle)
+    {
+        Vector3 rotateAxis = Vector3.Cross(oldVec.normalized, newVec.normalized).normalized;
+        return CalcRotate(oldVec, rotateAxis, angle);
     }
 
     // 判断点是否在多边形内（点为在多边形平面上的投影点）
