@@ -59,7 +59,7 @@ public class SaveObjectState : IState
     {
         if(curObj != null)
         {
-			curObj.ExportObject(MDefinitions.PATH);
+			curObj.ExportObject(System.DateTime.Now.ToFileTime().ToString());
             SelectObject(null);
         }
     }

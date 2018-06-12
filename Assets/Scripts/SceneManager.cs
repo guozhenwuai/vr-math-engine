@@ -6,6 +6,10 @@ public class SceneManager : MonoBehaviour {
     public GameObject leftController;
     public GameObject rightController;
 
+    public PanelMenuListener panelMenuListener;
+
+    public LoadListListener loadListListener;
+
     public GameObject objTemplate;
 
     public GameObject statisticActiveMesh;
@@ -15,6 +19,7 @@ public class SceneManager : MonoBehaviour {
     public GameObject statusMesh;
 
     public GameObject quad;
+
 
     [HideInInspector]
     public VRTK.VRTK_ControllerEvents leftEvents
@@ -74,7 +79,7 @@ public class SceneManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         objects = new List<MObject>();
-        AddPrefabObject(MObject.MPrefabType.CONE);
+        AddPrefabObject(MObject.MPrefabType.CUBE);
         InitStateMachine();
 	}
 	
@@ -106,7 +111,8 @@ public class SceneManager : MonoBehaviour {
         sceneStateMachine.RegisterState(new CreateVerticalLineState(this, statisticActiveMesh));
         sceneStateMachine.RegisterState(new RemoveEntityState(this));
         sceneStateMachine.RegisterState(new ObjectCuttingState(this, quad));
-		sceneStateMachine.SwitchState((uint)SceneStatus.OBJECT_CUTTING, null);
+        sceneStateMachine.RegisterState(new LoadObjectState(this, panelMenuListener, loadListListener));
+		sceneStateMachine.SwitchState((uint)SceneStatus.LOAD_OBJECT, null);
     }
 
     private void BetweenSwitch(IState from, IState to)

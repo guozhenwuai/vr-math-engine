@@ -14,7 +14,7 @@ public static class MDefinitions
 
     public static float FLOAT_PRECISION = 0.0000001f;
 
-    public static float VECTOR3_PRECISION = 0.005f;
+    public static float VECTOR3_PRECISION = 0.01f;
 
     public static Vector3 DEFAULT_POSITION = new Vector3(0, 1.2f, 0);
 
@@ -28,6 +28,8 @@ public static class MDefinitions
 
     public static Vector3 DEFAULT_PREFAB_OFFSET = Vector3.zero;
 
-    public static string PATH = Application.dataPath + "/Models";
+    public static string SAVE_PATH = Application.dataPath + "/Models";
+
+    public static float TOUCHPAD_AXIS_CHANGE_THRESHOLD = 0.5f;
 
 }

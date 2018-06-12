@@ -17,11 +17,18 @@ public class PanelMenuListener : MonoBehaviour {
 
     private float transformSpeed = 2f;
 
-	// Use this for initialization
-	void Start () {
-        sceneManager.leftEvents.TouchpadTouchStart += new VRTK.ControllerInteractionEventHandler(LeftTouchpadTouchStart);
-        sceneManager.leftEvents.TouchpadTouchEnd += new VRTK.ControllerInteractionEventHandler(LeftTouchpadTouchEnd);
-        sceneManager.leftEvents.TouchpadAxisChanged += new VRTK.ControllerInteractionEventHandler(LeftTouchpadAxisChanged);
+    private VRTK.ControllerInteractionEventHandler leftTouchpadTouchStart;
+
+    private VRTK.ControllerInteractionEventHandler leftTouchpadTouchEnd;
+
+    private VRTK.ControllerInteractionEventHandler leftTouchpadAxisChanged;
+
+    // Use this for initialization
+    void Start () {
+        leftTouchpadTouchStart = new VRTK.ControllerInteractionEventHandler(LeftTouchpadTouchStart);
+        leftTouchpadTouchEnd = new VRTK.ControllerInteractionEventHandler(LeftTouchpadTouchEnd);
+        leftTouchpadAxisChanged = new VRTK.ControllerInteractionEventHandler(LeftTouchpadAxisChanged);
+        AttachTouchpadEventHandler();
     }
 	
 	// Update is called once per frame
@@ -45,6 +52,20 @@ public class PanelMenuListener : MonoBehaviour {
         }
     }
 
+    public void AttachTouchpadEventHandler()
+    {
+        sceneManager.leftEvents.TouchpadTouchStart += leftTouchpadTouchStart;
+        sceneManager.leftEvents.TouchpadTouchEnd += leftTouchpadTouchEnd;
+        sceneManager.leftEvents.TouchpadAxisChanged += leftTouchpadAxisChanged;
+    }
+
+    public void DetachTouchpadEventHandler()
+    {
+        sceneManager.leftEvents.TouchpadTouchStart -= leftTouchpadTouchStart;
+        sceneManager.leftEvents.TouchpadTouchEnd -= leftTouchpadTouchEnd;
+        sceneManager.leftEvents.TouchpadAxisChanged -= leftTouchpadAxisChanged;
+    }
+
     private float GetClosetAngle(float x)
     {
         return Mathf.Round(x / 90) * 90;
@@ -53,7 +74,7 @@ public class PanelMenuListener : MonoBehaviour {
     private void LeftTouchpadAxisChanged(object sender, VRTK.ControllerInteractionEventArgs e)
     {
         float newX = e.touchpadAxis.x;
-        controllerMenu.transform.Rotate(Vector3.forward, lastX - newX);
+        controllerMenu.transform.Rotate(Vector3.forward, (lastX - newX) * 90);
         lastX = newX;
     }
 

@@ -62,7 +62,7 @@ public class MObject
     {
         gameObject = GameObject.Instantiate(template);
         mesh = new MMesh();
-        using(StreamReader sr = new StreamReader(MDefinitions.PATH + "/" + filename))
+        using(StreamReader sr = new StreamReader(MDefinitions.SAVE_PATH + "/" + filename))
         {
             string line = sr.ReadLine();
             string[] lineComponent;
@@ -361,11 +361,11 @@ public class MObject
                     break;
             }
         }
-        if (!Directory.Exists(MDefinitions.PATH))
+        if (!Directory.Exists(MDefinitions.SAVE_PATH))
         {
-            Directory.CreateDirectory(MDefinitions.PATH);
+            Directory.CreateDirectory(MDefinitions.SAVE_PATH);
         }
-        using (StreamWriter sw = new StreamWriter(MDefinitions.PATH+"/" + filename))
+        using (StreamWriter sw = new StreamWriter(MDefinitions.SAVE_PATH+"/" + filename))
         {
             sw.Write(sb.ToString());
             sw.Flush();
@@ -776,8 +776,16 @@ public class MObject
                                 MHelperFunctions.AddValToDictionary(splitGraph, l[0], l[l.Count - 1], count);
                                 MHelperFunctions.AddValToDictionary(splitGraph, l[l.Count - 1],l[0], count);
                             }
-                            mesh1.CreateGeneralEdge(new List<Vector3>(l));
-                            mesh2.CreateGeneralEdge(new List<Vector3>(l));
+                            if (MHelperFunctions.PointsInLine(l))
+                            {
+                                mesh1.CreateLinearEdge(new MPoint(l[0]), new MPoint(l[l.Count - 1]));
+                                mesh2.CreateLinearEdge(new MPoint(l[0]), new MPoint(l[l.Count - 1]));
+                            }
+                            else
+                            {
+                                mesh1.CreateGeneralEdge(new List<Vector3>(l));
+                                mesh2.CreateGeneralEdge(new List<Vector3>(l));
+                            }
                         }
                         break;
                     }

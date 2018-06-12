@@ -290,6 +290,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\LoadListListener.cs" />
     <Compile Include="Assets\Scripts\Modeling\AABB.cs" />
     <Compile Include="Assets\Scripts\Modeling\Edge\MCurveEdge.cs" />
     <Compile Include="Assets\Scripts\Modeling\Edge\MGeneralEdge.cs" />
@@ -327,6 +328,7 @@
     <Compile Include="Assets\Scripts\StateMachine\CreatePointState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\CreateVerticalLineState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\IState.cs" />
+    <Compile Include="Assets\Scripts\StateMachine\LoadObjectState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\ObjectCuttingState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\RefEdgeState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\RelationDisplayState.cs" />
