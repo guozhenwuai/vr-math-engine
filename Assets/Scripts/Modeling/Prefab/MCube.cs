@@ -34,7 +34,7 @@ public static class MCube
         abcd.Add(bc);
         abcd.Add(cd);
         abcd.Add(da);
-        mesh.CreatePolygonFace(abcd);
+        //mesh.CreatePolygonFace(abcd);
         List<MLinearEdge> efgh = new List<MLinearEdge>();
         efgh.Add(ef);
         efgh.Add(fg);

@@ -1045,6 +1045,11 @@ public class MObject
 		mesh.CreateLinearEdge (start, end);
 	}
 
+    public void CreatePolygonFace(List<MLinearEdge> edgeList)
+    {
+        mesh.CreatePolygonFace(edgeList);
+    }
+
     public void SetMeshText(string text)
     {
         textMesh.text = text;

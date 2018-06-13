@@ -144,6 +144,11 @@ public class PanelMenuListener : MonoBehaviour {
         sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.CREATE_ANGLE, null);
     }
 
+    public void OnLoopToFaceButtonClick()
+    {
+        sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.LOOP_TO_FACE, null);
+    }
+
     public void OnRemoveEntityButtonClick()
     {
         sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.REMOVE_ENTITY, null);

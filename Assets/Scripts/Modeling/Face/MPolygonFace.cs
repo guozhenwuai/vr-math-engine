@@ -239,7 +239,7 @@ public class MPolygonFace : MFace
             }
             if (!find)
             {
-                Debug.Log("MPolygonFace: GenerateSortedPoint: wrong edge list");
+                //Debug.Log("MPolygonFace: GenerateSortedPoint: wrong edge list");
                 buildSuccess = false;
                 break;
             } else
@@ -247,6 +247,22 @@ public class MPolygonFace : MFace
                 edges.Remove(edge);
                 orderedEdges.Add(edge);
             }
+        }
+        find = false;
+        MPoint a = sortedPoints[0];
+        MPoint b = sortedPoints[sortedPoints.Count - 1];
+        foreach(MLinearEdge le in edgeList)
+        {
+            if((le.start.Equals(a) && le.end.Equals(b)) || (le.start.Equals(b) && le.end.Equals(a)))
+            {
+                find = true;
+                break;
+            }
+        }
+        if (!find)
+        {
+            buildSuccess = false;
+            return;
         }
         edgeList = orderedEdges;
     }

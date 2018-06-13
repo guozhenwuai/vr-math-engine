@@ -330,6 +330,7 @@
     <Compile Include="Assets\Scripts\StateMachine\CreateVerticalLineState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\IState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\LoadObjectState.cs" />
+    <Compile Include="Assets\Scripts\StateMachine\LoopToFaceState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\ObjectCuttingState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\RefEdgeState.cs" />
     <Compile Include="Assets\Scripts\StateMachine\RelationDisplayState.cs" />
