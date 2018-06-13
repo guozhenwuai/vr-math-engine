@@ -16,8 +16,6 @@ public class SceneManager : MonoBehaviour {
 
     public GameObject globalInfoMesh;
 
-    public GameObject statusMesh;
-
     public GameObject quad;
 
 
@@ -74,7 +72,7 @@ public class SceneManager : MonoBehaviour {
     public enum SceneStatus { STATISTIC_DISPLAY, SELECT_REFEDGE, RELATION_DISPLAY
             , TRANSFORM, SAVE_OBJECT, LOAD_OBJECT, REMOVE_OBJECT, OBJECT_CUTTING
             , CONNECT_POINT, CREATE_POINT, CREATE_VERTICAL_LINE, CREATE_ANGLE, LOOP_TO_FACE, REMOVE_ENTITY
-            , ADD_PREFAB};
+            , ADD_PREFAB, ADD_RECTANGLE};
 
 	// Use this for initialization
 	void Start () {
@@ -114,14 +112,14 @@ public class SceneManager : MonoBehaviour {
         sceneStateMachine.RegisterState(new LoadObjectState(this, panelMenuListener, loadListListener));
         sceneStateMachine.RegisterState(new CreateAngleState(this, statisticActiveMesh));
         sceneStateMachine.RegisterState(new LoopToFaceState(this));
-		sceneStateMachine.SwitchState((uint)SceneStatus.LOOP_TO_FACE, null);
+        sceneStateMachine.RegisterState(new AddRectangleState(this, statisticActiveMesh));
+		sceneStateMachine.SwitchState((uint)SceneStatus.ADD_RECTANGLE, null);
     }
 
     private void BetweenSwitch(IState from, IState to)
     {
         if (from == null || to == null) return;
         string text = "Status Switch: from " + (SceneStatus)from.GetStateID() + " to " + (SceneStatus)to.GetStateID();
-        statusMesh.GetComponent<TextMesh>().text = text;
         Debug.Log(text);
     }
 

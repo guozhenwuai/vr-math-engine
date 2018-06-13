@@ -183,4 +183,9 @@ public class PanelMenuListener : MonoBehaviour {
     {
         sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.ADD_PREFAB, MObject.MPrefabType.PYRAMID);
     }
+
+    public void OnPrefabRectangleButtonClick()
+    {
+        sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.ADD_RECTANGLE, null);
+    }
 }

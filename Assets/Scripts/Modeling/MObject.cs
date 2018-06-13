@@ -270,6 +270,14 @@ public class MObject
         InitObject();
     }
 
+    // 空的模型
+    public MObject(GameObject template)
+    {
+        gameObject = GameObject.Instantiate(template);
+        mesh = new MMesh();
+        InitObject();
+    }
+
     public bool ExportObject(string filename)
     {
         StringBuilder sb = new StringBuilder();
@@ -1042,7 +1050,8 @@ public class MObject
     }
 
 	public void CreateLinearEdge(MPoint start, MPoint end){
-		mesh.CreateLinearEdge (start, end);
+		MLinearEdge edge = mesh.CreateLinearEdge (start, end);
+        if (edge != null && refEdge == null) SetRefEdge(edge);
 	}
 
     public void CreatePolygonFace(List<MLinearEdge> edgeList)

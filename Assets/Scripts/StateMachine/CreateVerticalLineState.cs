@@ -142,11 +142,11 @@ public class CreateVerticalLineState : IState
 
     private Vector3 RevisePos(ref float length, Vector3 startPos, Vector3 curPos)
     {
-        if(Mathf.Abs(length - 0.5f) < MDefinitions.POINT_PRECISION)
+        if(Mathf.Abs(length - 0.5f) < MDefinitions.AUTO_REVISE_FACTOR)
         {
             length = 0.5f;
             curPos = (curPos - startPos).normalized * 0.5f + startPos;
-        } else if(Mathf.Abs(length - Mathf.Round(length)) < MDefinitions.POINT_PRECISION)
+        } else if(Mathf.Abs(length - Mathf.Round(length)) < MDefinitions.AUTO_REVISE_FACTOR)
         {
             length = Mathf.Round(length);
             curPos = (curPos - startPos).normalized * length + startPos;

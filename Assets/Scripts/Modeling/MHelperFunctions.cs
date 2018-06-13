@@ -239,6 +239,12 @@ public static class MHelperFunctions
         }
     }
 
+    //计算直线到一点的向量
+    public static Vector3 VectorL2P(Vector3 point, Vector3 lineDirection, Vector3 linePoint)
+    {
+        return point - linePoint - lineDirection.normalized * Vector3.Dot(lineDirection.normalized, point - linePoint);
+    }
+
     // 计算点在平面上的投影点
     public static Vector3 PointProjectionInFace(Vector3 point, Vector3 faceNormal, Vector3 facePoint)
     {

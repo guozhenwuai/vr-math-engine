@@ -35,6 +35,7 @@ public class CreateAngleState : IState
         rightTriggerPressed = new VRTK.ControllerInteractionEventHandler(RightTriggerPressed);
         rightGripPressed = new VRTK.ControllerInteractionEventHandler(RightGripPressed);
         activePoint = new MPoint(Vector3.zero);
+        activePoint.entityStatus = MEntity.MEntityStatus.ACTIVE;
     }
 
     public uint GetStateID()
@@ -47,7 +48,6 @@ public class CreateAngleState : IState
         sceneManager.rightEvents.TriggerPressed += rightTriggerPressed;
         sceneManager.rightEvents.GripPressed += rightGripPressed;
         status = STATUS.SELECT_FACE;
-        activePoint.entityStatus = MEntity.MEntityStatus.ACTIVE;
         curObj = null;
         anglePoints = new MPoint[3];
         validAngle = false;
@@ -58,6 +58,7 @@ public class CreateAngleState : IState
         sceneManager.rightEvents.TriggerPressed -= rightTriggerPressed;
         sceneManager.rightEvents.GripPressed -= rightGripPressed;
         ResetStatus();
+        anglePoints = null;
     }
 
     public void OnUpdate()
@@ -242,7 +243,6 @@ public class CreateAngleState : IState
     {
         status = STATUS.SELECT_FACE;
         SelectEntity(ref selectFace, null);
-        anglePoints = null;
         activeTextMesh.SetActive(false);
         activeEdge = null;
         curObj = null;

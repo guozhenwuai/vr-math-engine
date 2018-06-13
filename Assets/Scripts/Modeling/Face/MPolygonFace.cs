@@ -95,8 +95,13 @@ public class MPolygonFace : MFace
     override
     public void UpdateMesh()
     {
-        InitMesh();
-        CalcSurface();
+        buildSuccess = true;
+        CalcNormal();
+        if (buildSuccess)
+        {
+            InitMesh();
+            CalcSurface();
+        }
     }
 
     private void InitMesh()
@@ -192,9 +197,12 @@ public class MPolygonFace : MFace
         }
         if (buildSuccess)
         {
-            foreach(MLinearEdge edge in edgeList)
+            Vector3 p = sortedPoints[0].position;
+            count = sortedPoints.Count;
+            for (i = 1; i < count; i++)
             {
-                if (!MHelperFunctions.Perpendicular(edge.direction, normal))
+                Vector3 v = MHelperFunctions.PointProjectionInFace(sortedPoints[i].position, normal, sortedPoints[0].position);
+                if (Vector3.Distance(sortedPoints[i].position, v) >= MDefinitions.VECTOR3_PRECISION)
                 {
                     buildSuccess = false;
                     return;
@@ -267,8 +275,6 @@ public class MPolygonFace : MFace
         edgeList = orderedEdges;
     }
 
-
-    
     private bool IdenticalLoop(List<MPoint> p1, List<MPoint> p2)
     {
         int count;
