@@ -4,11 +4,9 @@ using UnityEngine;
 
 public static class MPrism
 {
-    static MMesh mesh;
-
     public static MMesh GetMMesh()
     {
-        mesh = new MMesh();
+        MMesh mesh = new MMesh();
         MPoint a = mesh.CreatePoint(new Vector3(Mathf.Sqrt(3)/4, -0.75f, -0.25f));
         MPoint b = mesh.CreatePoint(new Vector3(-Mathf.Sqrt(3)/4, -0.75f, -0.25f));
         MPoint c = mesh.CreatePoint(new Vector3(0, -0.75f, 0.5f));

@@ -72,7 +72,7 @@ public class SceneManager : MonoBehaviour {
     public enum SceneStatus { STATISTIC_DISPLAY, SELECT_REFEDGE, RELATION_DISPLAY
             , TRANSFORM, SAVE_OBJECT, LOAD_OBJECT, REMOVE_OBJECT, OBJECT_CUTTING
             , CONNECT_POINT, CREATE_POINT, CREATE_VERTICAL_LINE, CREATE_ANGLE, LOOP_TO_FACE, REMOVE_ENTITY
-            , ADD_PREFAB, ADD_RECTANGLE};
+            , ADD_PREFAB, ADD_RECTANGLE, ADD_RIGHT_ANGLED_TRI};
 
 	// Use this for initialization
 	void Start () {
@@ -113,7 +113,8 @@ public class SceneManager : MonoBehaviour {
         sceneStateMachine.RegisterState(new CreateAngleState(this, statisticActiveMesh));
         sceneStateMachine.RegisterState(new LoopToFaceState(this));
         sceneStateMachine.RegisterState(new AddRectangleState(this, statisticActiveMesh));
-		sceneStateMachine.SwitchState((uint)SceneStatus.ADD_RECTANGLE, null);
+        sceneStateMachine.RegisterState(new AddRightAngledTriangleState(this, statisticActiveMesh));
+		sceneStateMachine.SwitchState((uint)SceneStatus.ADD_RIGHT_ANGLED_TRI, null);
     }
 
     private void BetweenSwitch(IState from, IState to)

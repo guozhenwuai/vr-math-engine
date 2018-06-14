@@ -188,4 +188,14 @@ public class PanelMenuListener : MonoBehaviour {
     {
         sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.ADD_RECTANGLE, null);
     }
+
+    public void OnPrefabRegularTriangleButtonClick()
+    {
+        sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.ADD_PREFAB, MObject.MPrefabType.REGULAR_TRIANGLE);
+    }
+
+    public void OnPrefabRightAngledTriangleButtonClick()
+    {
+        sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.ADD_RIGHT_ANGLED_TRI, null);
+    }
 }

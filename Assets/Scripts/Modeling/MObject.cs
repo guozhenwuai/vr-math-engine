@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class MObject
 {
-    public enum MPrefabType { CUBE, SPHERE, CYLINDER, PRISM, PYRAMID, CONE};
+    public enum MPrefabType { CUBE, SPHERE, CYLINDER, PRISM, PYRAMID, CONE, REGULAR_TRIANGLE, CIRCLE};
 
     public enum MInteractMode { ALL, POINT_ONLY, EDGE_ONLY, FACE_ONLY, POINT_EXPT, EDGE_EXPT, FACE_EXPT};
 
@@ -254,6 +254,12 @@ public class MObject
                 break;
             case MPrefabType.PYRAMID:
                 mesh = MPyramid.GetMMesh();
+                break;
+            case MPrefabType.REGULAR_TRIANGLE:
+                mesh = MRegularTriangle.GetMMesh();
+                break;
+            case MPrefabType.CIRCLE:
+                mesh = MCircle.GetMMesh();
                 break;
             default:
                 Debug.Log("Unknown prefab type: " + type);
