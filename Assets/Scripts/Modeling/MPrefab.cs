@@ -286,4 +286,23 @@ public static class MPrefab
         mesh.triangles = _Triangles;
         return mesh;
     }
+
+    static GameObject textMeshObj = null;
+
+    public static GameObject GetTextMesh()
+    {
+        if(textMeshObj == null)
+        {
+            textMeshObj = new GameObject();
+            textMeshObj.SetActive(false);
+            textMeshObj.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+            textMeshObj.AddComponent<MeshRenderer>();
+            TextMesh textMesh = textMeshObj.AddComponent<TextMesh>();
+            textMesh.text = "";
+            textMesh.anchor = TextAnchor.LowerCenter;
+            textMesh.alignment = TextAlignment.Center;
+            textMesh.fontSize = 40;
+        }
+        return Object.Instantiate(textMeshObj);
+    }
 }

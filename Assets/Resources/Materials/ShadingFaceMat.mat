@@ -6,8 +6,8 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: ShadingEdge
-  m_Shader: {fileID: 4800000, guid: 19f37f6aae9d3ba48bf3bf2c07fa6820, type: 3}
+  m_Name: ShadingFaceMat
+  m_Shader: {fileID: 4800000, guid: 0ee0c86dac5512f40a5c118571d81117, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -69,8 +69,9 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _Thickness: 1
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 1, g: 0, b: 0, a: 1}
+    - _Color: {r: 0, g: 0.91724133, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

@@ -19,6 +19,8 @@ public class MObject
 
     public GameObject gameObject;
 
+    private GameObject template;
+
     private MMesh mesh;
 
     public MLinearEdge refEdge = null;
@@ -60,6 +62,7 @@ public class MObject
     // 针对导入模型的初始化
     public MObject(GameObject template, string filename)
     {
+        this.template = template;
         gameObject = GameObject.Instantiate(template);
         mesh = new MMesh();
         using(StreamReader sr = new StreamReader(MDefinitions.SAVE_PATH + "/" + filename))
@@ -234,6 +237,7 @@ public class MObject
     // 针对预制件的初始化
     public MObject(GameObject template, MPrefabType type)
     {
+        this.template = template;
         gameObject = GameObject.Instantiate(template);
         switch (type)
         {
@@ -271,6 +275,7 @@ public class MObject
     // 针对分割后模型的初始化
     public MObject(GameObject template, MMesh mesh)
     {
+        this.template = template;
         gameObject = GameObject.Instantiate(template);
         this.mesh = mesh;
         InitObject();
@@ -982,7 +987,7 @@ public class MObject
         List<MObject> objects = new List<MObject>();
         if (!mesh1.IsEmpty())
         {
-            MObject obj = new MObject(gameObject, mesh1);
+            MObject obj = new MObject(template, mesh1);
             obj.transform.position = transform.position;
             obj.transform.rotation = transform.rotation;
             obj.transform.localScale = transform.localScale;
@@ -990,7 +995,7 @@ public class MObject
         }
         if (!mesh2.IsEmpty())
         {
-            MObject obj = new MObject(gameObject, mesh2);
+            MObject obj = new MObject(template, mesh2);
             obj.transform.position = transform.position;
             obj.transform.rotation = transform.rotation;
             obj.transform.localScale = transform.localScale;
@@ -1030,6 +1035,12 @@ public class MObject
     public void Destroy()
     {
         UnityEngine.Object.Destroy(gameObject);
+        mesh.Destroy();
+    }
+
+    public string GetPointIdentifier(MPoint p)
+    {
+        return mesh.GetPointIdentifier(p);
     }
 
     public void RemoveEntity(MEntity entity)
@@ -1118,6 +1129,7 @@ public class MObject
         scale = MDefinitions.DEFAULT_SCALE;
         InitRefEdge();
         InitTextMesh();
+        mesh.SetTransformParent(transform);
     }
 
     private void InitTextMesh()
@@ -1133,4 +1145,5 @@ public class MObject
             refEdgeLength = refEdge.GetLength();
         }
     }
+
 }

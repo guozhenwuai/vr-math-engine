@@ -13,6 +13,8 @@ public class MPoint : MEntity
     public List<MEdge> edges = new List<MEdge>();
 
     public List<MFace> faces = new List<MFace>();
+
+    public GameObject textMesh;
     
     public MPoint(Vector3 position)
     {

@@ -18,10 +18,6 @@ public class SceneManager : MonoBehaviour {
 
     public GameObject quad;
 
-    public Material shadingEffectMat;
-
-    public Material edgeEffectMat;
-
 
     [HideInInspector]
     public VRTK.VRTK_ControllerEvents leftEvents
@@ -112,13 +108,13 @@ public class SceneManager : MonoBehaviour {
         sceneStateMachine.RegisterState(new CreatePointState(this));
         sceneStateMachine.RegisterState(new CreateVerticalLineState(this, statisticActiveMesh));
         sceneStateMachine.RegisterState(new RemoveEntityState(this));
-        sceneStateMachine.RegisterState(new ObjectCuttingState(this, quad, shadingEffectMat, edgeEffectMat));
+        sceneStateMachine.RegisterState(new ObjectCuttingState(this, quad));
         sceneStateMachine.RegisterState(new LoadObjectState(this, panelMenuListener, loadListListener));
         sceneStateMachine.RegisterState(new CreateAngleState(this, statisticActiveMesh));
         sceneStateMachine.RegisterState(new LoopToFaceState(this));
         sceneStateMachine.RegisterState(new AddRectangleState(this, statisticActiveMesh));
         sceneStateMachine.RegisterState(new AddRightAngledTriangleState(this, statisticActiveMesh));
-		sceneStateMachine.SwitchState((uint)SceneStatus.OBJECT_CUTTING, null);
+		sceneStateMachine.SwitchState((uint)SceneStatus.CREATE_POINT, null);
     }
 
     private void BetweenSwitch(IState from, IState to)

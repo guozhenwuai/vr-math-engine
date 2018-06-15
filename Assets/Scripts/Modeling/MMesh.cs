@@ -12,12 +12,29 @@ public class MMesh
 
     public AABB boundingBox { get; private set; }
 
+    private List<string> identifierLetters;
+
+    private Dictionary<MPoint, GameObject> pointIdentifiers;
+
+    private List<GameObject> freeGameObjects;
+
     public MMesh()
     {
         boundingBox = new AABB();
         pointList = new List<MPoint>();
         edgeList = new List<MEdge>();
         faceList = new List<MFace>();
+        pointIdentifiers = new Dictionary<MPoint, GameObject>();
+        identifierLetters = new List<string> {
+            "A", "B", "C", "D", "E", "F", "G",
+            "H", "I", "J", "K", "L", "M", "N",
+            "O", "P", "Q", "R", "S", "T",
+            "U", "V", "W", "X", "Y", "Z" };
+        freeGameObjects = new List<GameObject>();
+        for(int i = 0; i < identifierLetters.Count; i++)
+        {
+            freeGameObjects.Add(MPrefab.GetTextMesh());
+        }
     }
 
     public void Render(Matrix4x4 matrix)
@@ -92,20 +109,18 @@ public class MMesh
         }
     }
 
-    public void RemoveEntity(MEntity entity)
+    public bool RemoveEntity(MEntity entity)
     {
         switch (entity.entityType)
         {
             case MEntity.MEntityType.POINT:
-                RemovePoint((MPoint)entity);
-                break;
+                return RemovePoint((MPoint)entity);
             case MEntity.MEntityType.EDGE:
-                RemoveEdge((MEdge)entity);
-                break;
+                return RemoveEdge((MEdge)entity);
             case MEntity.MEntityType.FACE:
-                RemoveFace((MFace)entity);
-                break;
+                return RemoveFace((MFace)entity);
         }
+        return false;
     }
 
     public MPoint CreatePoint(Vector3 position)
@@ -334,12 +349,51 @@ public class MMesh
         return pointList.Count == 0 && edgeList.Count == 0 && faceList.Count == 0;
     }
 
+    public void SetTransformParent(Transform transform)
+    {
+        foreach(KeyValuePair<MPoint, GameObject> pair in pointIdentifiers)
+        {
+            pair.Value.transform.parent = transform;
+            pair.Value.transform.position = transform.localToWorldMatrix.MultiplyPoint(pair.Key.position);
+        }
+        foreach(GameObject go in freeGameObjects)
+        {
+            go.transform.parent = transform;
+        }
+    }
+
+    public string GetPointIdentifier(MPoint point)
+    {
+        GameObject go;
+        if(pointIdentifiers.TryGetValue(point, out go))
+        {
+            return go.GetComponent<TextMesh>().text;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    public void Destroy()
+    {
+        foreach(GameObject go in pointIdentifiers.Values)
+        {
+            Object.Destroy(go);
+        }
+        foreach(GameObject go in freeGameObjects)
+        {
+            Object.Destroy(go);
+        }
+    }
+
     private int AddPointToMesh(MPoint point)
     {
         int i;
         if ((i = pointList.IndexOf(point)) == -1)
         {
             pointList.Add(point);
+            TryAddIdentifier(point);
             boundingBox.AdjustToContain(point.position);
         }
         return i;
@@ -478,23 +532,25 @@ public class MMesh
         return i;
     }
 
-    private void RemoveFace(MFace face)
+    private bool RemoveFace(MFace face)
     {
-        faceList.Remove(face);
+        return faceList.Remove(face);
     }
 
-    private void RemoveEdge(MEdge edge)
+    private bool RemoveEdge(MEdge edge)
     {
-        if (!edgeList.Remove(edge)) return;
+        if (!edgeList.Remove(edge)) return false;
         foreach(MFace face in edge.faces)
         {
             RemoveFace(face);
         }
+        return true;
     }
 
-    private void RemovePoint(MPoint point)
+    private bool RemovePoint(MPoint point)
     {
-        if (!pointList.Remove(point)) return;
+        if (!pointList.Remove(point)) return false;
+        RemoveIdentifier(point);
         foreach(MEdge edge in point.edges)
         {
             RemoveEdge(edge);
@@ -503,6 +559,51 @@ public class MMesh
         {
             RemoveFace(face);
         }
+        return true;
     }
 
+    private void RemoveIdentifier(MPoint point)
+    {
+        GameObject go;
+        if (pointIdentifiers.TryGetValue(point, out go))
+        {
+            pointIdentifiers.Remove(point);
+            identifierLetters.Add(go.GetComponent<TextMesh>().text);
+            go.SetActive(false);
+            freeGameObjects.Add(go);
+            if(freeGameObjects.Count == 1)
+            {
+                UpdateIdentifiers();
+            }
+        }
+    }
+
+    private bool TryAddIdentifier(MPoint point)
+    {
+        if (freeGameObjects.Count == 0) return false;
+        string identifier = identifierLetters[0];
+        identifierLetters.RemoveAt(0);
+        GameObject go = freeGameObjects[0];
+        if (go.transform.parent != null)
+        {
+            go.transform.position = go.transform.parent.transform.localToWorldMatrix.MultiplyPoint(point.position);
+        }
+        go.SetActive(true);
+        freeGameObjects.RemoveAt(0);
+        go.GetComponent<TextMesh>().text = identifier;
+        pointIdentifiers.Add(point, go);
+        return true;
+    }
+
+    private void UpdateIdentifiers()
+    {
+        foreach(MPoint p in pointList)
+        {
+            if (freeGameObjects.Count == 0) break;
+            if (!pointIdentifiers.ContainsKey(p))
+            {
+                TryAddIdentifier(p);
+            }
+        }
+    }
 }

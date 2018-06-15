@@ -28,6 +28,10 @@ public static class MMaterial
 
     static Material specialFaceMat;
 
+    static Material shadingFaceMat;
+
+    static Material shadingEdgeMat;
+
     public static Material GetDefaultPointMat()
     {
         if(defaultPointMat == null)
@@ -134,5 +138,23 @@ public static class MMaterial
             specialFaceMat = Resources.Load<Material>("Materials/SpecialFaceMat");
         }
         return specialFaceMat;
+    }
+
+    public static Material GetShadingFaceMat()
+    {
+        if(shadingFaceMat == null)
+        {
+            shadingFaceMat = Resources.Load<Material>("Materials/ShadingFaceMat");
+        }
+        return shadingFaceMat;
+    }
+
+    public static Material GetShadingEdgeMat()
+    {
+        if(shadingEdgeMat == null)
+        {
+            shadingEdgeMat = Resources.Load<Material>("Materials/ShadingEdgeMat");
+        }
+        return shadingEdgeMat;
     }
 }

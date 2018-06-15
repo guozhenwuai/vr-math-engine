@@ -22,14 +22,14 @@ public class ObjectCuttingState : IState
 
     private VRTK.ControllerInteractionEventHandler rightGripPressed;
 
-    public ObjectCuttingState(SceneManager sceneManager, GameObject quad, Material faceMat, Material edgeEffectMat)
+    public ObjectCuttingState(SceneManager sceneManager, GameObject quad)
     {
         this.sceneManager = sceneManager;
         rightTriggerPressed = new VRTK.ControllerInteractionEventHandler(RightTriggerPressed);
         rightGripPressed = new VRTK.ControllerInteractionEventHandler(RightGripPressed);
         this.quad = quad;
-        this.faceMat = faceMat;
-        this.edgeEffectMat = edgeEffectMat;
+        this.faceMat = MMaterial.GetShadingFaceMat();
+        this.edgeEffectMat = MMaterial.GetShadingEdgeMat();
     }
 
     public uint GetStateID()
