@@ -73,6 +73,11 @@ public class MFace: MEntity
         if (mat != null && mesh != null) Graphics.DrawMesh(mesh, matrix, mat, 0);
     }
 
+    public void Render(Matrix4x4 matrix, Material mat)
+    {
+        if (mat != null && mesh != null) Graphics.DrawMesh(mesh, matrix, mat, 0);
+    }
+
     virtual
     public Vector3 GetVerticalPoint(Vector3 startPoint, Vector3 curPoint)
     {

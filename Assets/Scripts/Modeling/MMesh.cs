@@ -36,6 +36,14 @@ public class MMesh
         }
     }
 
+    public void RenderFace(Matrix4x4 matrix, Material mat)
+    {
+        foreach(MFace face in faceList)
+        {
+            face.Render(matrix, mat);
+        }
+    }
+
     public void Highlight()
     {
         foreach(MPoint entity in pointList)

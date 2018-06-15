@@ -12,9 +12,51 @@ public static class MPrefab
     {
         if(sphereMesh == null)
         {
-            GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            sphereMesh = sphere.GetComponent<MeshFilter>().mesh;
-            Object.Destroy(sphere);
+            float radius = 0.5f;
+            int statck = 20;
+            float statckStep = Mathf.PI / statck;
+            int slice = 20;
+            float sliceStep = Mathf.PI / slice;
+
+            float r, x, y, z;
+            float alpha = 0;
+            float beta = 0;
+            List<Vector3> vertices = new List<Vector3>();
+            List<int> triangles = new List<int>();
+            for(int i = 0; i < statck + 1; i++)
+            {
+                alpha = -Mathf.PI / 2 + i * statckStep;
+                y = radius * Mathf.Sin(alpha);
+                r = radius * Mathf.Cos(alpha);
+
+                for(int j = 0; j < 2 * slice; j++)
+                {
+                    beta = j * sliceStep;
+                    x = r * Mathf.Cos(beta);
+                    z = -r * Mathf.Sin(beta);
+                    vertices.Add(new Vector3(x, y, z));
+                }
+            }
+            for(int i = 0; i < statck; i++)
+            {
+                for(int j = 0; j < 2 * slice; j++)
+                {
+                    int a = i * 2 * slice + j;
+                    int b = i * 2 * slice + (j + 1) % (2 * slice);
+                    int c = (i + 1) * 2 * slice + (j + 1) % (2 * slice);
+                    int d = (i + 1) * 2 * slice + j;
+                    triangles.Add(a);
+                    triangles.Add(b);
+                    triangles.Add(c);
+                    triangles.Add(a);
+                    triangles.Add(c);
+                    triangles.Add(d);
+                }
+            }
+            sphereMesh = new Mesh();
+            sphereMesh.vertices = vertices.ToArray();
+            sphereMesh.triangles = triangles.ToArray();
+            sphereMesh.RecalculateNormals();
         }
         return Object.Instantiate(sphereMesh);
     }

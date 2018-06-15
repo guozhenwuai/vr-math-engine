@@ -579,7 +579,7 @@ public class MObject
                                 edgeList.Add(mesh1.CreateLinearEdge(new MPoint(le.end.position), new MPoint(v)));
                                 edgeList.Add(mesh2.CreateLinearEdge(new MPoint(v), new MPoint(le.start.position)));
                             }
-                            edgeMap.Add(le, edgeList);
+                            if(edgeList.Count == 2)edgeMap.Add(le, edgeList);
                         }
                         break;
                     }
@@ -1020,6 +1020,11 @@ public class MObject
     public void Render()
     {
         mesh.Render(localToWorldMatrix);
+    }
+
+    public void RenderFace(Material mat)
+    {
+        mesh.RenderFace(localToWorldMatrix, mat);
     }
 
     public void Destroy()

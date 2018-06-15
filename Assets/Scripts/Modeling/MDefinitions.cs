@@ -8,7 +8,7 @@ public static class MDefinitions
 
     public static float POINT_PRECISION = 0.02f;
 
-    public static float LINE_RADIUS = 0.02f;
+    public static float LINE_RADIUS = 0.015f;
 
     public static float AUTO_REVISE_FACTOR = 0.02f;
 

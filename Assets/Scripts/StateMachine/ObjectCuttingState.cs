@@ -14,16 +14,22 @@ public class ObjectCuttingState : IState
 
     private GameObject quad;
 
+    private Material faceMat;
+
+    private Material edgeEffectMat;
+
     private VRTK.ControllerInteractionEventHandler rightTriggerPressed;
 
     private VRTK.ControllerInteractionEventHandler rightGripPressed;
 
-    public ObjectCuttingState(SceneManager sceneManager, GameObject quad)
+    public ObjectCuttingState(SceneManager sceneManager, GameObject quad, Material faceMat, Material edgeEffectMat)
     {
         this.sceneManager = sceneManager;
         rightTriggerPressed = new VRTK.ControllerInteractionEventHandler(RightTriggerPressed);
         rightGripPressed = new VRTK.ControllerInteractionEventHandler(RightGripPressed);
         this.quad = quad;
+        this.faceMat = faceMat;
+        this.edgeEffectMat = edgeEffectMat;
     }
 
     public uint GetStateID()
@@ -49,10 +55,19 @@ public class ObjectCuttingState : IState
 
     public void OnUpdate()
     {
-        if (status == STATUS.SELECT) {
-            sceneManager.UpdateObjectHighlight();
+        switch (status)
+        {
+            case STATUS.SELECT:
+                sceneManager.UpdateObjectHighlight();
+                sceneManager.StartRender();
+                break;
+            case STATUS.CUT:
+                sceneManager.StartRenderFace(edgeEffectMat);
+                sceneManager.StartRenderFace(faceMat);
+                sceneManager.StartRender();
+                break;
+
         }
-        sceneManager.StartRender();
     }
 
     private void RightTriggerPressed(object sender, VRTK.ControllerInteractionEventArgs e)
