@@ -1,11 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PanelMenuListener : MonoBehaviour {
     public SceneManager sceneManager;
 
     public GameObject controllerMenu;
+
+    public Text blackboardButtonText;
 
     private bool transforming = false;
 
@@ -197,5 +200,19 @@ public class PanelMenuListener : MonoBehaviour {
     public void OnPrefabRightAngledTriangleButtonClick()
     {
         sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.ADD_RIGHT_ANGLED_TRI, null);
+    }
+
+    public void OnBlackboardButtonClick()
+    {
+        if(string.Equals(blackboardButtonText.text, "Blackboard OFF"))
+        {
+            sceneManager.blackboard.SetActive(false);
+            blackboardButtonText.text = "Blackboard ON";
+        }
+        else
+        {
+            sceneManager.blackboard.SetActive(true);
+            blackboardButtonText.text = "Blackboard OFF";
+        }
     }
 }

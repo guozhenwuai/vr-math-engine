@@ -48,7 +48,6 @@ public class StatisticDisplayState : IState
         selectLengthCount = new float[sceneManager.objects.Count];
         selectSurfaceCount = new float[sceneManager.objects.Count];
         objectSurface = new float[sceneManager.objects.Count];
-        objectVolumn = new float[sceneManager.objects.Count]; ;
         CalcSurfaceAndVolumn();
         UpdateTextPlane();
     }
@@ -85,14 +84,16 @@ public class StatisticDisplayState : IState
             text += "Select Length: " + selectLengthCount[i] + "\n";
             text += "Select Surface: " + selectSurfaceCount[i] + "\n";
             text += "Object Surface: " + objectSurface[i] + "\n";
-            text += "Object Volumn: " + objectVolumn[i] + "\n";
             sceneManager.objects[i].SetMeshText(text);
         }
     }
 
     private void CalcSurfaceAndVolumn()
     {
-        // TODO: 计算每个模型表面积和体积，填充objectSurface & objectVolumn
+        for(int i = 0; i < sceneManager.objects.Count; i++)
+        {
+            objectSurface[i] = sceneManager.objects[i].GetSurfaceSum();
+        }
     }
 
     private void UpdateObjectTextMesh()

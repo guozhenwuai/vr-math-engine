@@ -335,6 +335,16 @@ public class MMesh
         return min;
     }
 
+    public float GetSurfaceSum()
+    {
+        float sum = 0;
+        foreach(MFace face in faceList)
+        {
+            sum += face.GetSurface();
+        }
+        return sum;
+    }
+
     public MLinearEdge GetLinearEdge()
     {
         foreach(MEdge edge in edgeList)

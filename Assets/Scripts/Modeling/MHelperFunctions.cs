@@ -441,11 +441,11 @@ public static class MHelperFunctions
     public static List<List<Vector3>> GroupLoop(Dictionary<Vector3, List<KeyValuePair<Vector3, int>>> splitGraph, List<List<Vector3>> splitPoints)
     {
         List<List<Vector3>> res = new List<List<Vector3>>();
-        FindLoop(splitGraph, splitPoints, res);
+        FindLoop(splitGraph, splitPoints, ref res);
         return res;
     }
 
-    public static void FindLoop(Dictionary<Vector3, List<KeyValuePair<Vector3, int>>> splitGraph, List<List<Vector3>> splitPoints, List<List<Vector3>> res)
+    public static void FindLoop(Dictionary<Vector3, List<KeyValuePair<Vector3, int>>> splitGraph, List<List<Vector3>> splitPoints, ref List<List<Vector3>> res)
     {
         Delete1Degree(splitGraph);
         if(splitGraph.Count < 2)
@@ -522,9 +522,60 @@ public static class MHelperFunctions
                 }
             }
             res.Add(points);
-            points = new List<Vector3>();
             RemoveFromGraph(splitGraph, temp);
-            FindLoop(splitGraph, splitPoints, res);
+            FindLoop(splitGraph, splitPoints, ref res);
+        }
+    }
+
+    public static void FindLoop(Dictionary<Vector3, List<Vector3>> pointGraph, ref List<List<Vector3>> res)
+    {
+        Delete1Degree(pointGraph, ref res);
+        if (pointGraph.Count < 2)
+        {
+            pointGraph.Clear();
+            return;
+        }
+        KeyValuePair<Vector3, List<Vector3>> pair = new KeyValuePair<Vector3, List<Vector3>>();
+        foreach (KeyValuePair<Vector3, List<Vector3>> pp in pointGraph)
+        {
+            pair = pp;
+            break;
+        }
+        List<Vector3> loop = new List<Vector3>();
+        Vector3 p = pair.Key;
+        Vector3 lastp = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+        loop.Add(p);
+        List<Vector3> list;
+        bool findLoop = false;
+        Vector3 find = new Vector3();
+        while (BlurTryGetValue(pointGraph, p, out list))
+        {
+            if (list.Count < 2) break;
+            foreach (Vector3 adj in list)
+            {
+                if (lastp.Equals(adj)) continue;
+                if (loop.Count > 0 && BlurEqual(loop[0], adj))
+                {
+                    findLoop = true;
+                    find = adj;
+                    break;
+                }
+                else
+                {
+                    loop.Add(adj);
+                    lastp = p;
+                    p = adj;
+                    break;
+                }
+            }
+            if (findLoop) break;
+        }
+        if (findLoop)
+        {
+            loop.Add(loop[0]);
+            res.Add(loop);
+            RemoveFromGraph(pointGraph, loop);
+            FindLoop(pointGraph, ref res);
         }
     }
 
@@ -539,6 +590,27 @@ public static class MHelperFunctions
                 if(list.Count <= 2)
                 {
                     BlurRemove(splitGraph, points[i]);
+                }
+                else
+                {
+                    BlurRemove(list, points[(i + count - 1) % count]);
+                    BlurRemove(list, points[(i + 1) % count]);
+                }
+            }
+        }
+    }
+
+    private static void RemoveFromGraph(Dictionary<Vector3, List<Vector3>> pointGraph, List<Vector3> points)
+    {
+        List<Vector3> list;
+        int count = points.Count;
+        for (int i = 0; i < count; i++)
+        {
+            if (BlurTryGetValue(pointGraph, points[i], out list))
+            {
+                if (list.Count <= 2)
+                {
+                    BlurRemove(pointGraph, points[i]);
                 }
                 else
                 {
@@ -586,9 +658,8 @@ public static class MHelperFunctions
         }
     }
 
-    private static List<List<Vector3>> GroupSplits(Dictionary<Vector3, List<Vector3>> pointGraph)
+    private static void Delete1Degree(Dictionary<Vector3, List<Vector3>> pointGraph, ref List<List<Vector3>> res)
     {
-        List<List<Vector3>> res = new List<List<Vector3>>();
         bool hasLine = true;
         while (pointGraph.Count != 0 && hasLine)
         {
@@ -641,68 +712,12 @@ public static class MHelperFunctions
                 res.Add(line);
             }
         }
-        if (pointGraph.Count == 0) return res;
-        bool connectLoop = false;
-        foreach (KeyValuePair<Vector3, List<Vector3>> pair in pointGraph)
-        {
-            if (pair.Value.Count > 2)
-            {
-                connectLoop = true;
-                break;
-            }
-        }
-        if (connectLoop)
-        {
-            Debug.Log("Unhandled connectloop");
-            return res;
-        }
-        bool hasLoop = true;
-        while (pointGraph.Count != 0 && hasLoop)
-        {
-            hasLoop = false;
-            List<Vector3> loop = new List<Vector3>();
-            KeyValuePair<Vector3, List<Vector3>> tempPair = new KeyValuePair<Vector3, List<Vector3>>();
-            foreach (KeyValuePair<Vector3, List<Vector3>> pair in pointGraph)
-            {
-                if (pair.Value.Count == 2)
-                {
-                    hasLoop = true;
-                    tempPair = pair;
-                    break;
-                }
-                else
-                {
-                    Debug.Log("unexpected list count");
-                    break;
-                }
-            }
-            if (hasLoop)
-            {
-                Vector3 lastp = tempPair.Key;
-                loop.Add(lastp);
-                pointGraph.Remove(lastp);
-                Vector3 p = tempPair.Value[0];
-                List<Vector3> list;
-                while (BlurTryGetValue(pointGraph, p, out list))
-                {
-                    if (list.Count == 2)
-                    {
-                        loop.Add(p);
-                        BlurRemove(list, lastp);
-                        lastp = p;
-                        p = list[0];
-                        BlurRemove(pointGraph, lastp);
-                    }
-                    else
-                    {
-                        Debug.Log("unexpected list count " + list.Count);
-                        break;
-                    }
-                }
-                loop.Add(p);
-                res.Add(loop);
-            }
-        }
+    }
+
+    private static List<List<Vector3>> GroupSplits(Dictionary<Vector3, List<Vector3>> pointGraph)
+    {
+        List<List<Vector3>> res = new List<List<Vector3>>();
+        FindLoop(pointGraph, ref res);
         return res;
     }
 

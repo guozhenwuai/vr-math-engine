@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
     <UnityVersion>2017.3.1f1</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -288,6 +290,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\ClickableItem.cs" />
+    <Compile Include="Assets\Scripts\DraggableItem.cs" />
+    <Compile Include="Assets\Scripts\DropzoneManager.cs" />
     <Compile Include="Assets\Scripts\LoadListListener.cs" />
     <Compile Include="Assets\Scripts\Modeling\AABB.cs" />
     <Compile Include="Assets\Scripts\Modeling\Edge\MCurveEdge.cs" />
@@ -320,7 +325,6 @@
     <Compile Include="Assets\Scripts\Modeling\Prefab\MPyramid.cs" />
     <Compile Include="Assets\Scripts\Modeling\Prefab\MRegularTriangle.cs" />
     <Compile Include="Assets\Scripts\Modeling\Prefab\MSphere.cs" />
-    <Compile Include="Assets\Scripts\NewBehaviourScript.cs" />
     <Compile Include="Assets\Scripts\PanelMenuListener.cs" />
     <Compile Include="Assets\Scripts\SceneManager.cs" />
     <Compile Include="Assets\Scripts\StateMachine\AddPrefabState.cs" />

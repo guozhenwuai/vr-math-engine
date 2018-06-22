@@ -10,7 +10,11 @@ public class MPolygonFace : MFace
         private set;
     }
 
-    List<MPoint> sortedPoints;
+    public List<MPoint> sortedPoints
+    {
+        get;
+        private set;
+    }
 
     public Vector3 normal { get; private set; }
 

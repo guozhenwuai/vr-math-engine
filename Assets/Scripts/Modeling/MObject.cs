@@ -1066,6 +1066,11 @@ public class MObject
         return RefEdgeRelativeSurface(face.GetSurface());
     }
 
+    public float GetSurfaceSum()
+    {
+        return RefEdgeRelativeSurface(mesh.GetSurfaceSum());
+    }
+
     public void CreatePoint(Vector3 localSpacePos)
     {
         mesh.CreatePoint(localSpacePos);

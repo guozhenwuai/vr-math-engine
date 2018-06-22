@@ -18,6 +18,8 @@ public class SceneManager : MonoBehaviour {
 
     public GameObject quad;
 
+    public GameObject blackboard;
+
 
     [HideInInspector]
     public VRTK.VRTK_ControllerEvents leftEvents
@@ -77,7 +79,6 @@ public class SceneManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         objects = new List<MObject>();
-        AddPrefabObject(MObject.MPrefabType.CUBE);
         InitStateMachine();
 	}
 	
@@ -91,6 +92,10 @@ public class SceneManager : MonoBehaviour {
             }
         }
         sceneStateMachine.OnUpdate();
+        if(camera != null && blackboard != null && blackboard.activeSelf)
+        {
+            blackboard.transform.rotation = Quaternion.LookRotation((camera.transform.position - blackboard.transform.position) * -1, Vector3.up) * Quaternion.Euler(0, 180, 0);
+        }
 	}
 
     private void InitStateMachine()
@@ -114,7 +119,7 @@ public class SceneManager : MonoBehaviour {
         sceneStateMachine.RegisterState(new LoopToFaceState(this));
         sceneStateMachine.RegisterState(new AddRectangleState(this, statisticActiveMesh));
         sceneStateMachine.RegisterState(new AddRightAngledTriangleState(this, statisticActiveMesh));
-		sceneStateMachine.SwitchState((uint)SceneStatus.CREATE_POINT, null);
+		sceneStateMachine.SwitchState((uint)SceneStatus.TRANSFORM, null);
     }
 
     private void BetweenSwitch(IState from, IState to)
@@ -122,12 +127,6 @@ public class SceneManager : MonoBehaviour {
         if (from == null || to == null) return;
         string text = "Status Switch: from " + (SceneStatus)from.GetStateID() + " to " + (SceneStatus)to.GetStateID();
         Debug.Log(text);
-    }
-
-    private void AddPrefabObject(MObject.MPrefabType type)
-    {
-        MObject obj = new MObject(objTemplate, type);
-        objects.Add(obj);
     }
 
     public void UpdateEntityHighlight(MObject.MInteractMode interactMode)

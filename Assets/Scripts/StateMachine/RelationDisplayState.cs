@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class RelationDisplayState : IState
 {
@@ -8,7 +9,11 @@ public class RelationDisplayState : IState
 
     private GameObject textMesh;
 
+    private Text[] textList;
+
     private List<MEntityPair> selectedEntity;
+
+    private List<string> texts;
 
     private VRTK.ControllerInteractionEventHandler rightTriggerPressed;
 
@@ -16,7 +21,9 @@ public class RelationDisplayState : IState
     {
         this.sceneManager = sceneManager;
         this.textMesh = textMesh;
+        textList = textMesh.GetComponentsInChildren<Text>();
         selectedEntity = new List<MEntityPair>();
+        texts = new List<string>();
         rightTriggerPressed = new VRTK.ControllerInteractionEventHandler(RightTriggerPressed);
     }
 
@@ -29,7 +36,8 @@ public class RelationDisplayState : IState
     {
         sceneManager.rightEvents.TriggerPressed += rightTriggerPressed;
         textMesh.SetActive(true);
-        textMesh.GetComponentInChildren<TextMesh>(true).text = "";
+        texts.Clear();
+        UpdateTextMesh();
 		foreach (MObject obj in sceneManager.objects)
 		{
 			MLinearEdge refEdge = obj.refEdge;
@@ -62,124 +70,356 @@ public class RelationDisplayState : IState
         sceneManager.StartRender();
     }
 
+    private void UpdateTextMesh()
+    {
+        int i = 0;
+        for(;i < texts.Count && i < textList.Length; i++)
+        {
+            textList[i].gameObject.SetActive(true);
+            textList[i].text = texts[i];
+        }
+        for(; i < textList.Length; i++)
+        {
+            textList[i].gameObject.SetActive(false);
+        }
+    }
+
     private void UpdateTextTransform()
     {
-        textMesh.transform.rotation = Quaternion.LookRotation((sceneManager.camera.transform.position - textMesh.transform.position) * -1, Vector3.up) * Quaternion.Euler(-90, 0, 0);
+        textMesh.transform.rotation = Quaternion.LookRotation((sceneManager.camera.transform.position - textMesh.transform.position) * -1, Vector3.up) * Quaternion.Euler(0, 180, 0);
     }
 
     private void UpdateText()
     {
         string text = "";
+        texts.Clear();
         if(selectedEntity.Count == 2)
         {
             MRelation relation = GetEntityRelation(selectedEntity[0], selectedEntity[1]);
             if (relation != null)
             {
+                string ls, hs;
                 switch (relation.relationType)
                 {
                     case MRelation.EntityRelationType.POINT_POINT:
                         if (relation.shareObject)
                         {
-                            text += "两点距离： " + relation.distance + "\n";
+                            MObject obj = relation.lowerEntity.obj;
+                            ls = obj.GetPointIdentifier((MPoint)(relation.lowerEntity.entity));
+                            hs = obj.GetPointIdentifier((MPoint)(relation.higherEntity.entity));
+                            if(ls != null && hs != null)
+                            {
+                                text = ls + hs + " = " + relation.distance;
+                                texts.Add(text);
+                            }
+                            else
+                            {
+                                text = "两点距离：" + relation.distance;
+                                texts.Add(text);
+                            }
+                            
                         }
                         break;
                     case MRelation.EntityRelationType.POINT_EDGE:
                         if (relation.shareObject)
                         {
+                            MObject obj = relation.lowerEntity.obj;
+                            ls = obj.GetPointIdentifier((MPoint)(relation.lowerEntity.entity));
+                            hs = GetEdgeString(relation.higherEntity.entity as MLinearEdge, obj);
                             if (MHelperFunctions.FloatEqual(relation.distance, 0))
                             {
-                                text += "点在直线上\n";
+                                if(ls != null && hs != null)
+                                {
+                                    text = ls + " ∈ " + hs;
+                                    texts.Add(text);
+                                }
+                                else
+                                {
+                                    text = "点在直线上";
+                                    texts.Add(text);
+                                }
                             }
                             else
                             {
-                                text += "点到直线距离： " + relation.distance + "\n";
+                                if (ls != null && hs != null)
+                                {
+                                    text = "Dis(" + ls + ", " + hs + ") = " + relation.distance;
+                                    texts.Add(text);
+                                }
+                                else
+                                {
+                                    text = "点到直线距离： " + relation.distance;
+                                    texts.Add(text);
+                                }
+                                    
                             }
                         }
                         break;
                     case MRelation.EntityRelationType.POINT_FACE:
+                        ls = null;
+                        hs = null;
                         if (relation.shareObject)
                         {
+                            MObject obj = relation.lowerEntity.obj;
+                            ls = obj.GetPointIdentifier((MPoint)(relation.lowerEntity.entity));
+                            hs = GetFaceString(relation.higherEntity.entity as MFace, obj);
                             if (MHelperFunctions.FloatEqual(relation.distance, 0))
                             {
-                                text += "点在平面上\n";
+                                if(ls != null && hs != null)
+                                {
+                                    text = ls + " ∈ " + hs;
+                                    texts.Add(text);
+                                }
+                                else
+                                {
+                                    text = "点在平面上";
+                                    texts.Add(text);
+                                }
                             }
                             else
                             {
-                                text += "点到平面距离： " + relation.distance + "\n";
+                                if(ls != null && hs != null)
+                                {
+                                    text = "Dis(" + ls + ", " + hs + ") = " + relation.distance;
+                                    texts.Add(text);
+                                }
+                                else
+                                {
+                                    text = "点到平面距离： " + relation.distance;
+                                    texts.Add(text);
+                                }
                             }
                         }
                         break;
                     case MRelation.EntityRelationType.EDGE_EDGE:
+                        hs = null;
+                        ls = null;
+                        if (relation.shareObject)
+                        {
+                            MObject obj = relation.lowerEntity.obj;
+                            ls = GetEdgeString(relation.lowerEntity.entity as MLinearEdge, obj);
+                            hs = GetEdgeString(relation.higherEntity.entity as MLinearEdge, obj);
+                        }
                         if ((relation.shareObject && MHelperFunctions.FloatEqual(relation.distance, 0)) || MHelperFunctions.FloatEqual(relation.angle, 0))
                         {
-                            text += "两线共面\n";
+                            if(ls != null && hs != null)
+                            {
+                                text = ls + "、" + hs + "共面";
+                                texts.Add(text);
+                            }
+                            else
+                            {
+                                text = "两线共面";
+                                texts.Add(text);
+                            }
                         }
                         if (MHelperFunctions.FloatEqual(relation.angle, 0))
                         {
-                            text += "两线平行\n";
+                            if(relation.shareObject && ls != null && hs != null)
+                            {
+                                text = ls + " // " + hs;
+                                texts.Add(text);
+                            }
+                            else
+                            {
+                                text = "两线平行";
+                                texts.Add(text);
+                            }
                         }
                         else if (MHelperFunctions.FloatEqual(relation.angle, 90))
                         {
-                            text += "两线垂直\n";
+                            if (relation.shareObject && ls != null && hs != null)
+                            {
+                                text = ls + " ⊥ " + hs;
+                                texts.Add(text);
+                            }
+                            else
+                            {
+                                text = "两线垂直";
+                                texts.Add(text);
+                            }
                         }
                         else
                         {
-                            text += "两线夹角：" + relation.angle + "\n";
+                            if (relation.shareObject && ls != null && hs != null)
+                            {
+                                text = ls + "、" + hs + "夹角： " + relation.angle;
+                                texts.Add(text);
+                            }
+                            else
+                            {
+                                text = "两线夹角：" + relation.angle;
+                                texts.Add(text);
+                            }
                         }
                         if (relation.shareObject && !MHelperFunctions.FloatEqual(relation.distance, 0))
                         {
-                            text += "两线距离： " + relation.distance + "\n";
+                            if (ls != null && hs != null)
+                            {
+                                text = "Dis(" + ls + ", " + hs + ") = " + relation.distance;
+                                texts.Add(text);
+                            }
+                            else
+                            {
+                                text = "两线距离： " + relation.distance;
+                                texts.Add(text);
+                            }
                         }
                         break;
                     case MRelation.EntityRelationType.EDGE_FACE:
+                        hs = null;
+                        ls = null;
+                        if (relation.shareObject)
+                        {
+                            MObject obj = relation.lowerEntity.obj;
+                            ls = GetEdgeString(relation.lowerEntity.entity as MLinearEdge, obj);
+                            hs = GetFaceString(relation.higherEntity.entity as MFace, obj);
+                        }
                         if (relation.shareObject && MHelperFunctions.FloatEqual(relation.distance, 0))
                         {
-                            text += "线在面上\n";
+                            if (ls != null && hs != null)
+                            {
+                                text = ls + " ⊂ " + hs;
+                                texts.Add(text);
+                            }
+                            else
+                            {
+                                text = "线在面上";
+                                texts.Add(text);
+                            }
                         }
                         else if (relation.shareObject && MHelperFunctions.FloatEqual(relation.distance, -1))
                         {
-                            text += "线面相交\n";
-
+                            if (ls != null && hs != null)
+                            {
+                                text = ls + "、" + hs + "相交";
+                                texts.Add(text);
+                            }
+                            else
+                            {
+                                text = "线面相交";
+                                texts.Add(text);
+                            }
                         }
                         if (MHelperFunctions.FloatEqual(relation.angle, 0))
                         {
-                            text += "线面平行\n";
+                            if(relation.shareObject && ls != null && hs != null)
+                            {
+                                text = ls + " // " + hs;
+                                texts.Add(text);
+                            }
+                            else
+                            {
+                                text = "线面平行";
+                                texts.Add(text);
+                            }
                             if (relation.shareObject)
                             {
-                                text += "线面距离：" + relation.distance + "\n";
+                                if (ls != null && hs != null)
+                                {
+                                    text = "Dis(" + ls + ", " + hs + ") = " + relation.distance;
+                                    texts.Add(text);
+                                }
+                                else
+                                {
+                                    text = "线面距离：" + relation.distance;
+                                    texts.Add(text);
+                                }
                             }
                         }
                         else if (MHelperFunctions.FloatEqual(relation.angle, 90))
                         {
-                            text += "线面垂直\n";
+                            if (relation.shareObject && ls != null && hs != null)
+                            {
+                                text = ls + " ⊥ " + hs;
+                                texts.Add(text);
+                            }
+                            else
+                            {
+                                text = "线面垂直";
+                                texts.Add(text);
+                            }
                         }
                         else
                         {
-                            text += "线面夹角：" + relation.angle + "\n";
+                            if (relation.shareObject && ls != null && hs != null)
+                            {
+                                text = ls + "、" + hs + "夹角： " + relation.angle;
+                                texts.Add(text);
+                            }
+                            else
+                            {
+                                text = "线面夹角：" + relation.angle;
+                                texts.Add(text);
+                            }
                         }
                         break;
                     case MRelation.EntityRelationType.FACE_FACE:
+                        hs = null;
+                        ls = null;
+                        if (relation.shareObject)
+                        {
+                            MObject obj = relation.lowerEntity.obj;
+                            ls = GetFaceString(relation.lowerEntity.entity as MFace, obj);
+                            hs = GetFaceString(relation.higherEntity.entity as MFace, obj);
+                        }
                         if (MHelperFunctions.FloatEqual(relation.angle, 0))
                         {
-                            text += "面面平行\n";
+                            if (relation.shareObject && ls != null && hs != null)
+                            {
+                                text = ls + " // " + hs;
+                                texts.Add(text);
+                            }
+                            else
+                            {
+                                text = "面面平行";
+                                texts.Add(text);
+                            }
                             if (relation.shareObject)
                             {
-                                text += "面面距离：" + relation.distance + "\n";
+                                if (ls != null && hs != null)
+                                {
+                                    text = "Dis(" + ls + ", " + hs + ") = " + relation.distance;
+                                    texts.Add(text);
+                                }
+                                else
+                                {
+                                    text = "面面距离：" + relation.distance;
+                                    texts.Add(text);
+                                }
                             }
                         }
                         else if (MHelperFunctions.FloatEqual(relation.angle, 90))
                         {
-                            text += "面面垂直\n";
+                            if (relation.shareObject && ls != null && hs != null)
+                            {
+                                text = ls + " ⊥ " + hs;
+                                texts.Add(text);
+                            }
+                            else
+                            {
+                                text = "面面垂直";
+                                texts.Add(text);
+                            }
                         }
                         else
                         {
-                            text += "面面夹角： " + relation.angle + "\n";
+                            if (relation.shareObject && ls != null && hs != null)
+                            {
+                                text = ls + "、" + hs + "夹角： " + relation.angle;
+                                texts.Add(text);
+                            }
+                            else
+                            {
+                                text = "面面夹角：" + relation.angle;
+                                texts.Add(text);
+                            }
                         }
                         break;
                 }
             }
         }
-        textMesh.GetComponentInChildren<TextMesh>(true).text = text;
+        UpdateTextMesh();
     }
 
     private void RightTriggerPressed(object sender, VRTK.ControllerInteractionEventArgs e)
@@ -401,7 +641,7 @@ public class RelationDisplayState : IState
                     higherEntity.obj.localToWorldMatrix.MultiplyVector(normal2));
             }
         }
-        return new MRelation(type, lowerEntity.entity, higherEntity.entity, distance, angle, shareObject);
+        return new MRelation(type, lowerEntity, higherEntity, distance, angle, shareObject);
     }
 
     private void CompareEntity(MEntityPair e1, MEntityPair e2, out MEntityPair lower, out MEntityPair higher)
@@ -420,5 +660,52 @@ public class RelationDisplayState : IState
             higher = e1;
             return;
         }
+    }
+
+    private string GetFaceString(MFace face, MObject obj)
+    {
+        string hs = "";
+        string s;
+        switch (face.faceType)
+        {
+            case MFace.MFaceType.POLYGON:
+                hs += "平面";
+                MPolygonFace polyf = face as MPolygonFace;
+                foreach (MPoint p in polyf.sortedPoints)
+                {
+                    s = obj.GetPointIdentifier(p);
+                    if (s == null)
+                    {
+                        hs = null;
+                        break;
+                    }
+                    hs += s;
+                }
+                break;
+            case MFace.MFaceType.CIRCLE:
+                hs += "圆";
+                MCircleFace cirf = face as MCircleFace;
+                s = obj.GetPointIdentifier(cirf.circle.center);
+                if (s == null)
+                {
+                    hs = null;
+                    break;
+                }
+                hs += s;
+                break;
+            default:
+                hs = null;
+                break;
+        }
+        return hs;
+    }
+
+    private string GetEdgeString(MLinearEdge edge, MObject obj)
+    {
+        string str = null;
+        string s1 = obj.GetPointIdentifier(edge.start);
+        string s2 = obj.GetPointIdentifier(edge.end);
+        if (s1 != null && s2 != null) str = s1 + s2;
+        return str;
     }
 }
