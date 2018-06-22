@@ -547,7 +547,6 @@ public static class MHelperFunctions
         loop.Add(p);
         List<Vector3> list;
         bool findLoop = false;
-        Vector3 find = new Vector3();
         while (BlurTryGetValue(pointGraph, p, out list))
         {
             if (list.Count < 2) break;
@@ -557,7 +556,6 @@ public static class MHelperFunctions
                 if (loop.Count > 0 && BlurEqual(loop[0], adj))
                 {
                     findLoop = true;
-                    find = adj;
                     break;
                 }
                 else

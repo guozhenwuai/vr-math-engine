@@ -119,7 +119,7 @@ public class SceneManager : MonoBehaviour {
         sceneStateMachine.RegisterState(new LoopToFaceState(this));
         sceneStateMachine.RegisterState(new AddRectangleState(this, statisticActiveMesh));
         sceneStateMachine.RegisterState(new AddRightAngledTriangleState(this, statisticActiveMesh));
-		sceneStateMachine.SwitchState((uint)SceneStatus.TRANSFORM, null);
+		sceneStateMachine.SwitchState((uint)SceneStatus.ADD_RECTANGLE, null);
     }
 
     private void BetweenSwitch(IState from, IState to)

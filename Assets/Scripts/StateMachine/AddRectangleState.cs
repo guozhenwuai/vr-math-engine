@@ -10,7 +10,7 @@ public class AddRectangleState : IState
 
     private MObject obj;
 
-    enum STATUS { DEFAULT, CREATE_EDGE, STRETCH};
+    enum STATUS { DEFAULT, CREATE_EDGE, STRETCH, FINISH};
 
     private STATUS status;
 
@@ -55,6 +55,10 @@ public class AddRectangleState : IState
     {
         sceneManager.rightEvents.TriggerPressed -= rightTriggerPressed;
         sceneManager.rightEvents.GripPressed -= rightGripPressed;
+        if(obj != null && status != STATUS.FINISH)
+        {
+            obj.Destroy();
+        }
         ResetStatus();
         activeEdges = null;
         obj = null;
@@ -151,6 +155,7 @@ public class AddRectangleState : IState
         switch (status)
         {
             case STATUS.DEFAULT:
+                obj.transform.position = sceneManager.rightControllerPosition;
                 stablePoint = obj.worldToLocalMatrix.MultiplyPoint(sceneManager.rightControllerPosition);
                 status = STATUS.CREATE_EDGE;
                 activeEdges[0] = new MLinearEdge(new MPoint(stablePoint), new MPoint(activePoint.position));
@@ -174,6 +179,7 @@ public class AddRectangleState : IState
             case STATUS.STRETCH:
                 if(activeFace != null && activeFace.IsValid())
                 {
+					status = STATUS.FINISH;
                     obj.CreatePolygonFace(new List<MLinearEdge>(activeEdges));
                     sceneManager.objects.Add(obj);
                     sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.TRANSFORM, null);

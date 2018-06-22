@@ -145,11 +145,11 @@ public class CreateVerticalLineState : IState
         if(Mathf.Abs(length - 0.5f) < MDefinitions.AUTO_REVISE_FACTOR)
         {
             length = 0.5f;
-            curPos = (curPos - startPos).normalized * 0.5f + startPos;
+            curPos = (curPos - startPos).normalized * 0.5f * curObj.refEdge.GetLength() + startPos;
         } else if(Mathf.Abs(length - Mathf.Round(length)) < MDefinitions.AUTO_REVISE_FACTOR)
         {
             length = Mathf.Round(length);
-            curPos = (curPos - startPos).normalized * length + startPos;
+            curPos = (curPos - startPos).normalized * length * curObj.refEdge.GetLength() + startPos;
         }
         return curPos;
     }

@@ -99,6 +99,7 @@ public class LoadListListener : MonoBehaviour
         for(i = index; i < index + listItems.Count && i < objects.Count; i++)
         {
             GameObject item = listItems[i - index];
+			item.SetActive(true);
             item.GetComponentInChildren<Text>().text = DateTime.FromFileTime(Convert.ToInt64(objects[i])).ToString();
             Button button = item.GetComponentInChildren<Button>();
             button.onClick.RemoveAllListeners();

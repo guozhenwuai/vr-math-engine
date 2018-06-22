@@ -16,10 +16,6 @@ public class PanelMenuListener : MonoBehaviour {
 
     private float target = -1;
 
-    private float angleThreshold = 5;
-
-    private float transformSpeed = 2f;
-
     private VRTK.ControllerInteractionEventHandler leftTouchpadTouchStart;
 
     private VRTK.ControllerInteractionEventHandler leftTouchpadTouchEnd;
@@ -42,16 +38,11 @@ public class PanelMenuListener : MonoBehaviour {
             if(target < 0)
             {
                 target = GetClosetAngle(rz);
+				Debug.Log ("rz: " + rz + ", target: " + target);
             }
-            if(Mathf.Abs(target - rz) < angleThreshold)
-            {
-                controllerMenu.transform.localEulerAngles = new Vector3(0, 0, target);
-                transforming = false;
-            }
-            else
-            {
-                controllerMenu.transform.Rotate(Vector3.forward, transformSpeed * (target > rz? -1: 1));
-            }
+			Debug.Log ("stop transform");
+            controllerMenu.transform.localEulerAngles = new Vector3(0, 0, target);
+            transforming = false;
         }
     }
 
@@ -71,7 +62,7 @@ public class PanelMenuListener : MonoBehaviour {
 
     private float GetClosetAngle(float x)
     {
-        return Mathf.Round(x / 90) * 90;
+		return (Mathf.Round(x / 90) * 90) % 360;
     }
 
     private void LeftTouchpadAxisChanged(object sender, VRTK.ControllerInteractionEventArgs e)
@@ -90,6 +81,7 @@ public class PanelMenuListener : MonoBehaviour {
     private void LeftTouchpadTouchEnd(object sender, VRTK.ControllerInteractionEventArgs e)
     {
         transforming = true;
+		target = -1;
     }
 
     public void OnTransformButtonClick()
@@ -201,6 +193,11 @@ public class PanelMenuListener : MonoBehaviour {
     {
         sceneManager.sceneStateMachine.SwitchState((uint)SceneManager.SceneStatus.ADD_RIGHT_ANGLED_TRI, null);
     }
+
+	public void OnPlaneCutButtonClick()
+	{
+		sceneManager.sceneStateMachine.SwitchState ((uint)SceneManager.SceneStatus.OBJECT_CUTTING, null);
+	}
 
     public void OnBlackboardButtonClick()
     {
